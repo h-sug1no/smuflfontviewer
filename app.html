@@ -1,0 +1,263 @@
+<html>
+<head>
+  <title>SMuFL font viewer</title>
+  <style>
+    /*
+    @font-face {
+      font-family: "SMuFLFont";
+    }
+    */
+
+    .smufl {
+      font-family: "SMuFLFont";
+    }
+
+    #contentContainer .smufl {
+      font-size: 3em;
+      margin-left: 2em;
+    }
+
+    .smuflGlyphname .smufl {
+      font-size: 1.2em;
+    }
+
+    #contentContainer span {
+      line-height: 2em;
+    }
+
+    .smufl_with_alternates {
+      fill: blue;
+    }
+
+    #smuflGlyphCanvas {
+      border: 1px solid black;
+      font-family: "SMuFLFont";
+    }
+
+    #smuflGlyphContainer {
+      float: left;
+      width: 55%;
+    }
+
+    #smuflGlyphContainer label {
+      display: inline-block;
+    }
+
+    #smuflGlyphInfo {
+      width: 40%;
+      float: left;
+      padding-left: 2em;
+    }
+
+    #smuflGlyphInfo > div{
+      white-space: pre-wrap;
+      margin-top: 1em;
+    }
+
+    .setContainer {
+      white-space: pre-wrap;
+      padding-top: 1em;
+    }
+
+    .glyphsContainer {
+      height: 5em;
+      overflow: auto;
+      padding-left: 1em;
+    }
+
+    #glyphContainer {
+      text-align: center;
+      /* width: 40%; */
+    }
+
+    #rangeInfo button {
+      margin: 0 0.3em;
+    }
+
+    #BShow {
+      margin: 1em;
+    }
+
+    span.smuflCodepoint,
+    span.smuflGlyphname {
+      text-decoration: underline;
+      line-height: 1.5em;
+    }
+
+    span.optionalGlyph {
+      background-color: eef9ee;
+    }
+
+    span.currentGlyph {
+      font-weight: bold;
+    }
+
+    span.smuflCodepoint:hover,
+    span.smuflGlyphname:hover {
+      background-color: orange;
+    }
+
+    #referencesContainer {
+      clear: both;
+    }
+
+    #smuflGlyphInfo div, .glyphContainer {
+      background-color: #eeeef0;
+      border-radius: 1em;
+      padding: 0.5em;
+    }
+
+    .glyphContainer {
+      margin: 0.5em auto;
+    }
+
+    #smuflRenderGlyphOptionsSSGlyphContainer {
+      opacity: 0.5;
+    }
+    #smuflRenderGlyphOptionsSSGlyphContainer.hasRepeatOffset {
+      opacity: 1;
+    }
+
+    #smuflRenderGlyphOptionsGlyphSizeContainer * {
+      vertical-align: middle;
+    }
+
+    #setsInfo .setInfosContainer{
+      overflow: scroll;
+      height: 11em;
+    }
+
+    #setsInfo .setInfoContainer,
+    #setsInfo .setInfo {
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+
+    canvas {
+      width: 100%;
+      height: 70%;
+    }
+
+    #rootContainer.fakeDialog.fakeDialogVisible > * {
+      display: none;
+    }
+
+    #rootContainer.fakeDialog div#infoDialog {
+      display: none;
+      position: absolute;
+      padding: 1em;
+      top: 0;
+      left: 0;
+      z-index: 100;
+      background-color: white;
+    }
+
+    #rootContainer.fakeDialog.fakeDialogVisible div#infoDialog {
+      display: inline-block;
+    }
+
+    #infoDialog input {
+      position: fixed;
+      top: 1em;
+      left: 1em;
+    }
+
+    #infoDialog #contentContainer {
+      margin-top: 3em;
+    }
+
+  </style>
+
+  <script src="http://code.jquery.com/jquery-2.1.0.js"></script>
+
+  <script src="./js/smuflutils.js"></script>
+
+  <script src="./viewer.js"></script>
+
+  <script>
+    const locationUrl = new URL(location);
+    const searchParams = locationUrl.searchParams;
+    const smuFLFontViewer = new SMuFLFontViewer();
+  </script>
+
+</head>
+
+<body onload="javascript:smuFLFontViewer.init(searchParams)">
+  <div id="rootContainer">
+
+    <div id="infoDialog">
+      <input type="button" value="close">
+      <div id="contentContainer"></div>
+    </div>
+
+    <div id="smuflGlyphContainer">
+    <p id="glyphContainer">
+      <input id="BPrev" type="button" value="-">
+      <input id="codepointText" type="text" style="text-align:center; font-size:150%" size="10"
+        avalue="E000" bvalue="accidental1CommaSharp" cvalue="E262" value="E0A3"
+        >
+      <input id="BNext" type="button" value="+"><br>
+      <input id="BShow" type="button" value="Show">
+      <input id="BShowPrev" type="button" value="Show Prev">
+      <select id="rangeSelect"></select>
+      <input id="BOptionalGlyphs" type="button" value="Show optionalGlyphs">
+      <input id="BFontMetadata" type="button" value="Show font metadata">
+      <input id="BFontMetadataSets" type="button" value="Show font metadata sets">
+      <input id="BFontMetadataGlyphsWithAnchors" type="button" value="Show font metadata glyphsWithAnchors">
+    </p>
+      <canvas id="smuflGlyphCanvas">
+      </canvas>
+      <div id="smuflRenderGlyphOptions">
+        <label title="glyph origin"><input id="smuflRenderGlyphOptionsOrigin" type="checkbox" checked />origin</label>
+        <label title="glyph bounding box"><input id="smuflRenderGlyphOptionsBbox" type="checkbox" checked />bbox<span class="val"></span></label>
+        <label id="smuflRenderGlyphOptionsSSGlyphContainer" title="subsequent glyph by using repeatOffset"><input id="smuflRenderGlyphOptionsSSGlyph"type="checkbox" checked />subsequent glyph</label>
+        <label id="smuflRenderGlyphOptionsGlyphSizeContainer">glyph size: <input id="smuflRenderGlyphOptionsGlyphSize" type="range" min="150" max="1000" value="200"><span><span></label>
+      </div>
+      <div id="smuflGlyphHints">
+        <label title="The exact position at which the bottom right-hand (south-east) corner of an angled upward-pointing stem connecting the right-hand side of a notehead to a vertical stem to its left should start, relative to the glyph origin, expressed as Cartesian coordinates in staff spaces."><input type="checkbox" />splitStemUpSE<span class="val"></span></label>
+        <label title="The exact position at which the bottom left-hand (south-west) corner of an angled upward-pointing stem connecting the left-hand side of a notehead to a vertical stem to its right should start, relative to the glyph origin, expressed as Cartesian coordinates in staff spaces."><input type="checkbox" />splitStemUpSW<span class="val"></span></label>
+        <label title="The exact position at which the top right-hand (north-east) corner of an angled downward-pointing stem connecting the right-hand side of a notehead to a vertical stem to its left should start, relative to the glyph origin, expressed as Cartesian coordinates in staff spaces."><input type="checkbox" />splitStemDownNE<span class="val"></span></label>
+        <label title="The exact position at which the top left-hand (north-west) corner of an angled downward-pointing stem connecting the left-hand side of a notehead to a vertical stem to its right should start, relative to the glyph origin, expressed as Cartesian coordinates in staff spaces."><input type="checkbox" />splitStemDownNW<span class="val"></span></label>
+        <label title="The exact position at which the bottom right-hand (south-east) corner of an upward-pointing stem rectangle should start, relative to the glyph origin, expressed as Cartesian coordinates in staff spaces."><input type="checkbox" />stemUpSE<span class="val"></span></label>
+        <label title="The exact position at which the top left-hand (north-west) corner of a downward-pointing stem rectangle should start, relative to the glyph origin, expressed as Cartesian coordinates in staff spaces."><input type="checkbox" />stemDownNW<span class="val"></span></label>
+        <label title="The amount by which an up-stem should be lengthened from its nominal unmodified length in order to ensure a good connection with a flag, in spaces.11"><input type="checkbox" />stemUpNW<span class="val"></span></label>
+        <label title="The amount by which a down-stem should be lengthened from its nominal unmodified length in order to ensure a good connection with a flag, in spaces."><input type="checkbox" />stemDownSW<span class="val"></span></label>
+        <label title="The width in staff spaces of a given glyph that should be used for e.g. positioning leger lines correctly.12"><input type="checkbox" />nominalWidth<span class="val"></span></label>
+        <label title="The position in staff spaces that should be used to position numerals relative to clefs with ligated numbers where those numbers hang from the bottom of the clef, corresponding horizontally to the center of the numeral's bounding box."><input type="checkbox" />numeralTop<span class="val"></span></label>
+        <label title="The position in staff spaces that should be used to position numerals relative to clefs with ligatured numbers where those numbers sit on the baseline or at the north-east corner of the G clef, corresponding horizontally to the center of the numeral's bounding box."><input type="checkbox" />numeralBottom<span class="val"></span></label>
+        <label title="The Cartesian coordinates in staff spaces of the bottom left corner of a nominal rectangle that intersects the top right corner of the glyph's bounding box. This rectangle, together with those in the other four corners of the glyph's bounding box, can be cut out to produce a more detailed bounding box (of abutting rectangles), useful for kerning or interlocking symbols such as accidentals."><input type="checkbox" />cutOutNE<span class="val"></span></label>
+        <label title="The Cartesian coordinates in staff spaces of the top left corner of a nominal rectangle that intersects the bottom right corner of the glyph's bounding box."><input type="checkbox" />cutOutSE<span class="val"></span></label>
+        <label title="The Cartesian coordinates in staff spaces of the top right corner of a nominal rectangle that intersects the bottom left corner of the glyph's bounding box."><input type="checkbox" />cutOutSW<span class="val"></span></label>
+        <label title="The Cartesian coordinates in staff spaces of the bottom right corner of a nominal rectangle that intersects the top left corner of the glyph's bounding box."><input type="checkbox" />cutOutNW<span class="val"></span></label>
+        <label title="The Cartesian coordinates in staff spaces of the position at which the glyph graceNoteSlashStemUp should be positioned relative to the stem-up flag of an unbeamed grace note; alternatively, the bottom left corner of a diagonal line drawn instead of using the above glyph."><input type="checkbox" />graceNoteSlashSW<span class="val"></span></label>
+        <label title="The Cartesian coordinates in staff spaces of the top right corner of a diagonal line drawn instead of using the glyph graceNoteSlashStemUp for a stem-up flag of an unbeamed grace note."><input type="checkbox" />graceNoteSlashNE<span class="val"></span></label>
+        <label title="The Cartesian coordinates in staff spaces of the position at which the glyph graceNoteSlashStemDown should be positioned relative to the stem-down flag of an unbeamed grace note; alternatively, the top left corner of a diagonal line drawn instead of using the above glyph."><input type="checkbox" />graceNoteSlashNW<span class="val"></span></label>
+        <label title="The Cartesian coordinates in staff spaces of the bottom right corner of a diagonal line drawn instead of using the glyph graceNoteSlashStemDown for a stem-down flag of an unbeamed grace note."><input type="checkbox" />graceNoteSlashSE<span class="val"></span></label>
+        <label title="The Cartesian coordinates in staff spaces of the horizontal position at which a glyph repeats, i.e. the position at which the same glyph or another of the same group should be positioned to ensure correct tessellation. This is used for e.g. multi-segment lines and the component glyphs that make up trills and mordents."><input type="checkbox" />repeatOffset<span class="val"></span></label>
+        <label title="The Cartesian coordinates in staff spaces of the left-hand edge of a notehead with a non-zero left-hand side bearing (e.g. a double whole, or breve, notehead with two vertical lines at each side), to assist in the correct horizontal alignment of these noteheads with other noteheads with zero-width left-side bearings."><input type="checkbox" />noteheadOrigin<span class="val"></span></label>
+        <label title="The Cartesian coordinates in staff spaces of the optical center of the glyph, to assist in the correct horizontal alignment of the glyph relative to a notehead or stem. Currently recommended for use with glyphs in the Dynamics range."><input type="checkbox" />opticalCenter<span class="val"></span></label>
+      </div>
+    </div>
+    <div id="smuflGlyphInfo">
+      <div id="smuflGlyphInfoText"></div>
+      <div id="alternatesInfo"></div>
+      <div id="rangeInfo"></div>
+      <div id="classesInfo"></div>
+      <div id="ligaturesInfo"></div>
+      <div id="setsInfo"></div>
+    </div>
+  </div>
+
+  <div id="referencesContainer">References:
+  <ul>
+    <li><a href="https://w3c.github.io/smufl/gitbook/">w3c.github.io/smufl/gitbook</a></li>
+    <li><a href="https://github.com/steinbergmedia/smufl">github.com/steinbergmedia/smufl</a></li>
+  </ul>
+  </div>
+
+  <div id="boo"></div>
+  <span class="smufl">&#xe500;</span>
+
+</body>
+
+</html>
