@@ -2,8 +2,8 @@
 	path = packages/w3c_smufl
 	url = https://github.com/w3c/smufl.git
 [submodule "packages/steinbergmedia_bravura"]
-	path = packages/steinbergmedia_bravura
+	path = docs/packages/steinbergmedia_bravura
 	url = https://github.com/steinbergmedia/bravura.git
 [submodule "packages/w3c_smuf"]
-	path = packages/w3c_smuf
+	path = docs/packages/w3c_smuf
 	url = https://github.com/w3c/smufl.git
