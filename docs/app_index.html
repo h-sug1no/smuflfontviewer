@@ -103,9 +103,14 @@
         }
 
         if (urlObject.searchParams.get('dev') !== null) {
+          // mkdir ./packages
+          // and clone followings in packages/.
+          //   https://github.com/w3c/smufl.git
+          //   https://github.com/steinbergmedia/bravura
+          //
           addDemolistItem('local Bravura(debug)', _createDemolistOptions(
-            './packages/steinbergmedia_bravura/redist',
-            './packages/w3c_smufl/metadata'
+            './packages/bravura/redist',
+            './packages/smufl/metadata'
           ));
         }
 
