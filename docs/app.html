@@ -192,14 +192,14 @@
 
     <div id="smuflGlyphContainer">
     <p id="glyphContainer">
-      <input id="BPrev" type="button" value="-">
+      <input id="BPrev" type="button" value="-" title="show prev codepoint">
       <input id="codepointText" type="text" style="text-align:center; font-size:150%" size="10"
         avalue="E000" bvalue="accidental1CommaSharp" cvalue="E262" value="E0A3"
         >
-      <input id="BNext" type="button" value="+"><br>
+      <input id="BNext" type="button" value="+" title="show next codepoint"><br>
       <input id="BShow" type="button" value="Show">
-      <input id="BShowPrev" type="button" value="Show Prev">
-      <select id="rangeSelect"></select>
+      <input id="BShowPrev" type="button" title="show prev glyph" value="Show Prev">
+      <select id="rangeSelect" title="ranges"></select>
       <input id="BOptionalGlyphs" type="button" value="Show optionalGlyphs">
       <input id="BFontMetadata" type="button" value="Show font metadata">
       <input id="BFontMetadataSets" type="button" value="Show font metadata sets">
@@ -239,12 +239,12 @@
       </div>
     </div>
     <div id="smuflGlyphInfo">
-      <div id="smuflGlyphInfoText"></div>
-      <div id="alternatesInfo"></div>
-      <div id="rangeInfo"></div>
-      <div id="classesInfo"></div>
-      <div id="ligaturesInfo"></div>
-      <div id="setsInfo"></div>
+      <div id="smuflGlyphInfoText" title="glyph info"></div>
+      <div id="alternatesInfo" title="alternates"></div>
+      <div id="rangeInfo" title="range"></div>
+      <div id="classesInfo" title="classes"></div>
+      <div id="ligaturesInfo" title="ligatures"></div>
+      <div id="setsInfo" title="sets"></div>
     </div>
   </div>
 
