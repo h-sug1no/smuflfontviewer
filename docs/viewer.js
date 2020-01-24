@@ -732,12 +732,14 @@ class SMuFLFontViewer {
       let baseGlyphname = glyphname;
       if (option1.isOptionalGlyph) {
         for (var gk in alternates) {
-          if (glyphname.startsWith(gk)) {
+          if (glyphname === gk) {
             baseGlyphname = gk;
             break;
           }
         }
       }
+
+      // TODO: search alternates[glyphname].alternates[].name and add all entries like sets.
 
       alternates = alternates ? alternates[baseGlyphname] : undefined;
       if (alternates && alternates.alternates) {
