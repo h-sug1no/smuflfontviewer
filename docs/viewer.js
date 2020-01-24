@@ -31,6 +31,10 @@ class SMuFLFontViewer {
         fontFace[key] = options.get(key);
       });
 
+      if (!window.FontFace) {
+        alert('no window.FontFace. This browser is not supported.');
+      }
+
       const smuflFontFace = new FontFace('SMuFLFont', `url(${fontFace.fontUrl})`);
 
       smuflFontFace.load().then(function(loaded_face) {
@@ -822,9 +826,8 @@ class SMuFLFontViewer {
       });
 
       window.setTimeout(function() {
-        window.scrollTo(0, 0);
+        document.firstElementChild.scrollIntoView(true);
       });
-
     });
 
     this._handle_onSMuFLMetadataReady = function() {
