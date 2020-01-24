@@ -822,9 +822,8 @@ class SMuFLFontViewer {
       });
 
       window.setTimeout(function() {
-        window.scrollTo(0, 0);
+        document.firstElementChild.scrollIntoView(true);
       });
-
     });
 
     this._handle_onSMuFLMetadataReady = function() {
