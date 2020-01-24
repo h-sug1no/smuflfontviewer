@@ -59,6 +59,15 @@
       padding-top: 1em;
     }
 
+    .ligatureContainer {
+      white-space: pre-wrap;
+    }
+
+    .ligatureContainer .glyphsContainer {
+      overflow: visible;
+      height: auto;
+    }
+
     .glyphsContainer {
       height: 5em;
       overflow: auto;
@@ -202,6 +211,7 @@
       <select id="rangeSelect" title="ranges"></select>
       <input id="BOptionalGlyphs" type="button" value="Show optionalGlyphs">
       <input id="BFontMetadata" type="button" value="Show font metadata">
+      <input id="BFontMetadataLigatures" type="button" value="Show font metadata ligatures">
       <input id="BFontMetadataSets" type="button" value="Show font metadata sets">
       <input id="BFontMetadataGlyphsWithAnchors" type="button" value="Show font metadata glyphsWithAnchors">
     </p>

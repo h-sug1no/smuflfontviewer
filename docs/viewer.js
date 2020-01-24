@@ -299,6 +299,42 @@ class SMuFLFontViewer {
       $infoDialog.get(0).showModal();
     });
 
+    function addLigatureInfo($ligaturesInfo, label, ligature, glyphname) {
+      if (ligature) {
+        if (label) {
+          $ligaturesInfo.append(label);
+        }
+        appendGlyphname($ligaturesInfo, glyphname);
+        $ligaturesInfo.append('\ndescription: ');
+        $ligaturesInfo.append((ligature.description || '') + '\n');
+        if (ligature.componentGlyphs) {
+          $ligaturesInfo.append('componentGlyphs:\n');
+          const $glyphsContainer = $('<div class="glyphsContainer"></div>');
+          $ligaturesInfo.append($glyphsContainer);
+          ligature.componentGlyphs.forEach(function (tGlyphname) {
+            appendGlyphname($glyphsContainer, tGlyphname, glyphname);
+            $glyphsContainer.append(', ');
+          });
+        }
+      }
+    }
+
+    $('#BFontMetadataLigatures').on('click', function () {
+      $contentContainer.empty();
+
+      try {
+        const ligatures = sMuFLMetadata.getFontInfo().fontMetadata.ligatures;
+        Object.keys(ligatures).forEach(function(glyphname, idx) {
+          const $ligaturesInfo = $(`<div class="ligatureContainer glyphContainer"></div>`);
+          $contentContainer.append($ligaturesInfo);
+          addLigatureInfo($ligaturesInfo, undefined, ligatures[glyphname], glyphname);
+        });
+        $infoDialog.get(0).showModal();
+      } catch(e) {
+        console.log(e);
+      }
+    });
+
 
     $('#BFontMetadataSets').on('click', function () {
       $contentContainer.empty();
@@ -749,20 +785,7 @@ class SMuFLFontViewer {
       const ligatures = sMuFLMetadata.fontMetadata().ligatures;
       const ligature = ligatures ? ligatures[glyphname] : undefined;
 
-      if (ligature) {
-        $ligaturesInfo.append(`ligatures[${glyphname}]:\n`);
-        $ligaturesInfo.append('description: ');
-        $ligaturesInfo.append((ligature.description || '') + '\n');
-        if (ligature.componentGlyphs) {
-          $ligaturesInfo.append('componentGlyphs:\n');
-          const $glyphsContainer = $('<div class="glyphsContainer"></div>');
-          $ligaturesInfo.append($glyphsContainer);
-          ligature.componentGlyphs.forEach(function (tGlyphname) {
-            appendGlyphname($glyphsContainer, tGlyphname, glyphname);
-            $glyphsContainer.append(', ');
-          });
-        }
-      }
+      addLigatureInfo($ligaturesInfo, `ligatures: `, ligature, glyphname);
 
       $setsInfo.empty();
       const fontInfo = sMuFLMetadata.getFontInfo();
