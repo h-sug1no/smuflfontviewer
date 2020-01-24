@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 
 <head>
@@ -19,26 +20,27 @@
       </select>
         <hr>
         <div id="options">
-        <div class="item">
-          <label>fontUrl</label> <input>
-        </div>
-        <div class="item">
-          <label>fontMetadataUrl</label> <input>
-        </div>
-        <hr>
-        SMuFL metadata:
-        <div class="item">
-          <label>glyphnamesUrl</label> <input>
-        </div>
-        <div class="item">
-          <label>classesUrl</label> <input>
-        </div>
-        <div class="item">
-          <label>rangesUrl</label> <input>
-        </div>
-        <hr>
-        <div class="item">
-          <label title="codepoint(ex..:E0A3) or glyphname(ex...:noteheadHalf)">glyph</label> <input>
+          <div class="item">
+            <label>fontUrl</label> <input>
+          </div>
+          <div class="item">
+            <label>fontMetadataUrl</label> <input>
+          </div>
+          <hr>
+          SMuFL metadata:
+          <div class="item">
+            <label>glyphnamesUrl</label> <input>
+          </div>
+          <div class="item">
+            <label>classesUrl</label> <input>
+          </div>
+          <div class="item">
+            <label>rangesUrl</label> <input>
+          </div>
+          <hr>
+          <div class="item">
+            <label title="codepoint(ex..:E0A3) or glyphname(ex...:noteheadHalf)">glyph</label> <input>
+          </div>
         </div>
         <hr>
         <button id="openBtn">open</button>
@@ -67,7 +69,7 @@
 
         containerElm.addEventListener('click', function(ev) {
           if (ev.target === openBtnElm) {
-            window.open(createUrl());
+            window.open(createUrl(), '_smuflfontviewer_app_' );
           }
         });
 
