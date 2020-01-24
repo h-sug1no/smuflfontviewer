@@ -31,6 +31,10 @@ class SMuFLFontViewer {
         fontFace[key] = options.get(key);
       });
 
+      if (!window.FontFace) {
+        alert('no window.FontFace. This browser is not supported.');
+      }
+
       const smuflFontFace = new FontFace('SMuFLFont', `url(${fontFace.fontUrl})`);
 
       smuflFontFace.load().then(function(loaded_face) {

@@ -53,6 +53,12 @@
         const demolistElm = document.querySelector('#demolist');
         const openBtnElm = document.querySelector('#openBtn');
 
+        if (!window.FontFace) {
+          alert('no window.FontFace. This browser is not supported.');
+          openBtnElm.disabled = true;
+        }
+
+
         const _itemInputMap = {};
         containerElm.querySelectorAll('div.item').forEach(function(divItemElm) {
           const itemDataElm = divItemElm.querySelector('label');
