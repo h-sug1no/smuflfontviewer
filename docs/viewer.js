@@ -170,15 +170,27 @@ class SMuFLFontViewer {
 
     function appendGlyphname($c, glyphname, currentGlyphName, uCodepoint) {
       const option = { searchOptional: true };
-      uCodepoint = uCodepoint || sMuFLMetadata.glyphname2uCodepoint(glyphname, option);
+      let tUCodepoint = sMuFLMetadata.glyphname2uCodepoint(glyphname, option);
+      if ((uCodepoint || tUCodepoint) !== tUCodepoint) {
+        //console.error(`fixme: ${(uCodepoint || tUCodepoint)} !== ${tUCodepoint}`);
+        if (uCodepoint) {
+          tUCodepoint = uCodepoint;
+        }
+      }
+      uCodepoint = tUCodepoint;
       let charStr;
       if (uCodepoint) {
         charStr = sMuFLMetadata.uCodepoint2CharString(uCodepoint);
       }
 
-      const $t = $(`<span class="smuflGlyphname${(option.isOptionalGlyph ? ' optionalGlyph' : '')}${
-        (currentGlyphName === glyphname) ? ' currentGlyph' : ''
-      }">${glyphname || '?'}:<span class="smufl">${charStr}</span></span>`);
+      const $t = $(`<span class="smuflGlyphname">${glyphname || '?'}:<span class="smufl">${charStr}</span></span>`);
+      if (option.isOptionalGlyph) {
+        $t.addClass('optionalGlyph');
+      }
+      if (currentGlyphName === glyphname) {
+         $t.addClass('currentGlyph');
+      }
+
       $t.prop('uCodepoint', uCodepoint);
       $c.append($t);
     }
