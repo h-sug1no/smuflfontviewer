@@ -1,3 +1,7 @@
+/**
+ * Copyright (c) 2019 h-sug1no
+ */
+
 /* eslint-disable quotes */
 /* eslint-disable no-console */
 // eslint-disable-next-line no-unused-vars
