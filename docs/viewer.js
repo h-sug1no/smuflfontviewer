@@ -110,9 +110,11 @@ class SMuFLFontViewer {
     const $contentContainer = $('#contentContainer');
 
     if (!infoDialogElm.showModal) {
+      const $dialogTitle = $('#infoDialog #dialogTitle');
       $rootContainer.addClass('fakeDialog');
-      infoDialogElm.showModal = function() {
+      infoDialogElm.showModal = function(title) {
         $rootContainer.addClass('fakeDialogVisible');
+        $dialogTitle.text(title);
       };
       infoDialogElm.close = function() {
         $rootContainer.removeClass('fakeDialogVisible');
@@ -265,7 +267,7 @@ class SMuFLFontViewer {
         for (const key in glyphnames) {
           addGlyphnameInfo($contentContainer, glyphnames[key], key);
         }
-        $infoDialog.get(0).showModal();
+        $infoDialog.get(0).showModal('glyphames');
       } catch(e) {
         console.log(e);
       }
@@ -279,7 +281,7 @@ class SMuFLFontViewer {
       for (const key in optionalGlyphs) {
         addGlyphnameInfo($contentContainer, optionalGlyphs[key], key);
       }
-      $infoDialog.get(0).showModal();
+      $infoDialog.get(0).showModal('font metadata optionalGlyphs');
     });
 
     $('#BFontMetadata').on('click', function () {
@@ -329,7 +331,7 @@ class SMuFLFontViewer {
           $contentContainer.append($('<br>'));
         }
       }
-      $infoDialog.get(0).showModal();
+      $infoDialog.get(0).showModal('font metadata');
     });
 
     function addLigatureInfo($ligaturesInfo, label, ligature, glyphname) {
@@ -362,7 +364,7 @@ class SMuFLFontViewer {
           $contentContainer.append($ligaturesInfo);
           addLigatureInfo($ligaturesInfo, undefined, ligatures[glyphname], glyphname);
         });
-        $infoDialog.get(0).showModal();
+        $infoDialog.get(0).showModal('font metadata ligatures');
       } catch(e) {
         console.log(e);
       }
@@ -414,7 +416,7 @@ class SMuFLFontViewer {
             $setContainer.append($glyphContainer);
           });
         });
-        $infoDialog.get(0).showModal();
+        $infoDialog.get(0).showModal('font metadata sets');
       } catch(e) {
         console.log(e);
       }
@@ -445,7 +447,7 @@ class SMuFLFontViewer {
           $contentContainer.append($gwaContainer);
           addAlternatesInfo($gwaContainer, alternates, akey);
         }
-        $infoDialog.get(0).showModal();
+        $infoDialog.get(0).showModal('font metadata glyphsWithAlternates');
       } catch(e) {
         console.log(e);
       }
@@ -464,13 +466,13 @@ class SMuFLFontViewer {
           $glyphContainer.append('&nbsp;' + Object.keys(glyph).join(', '));
           $gwaContainer.append($glyphContainer);
         });
-        $infoDialog.get(0).showModal();
+        $infoDialog.get(0).showModal('font metadata glyphsWithAlternates');
       } catch(e) {
         console.log(e);
       }
     });
 
-    $infoDialog.children('input').on('click', function() {
+    $infoDialog.find('input').on('click', function() {
       $infoDialog.get(0).close();
       $contentContainer.empty();
     });
