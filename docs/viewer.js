@@ -403,6 +403,37 @@ class SMuFLFontViewer {
       }
     });
 
+    function addAlternatesInfo($alternatesInfo, alternates, baseGlyphname, glyphname) {
+      if (alternates && alternates.alternates) {
+        $alternatesInfo.append('alternates: ');
+        appendGlyphname($alternatesInfo, baseGlyphname, glyphname);
+        $alternatesInfo.append('\n');
+        alternates.alternates.forEach(function (v) {
+          $alternatesInfo.append('codepoint: ');
+          appendCodepoint($alternatesInfo, v.codepoint);
+          $alternatesInfo.append(`, name: `);
+          appendGlyphname($alternatesInfo, v.name, glyphname);
+          $alternatesInfo.append(`\n`);
+        });
+      }
+    }
+
+    $('#BFontMetadataGlyphsWithAlternates').on('click', function () {
+      $contentContainer.empty();
+      try {
+        const gwAlternates = sMuFLMetadata.fontMetadata().glyphsWithAlternates;
+        for (const akey in gwAlternates) {
+          const alternates = gwAlternates[akey];
+          const $gwaContainer = $(`<div class="gwalternatesContainer glyphContainer"></div>`);
+          $contentContainer.append($gwaContainer);
+          addAlternatesInfo($gwaContainer, alternates, akey);
+        }
+        $infoDialog.get(0).showModal();
+      } catch(e) {
+        console.log(e);
+      }
+    });
+
     $('#BFontMetadataGlyphsWithAnchors').on('click', function () {
       $contentContainer.empty();
       try {
@@ -758,18 +789,7 @@ class SMuFLFontViewer {
       // TODO: search alternates[glyphname].alternates[].name and add all entries like sets.
 
       alternates = alternates ? alternates[baseGlyphname] : undefined;
-      if (alternates && alternates.alternates) {
-        $alternatesInfo.append('alternates: ');
-        appendGlyphname($alternatesInfo, baseGlyphname, glyphname);
-        $alternatesInfo.append('\n');
-        alternates.alternates.forEach(function (v) {
-          $alternatesInfo.append('codepoint: ');
-          appendCodepoint($alternatesInfo, v.codepoint);
-          $alternatesInfo.append(`, name: `);
-          appendGlyphname($alternatesInfo, v.name, glyphname);
-          $alternatesInfo.append(`\n`);
-        });
-      }
+      addAlternatesInfo($alternatesInfo, alternates, baseGlyphname, glyphname);
 
       const classes = sMuFLMetadata.data.classes;
       const tClasses = [];
