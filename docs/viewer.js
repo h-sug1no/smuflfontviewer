@@ -110,9 +110,11 @@ class SMuFLFontViewer {
     const $contentContainer = $('#contentContainer');
 
     if (!infoDialogElm.showModal) {
+      const $dialogTitle = $('#infoDialog #dialogTitle');
       $rootContainer.addClass('fakeDialog');
-      infoDialogElm.showModal = function() {
+      infoDialogElm.showModal = function(title) {
         $rootContainer.addClass('fakeDialogVisible');
+        $dialogTitle.text(title);
       };
       infoDialogElm.close = function() {
         $rootContainer.removeClass('fakeDialogVisible');
@@ -192,7 +194,7 @@ class SMuFLFontViewer {
         $t.addClass('optionalGlyph');
       }
       if (currentGlyphName === glyphname) {
-         $t.addClass('currentGlyph');
+        $t.addClass('currentGlyph');
       }
 
       $t.prop('uCodepoint', uCodepoint);
@@ -251,6 +253,25 @@ class SMuFLFontViewer {
       setCodepointByNumber(getCodepointNumber() + 1);
     });
 
+    function addGlyphnameInfo($contentContainer, ginfo, glyphname) {
+      $contentContainer.append(`${ginfo.codepoint}: `);
+      appendGlyphname($contentContainer, glyphname); // here, no current glyph.
+      $contentContainer.append(`, ${ginfo.description||''}: `);
+      $contentContainer.append($('<br>'));
+    }
+
+    $('#BGlyphnames').on('click', function () {
+      $contentContainer.empty();
+      const glyphnames = sMuFLMetadata.data.glyphnames;
+      try {
+        for (const key in glyphnames) {
+          addGlyphnameInfo($contentContainer, glyphnames[key], key);
+        }
+        $infoDialog.get(0).showModal('glyphames');
+      } catch(e) {
+        console.log(e);
+      }
+    });
     $('#BOptionalGlyphs').on('click', function () {
       $contentContainer.empty();
       const optionalGlyphs = sMuFLMetadata.fontMetadata().optionalGlyphs;
@@ -258,11 +279,9 @@ class SMuFLFontViewer {
         return;
       }
       for (const key in optionalGlyphs) {
-        $contentContainer.append(`${optionalGlyphs[key].codepoint}: `);
-        appendGlyphname($contentContainer, key); // here, no current glyph.
-        $contentContainer.append($('<br>'));
+        addGlyphnameInfo($contentContainer, optionalGlyphs[key], key);
       }
-      $infoDialog.get(0).showModal();
+      $infoDialog.get(0).showModal('font metadata optionalGlyphs');
     });
 
     $('#BFontMetadata').on('click', function () {
@@ -312,7 +331,7 @@ class SMuFLFontViewer {
           $contentContainer.append($('<br>'));
         }
       }
-      $infoDialog.get(0).showModal();
+      $infoDialog.get(0).showModal('font metadata');
     });
 
     function addLigatureInfo($ligaturesInfo, label, ligature, glyphname) {
@@ -340,12 +359,12 @@ class SMuFLFontViewer {
 
       try {
         const ligatures = sMuFLMetadata.getFontInfo().fontMetadata.ligatures;
-        Object.keys(ligatures).forEach(function(glyphname, idx) {
+        Object.keys(ligatures).forEach(function(glyphname) {
           const $ligaturesInfo = $(`<div class="ligatureContainer glyphContainer"></div>`);
           $contentContainer.append($ligaturesInfo);
           addLigatureInfo($ligaturesInfo, undefined, ligatures[glyphname], glyphname);
         });
-        $infoDialog.get(0).showModal();
+        $infoDialog.get(0).showModal('font metadata ligatures');
       } catch(e) {
         console.log(e);
       }
@@ -397,7 +416,38 @@ class SMuFLFontViewer {
             $setContainer.append($glyphContainer);
           });
         });
-        $infoDialog.get(0).showModal();
+        $infoDialog.get(0).showModal('font metadata sets');
+      } catch(e) {
+        console.log(e);
+      }
+    });
+
+    function addAlternatesInfo($alternatesInfo, alternates, baseGlyphname, glyphname) {
+      if (alternates && alternates.alternates) {
+        $alternatesInfo.append('alternates: ');
+        appendGlyphname($alternatesInfo, baseGlyphname, glyphname);
+        $alternatesInfo.append('\n');
+        alternates.alternates.forEach(function (v) {
+          $alternatesInfo.append('codepoint: ');
+          appendCodepoint($alternatesInfo, v.codepoint);
+          $alternatesInfo.append(`, name: `);
+          appendGlyphname($alternatesInfo, v.name, glyphname);
+          $alternatesInfo.append(`\n`);
+        });
+      }
+    }
+
+    $('#BFontMetadataGlyphsWithAlternates').on('click', function () {
+      $contentContainer.empty();
+      try {
+        const gwAlternates = sMuFLMetadata.fontMetadata().glyphsWithAlternates;
+        for (const akey in gwAlternates) {
+          const alternates = gwAlternates[akey];
+          const $gwaContainer = $(`<div class="gwalternatesContainer glyphContainer"></div>`);
+          $contentContainer.append($gwaContainer);
+          addAlternatesInfo($gwaContainer, alternates, akey);
+        }
+        $infoDialog.get(0).showModal('font metadata glyphsWithAlternates');
       } catch(e) {
         console.log(e);
       }
@@ -416,13 +466,13 @@ class SMuFLFontViewer {
           $glyphContainer.append('&nbsp;' + Object.keys(glyph).join(', '));
           $gwaContainer.append($glyphContainer);
         });
-        $infoDialog.get(0).showModal();
+        $infoDialog.get(0).showModal('font metadata glyphsWithAlternates');
       } catch(e) {
         console.log(e);
       }
     });
 
-    $infoDialog.children('input').on('click', function() {
+    $infoDialog.find('input').on('click', function() {
       $infoDialog.get(0).close();
       $contentContainer.empty();
     });
@@ -683,8 +733,7 @@ class SMuFLFontViewer {
       $smuflGlyphInfoText.append('\n');
       const glyphnameData = sMuFLMetadata.data.glyphnames[glyphname];
       if (!glyphnameData) {
-        $smuflGlyphInfoText.append(
-            'codepoint: ');
+        $smuflGlyphInfoText.append('codepoint: ');
         appendCodepointOrText($smuflGlyphInfoText, uCodepoint);
       }
       else {
@@ -758,18 +807,7 @@ class SMuFLFontViewer {
       // TODO: search alternates[glyphname].alternates[].name and add all entries like sets.
 
       alternates = alternates ? alternates[baseGlyphname] : undefined;
-      if (alternates && alternates.alternates) {
-        $alternatesInfo.append('alternates: ');
-        appendGlyphname($alternatesInfo, baseGlyphname, glyphname);
-        $alternatesInfo.append('\n');
-        alternates.alternates.forEach(function (v) {
-          $alternatesInfo.append('codepoint: ');
-          appendCodepoint($alternatesInfo, v.codepoint);
-          $alternatesInfo.append(`, name: `);
-          appendGlyphname($alternatesInfo, v.name, glyphname);
-          $alternatesInfo.append(`\n`);
-        });
-      }
+      addAlternatesInfo($alternatesInfo, alternates, baseGlyphname, glyphname);
 
       const classes = sMuFLMetadata.data.classes;
       const tClasses = [];
