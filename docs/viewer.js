@@ -192,7 +192,7 @@ class SMuFLFontViewer {
         $t.addClass('optionalGlyph');
       }
       if (currentGlyphName === glyphname) {
-         $t.addClass('currentGlyph');
+        $t.addClass('currentGlyph');
       }
 
       $t.prop('uCodepoint', uCodepoint);
@@ -340,7 +340,7 @@ class SMuFLFontViewer {
 
       try {
         const ligatures = sMuFLMetadata.getFontInfo().fontMetadata.ligatures;
-        Object.keys(ligatures).forEach(function(glyphname, idx) {
+        Object.keys(ligatures).forEach(function(glyphname) {
           const $ligaturesInfo = $(`<div class="ligatureContainer glyphContainer"></div>`);
           $contentContainer.append($ligaturesInfo);
           addLigatureInfo($ligaturesInfo, undefined, ligatures[glyphname], glyphname);
@@ -714,8 +714,7 @@ class SMuFLFontViewer {
       $smuflGlyphInfoText.append('\n');
       const glyphnameData = sMuFLMetadata.data.glyphnames[glyphname];
       if (!glyphnameData) {
-        $smuflGlyphInfoText.append(
-            'codepoint: ');
+        $smuflGlyphInfoText.append('codepoint: ');
         appendCodepointOrText($smuflGlyphInfoText, uCodepoint);
       }
       else {
