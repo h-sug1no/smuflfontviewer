@@ -251,6 +251,25 @@ class SMuFLFontViewer {
       setCodepointByNumber(getCodepointNumber() + 1);
     });
 
+    function addGlyphnameInfo($contentContainer, ginfo, glyphname) {
+      $contentContainer.append(`${ginfo.codepoint}: `);
+      appendGlyphname($contentContainer, glyphname); // here, no current glyph.
+      $contentContainer.append(`, ${ginfo.description||''}: `);
+      $contentContainer.append($('<br>'));
+    }
+
+    $('#BGlyphnames').on('click', function () {
+      $contentContainer.empty();
+      const glyphnames = sMuFLMetadata.data.glyphnames;
+      try {
+        for (const key in glyphnames) {
+          addGlyphnameInfo($contentContainer, glyphnames[key], key);
+        }
+        $infoDialog.get(0).showModal();
+      } catch(e) {
+        console.log(e);
+      }
+    });
     $('#BOptionalGlyphs').on('click', function () {
       $contentContainer.empty();
       const optionalGlyphs = sMuFLMetadata.fontMetadata().optionalGlyphs;
@@ -258,9 +277,7 @@ class SMuFLFontViewer {
         return;
       }
       for (const key in optionalGlyphs) {
-        $contentContainer.append(`${optionalGlyphs[key].codepoint}: `);
-        appendGlyphname($contentContainer, key); // here, no current glyph.
-        $contentContainer.append($('<br>'));
+        addGlyphnameInfo($contentContainer, optionalGlyphs[key], key);
       }
       $infoDialog.get(0).showModal();
     });
