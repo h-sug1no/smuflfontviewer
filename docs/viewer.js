@@ -79,7 +79,7 @@ class SMuFLFontViewer {
       inputElm.checked = true;
 
       if (hintLabel.textContent.startsWith('stem') || hintLabel.textContent.startsWith('repeatOffset')) {
-        inputElm._3state = 1;
+        inputElm._3state = 2;
         inputElm._on3StateChange = function() {
           inputElm._3state++;
           if (inputElm._3state > 2) {inputElm._3state = 0;}
@@ -89,13 +89,14 @@ class SMuFLFontViewer {
       }
     }
 
+    const $smuflGlyphHints_repatOffset3StateBox =
+      $smuflGlyphHints.find('#' + toHintlabelIdStr('repeatOffset') + ' input');
+
     var c = document.getElementById('smuflGlyphCanvas');
     var ctx = c.getContext('2d');
 
     const $smuflRenderGlyphOptionsOrigin = $('#smuflRenderGlyphOptionsOrigin');
     const $smuflRenderGlyphOptionsBbox = $('#smuflRenderGlyphOptionsBbox');
-    const $smuflRenderGlyphOptionsSSGlyph = $('#smuflRenderGlyphOptionsSSGlyph');
-    const $smuflRenderGlyphOptionsSSGlyphContainer = $('#smuflRenderGlyphOptionsSSGlyphContainer');
 
     const $smuflRenderGlyphOptionsGlyphSize = $('#smuflRenderGlyphOptionsGlyphSize');
     $smuflRenderGlyphOptionsGlyphSize.on('input', function() {
@@ -676,7 +677,7 @@ class SMuFLFontViewer {
       const str = String.fromCodePoint(codepoint);
       ctx.fillText(str, x, y);
 
-      if ($smuflRenderGlyphOptionsSSGlyph.prop('checked')) {
+      if ($smuflGlyphHints_repatOffset3StateBox.prop('checked')) {
         ctx.save();
         if (repeatOffset) {
           ctx.fillStyle = '#44444477';
@@ -942,8 +943,6 @@ class SMuFLFontViewer {
           $smuflGlyphHints.children(`#${toHintlabelIdStr(key)}`).show();
         }
       }
-      $smuflRenderGlyphOptionsSSGlyphContainer.toggleClass('hasRepeatOffset',
-        (anchor && anchor.repeatOffset) ? true : false);
 
       currentGlyphData = {
         codepoint: codepoint,
