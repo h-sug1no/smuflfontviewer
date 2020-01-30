@@ -75,16 +75,35 @@ class SMuFLFontViewer {
     for (let li = 0; li < hintLabels.length; li++) {
       const hintLabel = hintLabels[li];
       hintLabel.id = toHintlabelIdStr(hintLabel.textContent);
-      hintLabel.firstElementChild.checked = true;
+      const inputElm = hintLabel.firstElementChild;
+      inputElm.checked = true;
+
+      const isStem = hintLabel.textContent.startsWith('stem');
+      if (isStem || hintLabel.textContent.startsWith('repeatOffset')) {
+        inputElm._on3StateChange = function() {
+          inputElm._3state++;
+          if (inputElm._3state > 2) {inputElm._3state = 0;}
+          inputElm.checked = inputElm._3state & 2;
+          inputElm.indeterminate = inputElm._3state & 1;
+        };
+        if (isStem) {
+          inputElm._3state = 0;
+        }
+        else {
+          inputElm._3state = 1;
+        }
+        inputElm._on3StateChange();
+      }
     }
+
+    const $smuflGlyphHints_repatOffset3StateBox =
+      $smuflGlyphHints.find('#' + toHintlabelIdStr('repeatOffset') + ' input');
 
     var c = document.getElementById('smuflGlyphCanvas');
     var ctx = c.getContext('2d');
 
     const $smuflRenderGlyphOptionsOrigin = $('#smuflRenderGlyphOptionsOrigin');
     const $smuflRenderGlyphOptionsBbox = $('#smuflRenderGlyphOptionsBbox');
-    const $smuflRenderGlyphOptionsSSGlyph = $('#smuflRenderGlyphOptionsSSGlyph');
-    const $smuflRenderGlyphOptionsSSGlyphContainer = $('#smuflRenderGlyphOptionsSSGlyphContainer');
 
     const $smuflRenderGlyphOptionsGlyphSize = $('#smuflRenderGlyphOptionsGlyphSize');
     $smuflRenderGlyphOptionsGlyphSize.on('input', function() {
@@ -213,7 +232,12 @@ class SMuFLFontViewer {
       $codepointText.change();
     }
 
-    $('#smuflGlyphHints').on('change', function (/* ev */) {
+    $('#smuflGlyphHints').on('change', function (ev) {
+      const target = ev.target;
+      if (target._on3StateChange) {
+        target._on3StateChange();
+      }
+
       //console.log(this);
       renderGlyph(currentGlyphData);
     });
@@ -233,11 +257,13 @@ class SMuFLFontViewer {
           setCodepointByString(targetElm.textContent.slice(2));
         });
       }
-      else if (targetElm.classList.contains('smuflGlyphname')) {
-        let uCodepoint = targetElm.uCodepoint;
-        if (uCodepoint) {
-          _closeDialog();
-          setCodepointByString(uCodepoint.slice(2));
+      if (!targetElm.closest('#smuflGlyphInfoText')) {
+        if (targetElm.classList.contains('smuflGlyphname')) {
+          let uCodepoint = targetElm.uCodepoint;
+          if (uCodepoint) {
+            _closeDialog();
+            setCodepointByString(uCodepoint.slice(2));
+          }
         }
       }
     });
@@ -485,7 +511,7 @@ class SMuFLFontViewer {
       return val * sbl;
     }
 
-    function renderAnchor(akey, anchor, types, scaledBBox) {
+    function renderAnchor(akey, anchor, types, scaledBBox, engravingDefaults, isIndeterminate) {
       if (!anchor) {
         console.warn('fixme !anchor');
         return;
@@ -502,11 +528,14 @@ class SMuFLFontViewer {
       };
 
       // eslint-disable-next-line no-unused-vars
-      types.forEach(function(type, idx) {
+      let halign = 'L';
+      let vdir = 'TTB';
+      types.forEach(function(type) {
         switch (type) {
         case 'S':
           y = vals.y;
           h = scaledBBox.S - y;
+          vdir = 'BTT';
           break;
         case 'N':
           h = vals.y - scaledBBox.N;
@@ -515,6 +544,7 @@ class SMuFLFontViewer {
         case 'E':
           w = scaledBBox.E - vals.x;
           x = vals.x;
+          halign = 'R';
           break;
         case 'W':
           w = vals.x - scaledBBox.W;
@@ -541,12 +571,19 @@ class SMuFLFontViewer {
       else if (akey.startsWith('splitStem') || akey.startsWith('stem') ||
         akey.startsWith('numeral') || akey.startsWith('graceNoteSlash') || akey === 'repeatOffset' ||
         akey === 'noteheadOrigin' || akey === 'opticalCenter') {
+        x = vals.x;
+        y = vals.y;
+
+        if (!isIndeterminate && (akey.startsWith('splitStem') || akey.startsWith('stem'))) {
+          _renderStem(x, y,
+            Math.max(scaledBBox.h, anchorCsToScreenCsX(3.5, sbl)),
+            halign, vdir, sbl, engravingDefaults, akey.startsWith('splitStem'));
+        }
+
         ctx.fillStyle = '#ff4444cc';
         if (akey.startsWith('stem')) {
           ctx.fillStyle = '#4444ffcc';
         }
-        x = vals.x;
-        y = vals.y;
         ctx.fillRect(x - (crossSize * 0.5), y - 0.5, crossSize, 1);
         ctx.fillRect(x - 0.5, y - crossSize * 0.5, 1, crossSize);
       }
@@ -583,11 +620,33 @@ class SMuFLFontViewer {
       $valSibling.parent().find('.val').text(text);
     }
 
+    function _renderStem(x, y, h, halign, vdir, sbl, engravingDefaults, isSplitStem) {
+      if (isSplitStem) {
+        // https://steinberg.help/dorico/v2/en/_shared_picts/picts/dorico/notation_reference/accidentals_altered_unison_tree.png
+        // console.warn('fixme: render split stem.');
+        return;
+      }
+      const w = anchorCsToScreenCsX(engravingDefaults.stemThickness, sbl);
+      if (halign === 'R') {
+        x = x - w;
+      }
+      if (vdir === 'BTT') {
+        y -= h;
+      }
+      ctx.save();
+      ctx.fillStyle = '#aaaaaacc';
+      ctx.beginPath();
+      ctx.rect(x, y, w, h);
+      ctx.fill();
+      ctx.restore();
+    }
+
     function renderGlyph(glyphData) {
       const codepoint = glyphData.codepoint;
       const glyphname = glyphData.glyphname;
       const anchor = glyphData.anchor;
       const repeatOffset = anchor ? anchor.repeatOffset : undefined;
+      const engravingDefaults = sMuFLMetadata.fontMetadata().engravingDefaults;
 
       c.width = c.clientWidth;
       c.height = c.clientHeight;
@@ -625,7 +684,7 @@ class SMuFLFontViewer {
       const str = String.fromCodePoint(codepoint);
       ctx.fillText(str, x, y);
 
-      if ($smuflRenderGlyphOptionsSSGlyph.prop('checked')) {
+      if ($smuflGlyphHints_repatOffset3StateBox.prop('checked')) {
         ctx.save();
         if (repeatOffset) {
           ctx.fillStyle = '#44444477';
@@ -659,7 +718,9 @@ class SMuFLFontViewer {
           let anchorDef = anchorDefs[akey];
           const $anchorCheckbox = $smuflGlyphHints.find('#' + toHintlabelIdStr(akey) + ' input');
           _setValValue($anchorCheckbox, anchor[akey]);
-          if (!$anchorCheckbox.prop('checked') || $anchorCheckbox.parent().is(':hidden')) {
+          const isIndeterminate = $anchorCheckbox.prop('indeterminate');
+          if ((!$anchorCheckbox.prop('checked') && !isIndeterminate) ||
+            $anchorCheckbox.parent().is(':hidden')) {
             continue;
           }
 
@@ -696,7 +757,7 @@ class SMuFLFontViewer {
             }
             anchorDefs[akey] = anchorDef;
           }
-          renderAnchor(akey, anchor[akey], anchorDef, scaledBBox);
+          renderAnchor(akey, anchor[akey], anchorDef, scaledBBox, engravingDefaults, isIndeterminate);
         }
       }
 
@@ -889,8 +950,6 @@ class SMuFLFontViewer {
           $smuflGlyphHints.children(`#${toHintlabelIdStr(key)}`).show();
         }
       }
-      $smuflRenderGlyphOptionsSSGlyphContainer.toggleClass('hasRepeatOffset',
-        (anchor && anchor.repeatOffset) ? true : false);
 
       currentGlyphData = {
         codepoint: codepoint,
