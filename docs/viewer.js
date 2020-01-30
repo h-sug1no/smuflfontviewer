@@ -78,14 +78,21 @@ class SMuFLFontViewer {
       const inputElm = hintLabel.firstElementChild;
       inputElm.checked = true;
 
-      if (hintLabel.textContent.startsWith('stem') || hintLabel.textContent.startsWith('repeatOffset')) {
-        inputElm._3state = 2;
+      const isStem = hintLabel.textContent.startsWith('stem');
+      if (isStem || hintLabel.textContent.startsWith('repeatOffset')) {
         inputElm._on3StateChange = function() {
           inputElm._3state++;
           if (inputElm._3state > 2) {inputElm._3state = 0;}
           inputElm.checked = inputElm._3state & 2;
           inputElm.indeterminate = inputElm._3state & 1;
         };
+        if (isStem) {
+          inputElm._3state = 0;
+        }
+        else {
+          inputElm._3state = 1;
+        }
+        inputElm._on3StateChange();
       }
     }
 
