@@ -75,7 +75,18 @@ class SMuFLFontViewer {
     for (let li = 0; li < hintLabels.length; li++) {
       const hintLabel = hintLabels[li];
       hintLabel.id = toHintlabelIdStr(hintLabel.textContent);
-      hintLabel.firstElementChild.checked = true;
+      const inputElm = hintLabel.firstElementChild;
+      inputElm.checked = true;
+
+      if (hintLabel.textContent.startsWith('stem') || hintLabel.textContent.startsWith('repeatOffset')) {
+        inputElm._3state = 1;
+        inputElm._on3StateChange = function() {
+          inputElm._3state++;
+          if (inputElm._3state > 2) {inputElm._3state = 0;}
+          inputElm.checked = inputElm._3state & 1;
+          inputElm.indeterminate = inputElm._3state & 2;
+        };
+      }
     }
 
     var c = document.getElementById('smuflGlyphCanvas');
@@ -213,7 +224,12 @@ class SMuFLFontViewer {
       $codepointText.change();
     }
 
-    $('#smuflGlyphHints').on('change', function (/* ev */) {
+    $('#smuflGlyphHints').on('change', function (ev) {
+      const target = ev.target;
+      if (target._on3StateChange) {
+        target._on3StateChange();
+      }
+
       //console.log(this);
       renderGlyph(currentGlyphData);
     });
