@@ -87,7 +87,7 @@
     }
 
     #BShow {
-      margin: 1em;
+      margin: 0.5em;
     }
 
     span.smuflCodepoint,
@@ -180,6 +180,10 @@
       margin-top: 3em;
     }
 
+    #topUiContainer {
+      padding: 1em;
+    }
+
   </style>
 
   <script src="https://code.jquery.com/jquery-2.1.0.js"></script>
@@ -205,7 +209,16 @@
       </div>
       <div id="contentContainer"></div>
     </div>
-
+    <div id="topUiContainer">
+      <input id="BGlyphnames" type="button" title="Show glyphnames" value="glyphnames">
+      <input id="BOptionalGlyphs" type="button" title="Show font metadata optionalGlyphs" value="optionalGlyphs">
+      <input id="BFontMetadata" type="button" title="Show font metadata" value="metadata">
+      <input id="BFontMetadataLigatures" type="button" title="Show font metadata ligatures" value="ligatures">
+      <input id="BFontMetadataSets" type="button" title="Show font metadata sets" value="sets">
+      <input id="BFontMetadataGlyphsWithAlternates" type="button" title="Show font metadata glyphsWithAlternates"
+        value="glyphsWithAlternates">
+      <input id="BFontMetadataGlyphsWithAnchors" type="button" title="Show font metadata glyphsWithAnchors" value="glyphsWithAnchors">
+    </div>
     <div id="smuflGlyphContainer">
       <div id="glyphContainer">
         <input id="BPrev" type="button" value="-" title="show prev codepoint">
@@ -215,14 +228,6 @@
         <input id="BShow" type="button" value="Show">
         <input id="BShowPrev" type="button" title="show prev glyph" value="Show Prev">
         <select id="rangeSelect" title="ranges"></select>
-        <input id="BGlyphnames" type="button" title="Show glyphnames" value="glyphnames">
-        <input id="BOptionalGlyphs" type="button" title="Show font metadata optionalGlyphs" value="optionalGlyphs">
-        <input id="BFontMetadata" type="button" title="Show font metadata" value="metadata">
-        <input id="BFontMetadataLigatures" type="button" title="Show font metadata ligatures" value="ligatures">
-        <input id="BFontMetadataSets" type="button" title="Show font metadata sets" value="sets">
-        <input id="BFontMetadataGlyphsWithAlternates" type="button" title="Show font metadata glyphsWithAlternates"
-          value="glyphsWithAlternates">
-        <input id="BFontMetadataGlyphsWithAnchors" type="button" title="Show font metadata glyphsWithAnchors" value="glyphsWithAnchors">
       </div>
       <canvas id="smuflGlyphCanvas">
       </canvas>
