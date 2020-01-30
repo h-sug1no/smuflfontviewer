@@ -83,8 +83,8 @@ class SMuFLFontViewer {
         inputElm._on3StateChange = function() {
           inputElm._3state++;
           if (inputElm._3state > 2) {inputElm._3state = 0;}
-          inputElm.checked = inputElm._3state & 1;
-          inputElm.indeterminate = inputElm._3state & 2;
+          inputElm.checked = inputElm._3state & 2;
+          inputElm.indeterminate = inputElm._3state & 1;
         };
       }
     }
@@ -503,7 +503,7 @@ class SMuFLFontViewer {
       return val * sbl;
     }
 
-    function renderAnchor(akey, anchor, types, scaledBBox, engravingDefaults) {
+    function renderAnchor(akey, anchor, types, scaledBBox, engravingDefaults, isIndeterminate) {
       if (!anchor) {
         console.warn('fixme !anchor');
         return;
@@ -566,7 +566,7 @@ class SMuFLFontViewer {
         x = vals.x;
         y = vals.y;
 
-        if (akey.startsWith('splitStem') || akey.startsWith('stem')) {
+        if (!isIndeterminate && (akey.startsWith('splitStem') || akey.startsWith('stem'))) {
           _renderStem(x, y,
             Math.max(scaledBBox.h, anchorCsToScreenCsX(3.5, sbl)),
             halign, vdir, sbl, engravingDefaults, akey.startsWith('splitStem'));
@@ -710,7 +710,9 @@ class SMuFLFontViewer {
           let anchorDef = anchorDefs[akey];
           const $anchorCheckbox = $smuflGlyphHints.find('#' + toHintlabelIdStr(akey) + ' input');
           _setValValue($anchorCheckbox, anchor[akey]);
-          if (!$anchorCheckbox.prop('checked') || $anchorCheckbox.parent().is(':hidden')) {
+          const isIndeterminate = $anchorCheckbox.prop('indeterminate');
+          if ((!$anchorCheckbox.prop('checked') && !isIndeterminate) ||
+            $anchorCheckbox.parent().is(':hidden')) {
             continue;
           }
 
@@ -747,7 +749,7 @@ class SMuFLFontViewer {
             }
             anchorDefs[akey] = anchorDef;
           }
-          renderAnchor(akey, anchor[akey], anchorDef, scaledBBox, engravingDefaults);
+          renderAnchor(akey, anchor[akey], anchorDef, scaledBBox, engravingDefaults, isIndeterminate);
         }
       }
 
