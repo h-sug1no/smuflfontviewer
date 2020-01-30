@@ -233,11 +233,13 @@ class SMuFLFontViewer {
           setCodepointByString(targetElm.textContent.slice(2));
         });
       }
-      else if (targetElm.classList.contains('smuflGlyphname')) {
-        let uCodepoint = targetElm.uCodepoint;
-        if (uCodepoint) {
-          _closeDialog();
-          setCodepointByString(uCodepoint.slice(2));
+      if (!targetElm.closest('#smuflGlyphInfoText')) {
+        if (targetElm.classList.contains('smuflGlyphname')) {
+          let uCodepoint = targetElm.uCodepoint;
+          if (uCodepoint) {
+            _closeDialog();
+            setCodepointByString(uCodepoint.slice(2));
+          }
         }
       }
     });
