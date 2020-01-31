@@ -78,7 +78,8 @@ class SMuFLFontViewer {
       const inputElm = hintLabel.firstElementChild;
       inputElm.checked = true;
 
-      const isStem = hintLabel.textContent.startsWith('stem');
+      const isStem = hintLabel.textContent.startsWith('stem') ||
+        hintLabel.textContent.startsWith('splitStem');
       if (isStem || hintLabel.textContent.startsWith('repeatOffset')) {
         inputElm._on3StateChange = function() {
           inputElm._3state++;
@@ -621,19 +622,32 @@ class SMuFLFontViewer {
     }
 
     function _renderStem(x, y, h, halign, vdir, sbl, engravingDefaults, isSplitStem) {
+      let w = anchorCsToScreenCsX(engravingDefaults.stemThickness, sbl);
+      let rad = 0;
       if (isSplitStem) {
         // https://steinberg.help/dorico/v2/en/_shared_picts/picts/dorico/notation_reference/accidentals_altered_unison_tree.png
-        // console.warn('fixme: render split stem.');
-        return;
+        // https://www.steinberg.net/forums/download/file.php?id=16781
+        // FIXME: draw sample stem and noteheads(altered unison)...
+        const sdx = 1.2;
+        const sdy = 1;
+        rad = Math.atan2(sdx, sdy);
       }
-      const w = anchorCsToScreenCsX(engravingDefaults.stemThickness, sbl);
+
       if (halign === 'R') {
-        x = x - w;
+        w *= -1;
+        rad *= -1;
       }
       if (vdir === 'BTT') {
-        y -= h;
+        h *= -1;
       }
+      else {
+        rad *= -1;
+      }
+
       ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(rad);
+      ctx.translate(-x, -y);
       ctx.fillStyle = '#aaaaaacc';
       ctx.beginPath();
       ctx.rect(x, y, w, h);
