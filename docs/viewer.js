@@ -79,6 +79,7 @@ class SMuFLFontViewer {
       inputElm.checked = true;
 
       const isStem = hintLabel.textContent.startsWith('stem') ||
+        hintLabel.textContent.startsWith('graceNoteSlash') ||
         hintLabel.textContent.startsWith('splitStem');
       if (isStem || hintLabel.textContent.startsWith('repeatOffset')) {
         inputElm._on3StateChange = function() {
@@ -512,7 +513,7 @@ class SMuFLFontViewer {
       return val * sbl;
     }
 
-    function renderAnchor(akey, anchor, types, scaledBBox, engravingDefaults, isIndeterminate) {
+    function renderAnchor(akey, anchor, types, scaledBBox, engravingDefaults, isIndeterminate, bbs) {
       if (!anchor) {
         console.warn('fixme !anchor');
         return;
@@ -563,6 +564,7 @@ class SMuFLFontViewer {
           break;
         }
       });
+      bbs[akey].vals = vals;
       ctx.save();
       const crossSize = 10;
       if (akey.startsWith('cutOut')) {
@@ -575,10 +577,12 @@ class SMuFLFontViewer {
         x = vals.x;
         y = vals.y;
 
-        if (!isIndeterminate && (akey.startsWith('splitStem') || akey.startsWith('stem'))) {
-          _renderStem(x, y,
-            Math.max(scaledBBox.h, anchorCsToScreenCsX(3.5, sbl)),
-            halign, vdir, sbl, engravingDefaults, akey.startsWith('splitStem'));
+        if (!isIndeterminate) {
+          if ((akey.startsWith('splitStem') || akey.startsWith('stem'))) {
+            _renderStem(x, y,
+              Math.max(scaledBBox.h, anchorCsToScreenCsX(3.5, sbl)),
+              halign, vdir, sbl, engravingDefaults, akey.startsWith('splitStem'));
+          }
         }
 
         ctx.fillStyle = '#ff4444cc';
@@ -655,6 +659,30 @@ class SMuFLFontViewer {
       ctx.restore();
     }
 
+    function _renderGraceNoteSlash(bbs, engravingDefaults, sbl) {
+      const slashBbs = [
+        [bbs.graceNoteSlashSW, bbs.graceNoteSlashNE],
+        [bbs.graceNoteSlashSE, bbs.graceNoteSlashNW]
+      ];
+
+      // finale26: grace note slash thickness is similar to stem thickness:
+      //   https://user-images.githubusercontent.com/59550999/73713729-c8805c80-4751-11ea-962f-609ff4039acb.png
+      // FIXME: graceNoteSlash thichness: any smufl property for this?
+      const w = anchorCsToScreenCsX(engravingDefaults.stemThickness, sbl) * 1.1;
+      slashBbs.forEach(function(sbb) {
+        if (sbb[0] && sbb[1] && (!sbb[0].isIndeterminate || !sbb[1].isIndeterminate)) {
+          ctx.save();
+          ctx.lineWidth = w;
+          ctx.strokeStyle = '#aaaaaacc';
+          ctx.beginPath();
+          ctx.moveTo(sbb[0].vals.x, sbb[0].vals.y);
+          ctx.lineTo(sbb[1].vals.x, sbb[1].vals.y);
+          ctx.stroke();
+          ctx.restore();
+        }
+      });
+    }
+
     function renderGlyph(glyphData) {
       const codepoint = glyphData.codepoint;
       const glyphname = glyphData.glyphname;
@@ -728,6 +756,7 @@ class SMuFLFontViewer {
       _setValValue($smuflRenderGlyphOptionsBbox.parent(), bbox);
 
       if (anchor) {
+        const bbs = {};
         for (const akey in anchorDefs) {
           let anchorDef = anchorDefs[akey];
           const $anchorCheckbox = $smuflGlyphHints.find('#' + toHintlabelIdStr(akey) + ' input');
@@ -771,8 +800,15 @@ class SMuFLFontViewer {
             }
             anchorDefs[akey] = anchorDef;
           }
-          renderAnchor(akey, anchor[akey], anchorDef, scaledBBox, engravingDefaults, isIndeterminate);
+          bbs[akey] = {
+            scaledBBox: scaledBBox,
+            isIndeterminate: isIndeterminate,
+            anchor: anchor,
+            anchorDef: anchorDef
+          };
+          renderAnchor(akey, anchor[akey], anchorDef, scaledBBox, engravingDefaults, isIndeterminate, bbs);
         }
+        _renderGraceNoteSlash(bbs, engravingDefaults, sbl);
       }
 
       ctx.restore();
