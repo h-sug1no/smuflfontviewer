@@ -584,6 +584,21 @@ class SMuFLFontViewer {
               Math.max(scaledBBox.h, anchorCsToScreenCsX(3.5, sbl)),
               halign, vdir, sbl, engravingDefaults, akey.startsWith('splitStem'));
           }
+          else if (akey.startsWith('numeral')) {
+            const glyphData = _getGlyphData('tuplet5');
+            const m = _measureGlyph(glyphData, x, y, sbl);
+            let ox = x - (m.scaledBBox.W);
+            const hw = m.scaledBBox.w * 0.5;
+            let oy = 0; // no y offset for baseline.
+
+            ctx.fillStyle = '#aaaaaacc';
+            _renderGlyph(glyphData, x + ox - hw, y + oy, bbs[akey].fontSizeInfo.fontSize);
+            ctx.fillRect(x - (crossSize * 0.5), y - 0.5, crossSize, 1);
+
+            // center of bbox.
+            ctx.fillStyle = '#0000ffff';
+            ctx.fillRect(m.scaledBBox.W + ox - hw + hw, y - crossSize * 0.5, 1, crossSize);
+          }
         }
 
         ctx.fillStyle = '#ff4444cc';
@@ -689,7 +704,7 @@ class SMuFLFontViewer {
       const sbl = fontSize * 0.25;
       return {
         fontSize: fontSize,
-        sbl: slb
+        sbl: sbl
       };
     }
 
@@ -833,7 +848,8 @@ class SMuFLFontViewer {
             scaledBBox: scaledBBox,
             isIndeterminate: isIndeterminate,
             anchor: anchor,
-            anchorDef: anchorDef
+            anchorDef: anchorDef,
+            fontSizeInfo: fontSizeInfo
           };
           renderAnchor(akey, anchor[akey], anchorDef, scaledBBox, engravingDefaults, isIndeterminate, bbs);
         }
@@ -849,6 +865,19 @@ class SMuFLFontViewer {
       anchor: undefined
     };
 
+    function _getGlyphData(glyphname) {
+      const option0 = { searchOptional: true};
+      const uCp = sMuFLMetadata.glyphname2uCodepoint(glyphname, option0);
+      let codepoint;
+      if (uCp) {
+        codepoint = sMuFLMetadata.uCodepoint2Codepoint(uCp);
+      }
+      return {
+        glyphname: glyphname,
+        codepoint: codepoint
+      };
+    }
+
     $('#BShow').on('click', function () {
 
       $contentContainer.empty();
@@ -856,6 +885,7 @@ class SMuFLFontViewer {
       var codepoint = getCodepointNumber();
       if (isNaN(codepoint)) {
         const cval = getCodepoint();
+        const glyphData = _getGlyphData(cval);
         const option0 = { searchOptional: true};
         const uCp = sMuFLMetadata.glyphname2uCodepoint(cval, option0);
         if (uCp) {
