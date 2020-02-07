@@ -684,22 +684,23 @@ class SMuFLFontViewer {
       });
     }
 
-    function renderGlyph(glyphData) {
-      const codepoint = glyphData.codepoint;
-      const glyphname = glyphData.glyphname;
-      const anchor = glyphData.anchor;
-      const repeatOffset = anchor ? anchor.repeatOffset : undefined;
-      const engravingDefaults = sMuFLMetadata.fontMetadata().engravingDefaults;
-
-      c.width = c.clientWidth;
-      c.height = c.clientHeight;
-      ctx.clearRect(0, 0, c.clientWidth, c.clientHeight);
+    function _getFontSizeInfo() {
       const fontSize = Number($smuflRenderGlyphOptionsGlyphSize.val());
       const sbl = fontSize * 0.25;
-      ctx.font = fontSize + 'px SMuFLFont';
-      let x = c.width * 0.3;
-      let y = c.height * 0.5;
+      return {
+        fontSize: fontSize,
+        sbl: slb
+      };
+    }
 
+    function _renderGlyph(glyphData, x, y, fontSize) {
+      ctx.font = fontSize + 'px SMuFLFont';
+      const str = String.fromCodePoint(glyphData.codepoint);
+      ctx.fillText(str, x, y);
+    }
+
+    function _measureGlyph(glyphData, x, y, sbl) {
+      const glyphname = glyphData.glyphname;
       const bbox = sMuFLMetadata.fontMetadata().glyphBBoxes[glyphname];
       let scaledBBox;
       if (bbox) {
@@ -722,10 +723,37 @@ class SMuFLFontViewer {
           scaledBBox.S = scaledBBox.N + scaledBBox.h;
         }
       }
+      return {
+        bbox: bbox,
+        scaledBBox: scaledBBox
+      };
+    }
+
+    function renderGlyph(glyphData) {
+      const codepoint = glyphData.codepoint;
+      const glyphname = glyphData.glyphname;
+      const anchor = glyphData.anchor;
+      const repeatOffset = anchor ? anchor.repeatOffset : undefined;
+      const engravingDefaults = sMuFLMetadata.fontMetadata().engravingDefaults;
+
+      c.width = c.clientWidth;
+      c.height = c.clientHeight;
+
+      const x = c.width * 0.3;
+      const y = c.height * 0.5;
+
+      ctx.clearRect(0, 0, c.clientWidth, c.clientHeight);
+
+      const fontSizeInfo = _getFontSizeInfo();
+      const fontSize = fontSizeInfo.fontSize;
+      const sbl = fontSizeInfo.sbl;
+
+      const m = _measureGlyph(glyphData, x, y, sbl);
+      const scaledBBox = m.scaledBBox;
+      const bbox = m.bbox;
 
       ctx.fillStyle = '#444444cc';
-      const str = String.fromCodePoint(codepoint);
-      ctx.fillText(str, x, y);
+      _renderGlyph(glyphData, x, y, fontSize);
 
       if ($smuflGlyphHints_repatOffset3StateBox.prop('checked')) {
         ctx.save();
