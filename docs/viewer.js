@@ -80,6 +80,7 @@ class SMuFLFontViewer {
 
       const isStem = hintLabel.textContent.startsWith('stem') ||
         hintLabel.textContent.startsWith('graceNoteSlash') ||
+        hintLabel.textContent.startsWith('numeral') ||
         hintLabel.textContent.startsWith('splitStem');
       if (isStem || hintLabel.textContent.startsWith('repeatOffset')) {
         inputElm._on3StateChange = function() {
