@@ -126,6 +126,58 @@ class SMuFLFontViewer {
       renderGlyph(currentGlyphData);
     });
 
+    function _initMouseHandlers() {
+      const $smuflGlyphCanvasContainer = $('#smuflGlyphCanvasContainer');
+
+      let isActive = false;
+      let startPos;
+
+      function _setIsActive(v) {
+        isActive = v;
+        $smuflGlyphCanvasContainer.css('cursor', isActive ? 'move' : '');
+      }
+
+      _setIsActive(false);
+
+      $smuflGlyphCanvasContainer.on('mousedown', function(ev) {
+        _setIsActive(true);
+        console.log(ev);
+        startPos = {
+          clientX: ev.clientX,
+          clientY: ev.clientY,
+          scrollLeft: $smuflGlyphCanvasContainer.scrollLeft(),
+          scrollTop: $smuflGlyphCanvasContainer.scrollTop()
+        };
+      });
+
+      $smuflGlyphCanvasContainer.on('mousemove', function(ev) {
+        if (isActive) {
+          $smuflGlyphCanvasContainer.scrollTop(startPos.scrollTop -
+            (ev.clientY - startPos.clientY));
+          $smuflGlyphCanvasContainer.scrollLeft(startPos.scrollLeft -
+            (ev.clientX - startPos.clientX));
+        }
+      });
+
+      $smuflGlyphCanvasContainer.on('mouseup', function(ev) {
+        _setIsActive(false);
+      });
+      $smuflGlyphCanvasContainer.on('mouseleave', function(ev) {
+        _setIsActive(false);
+      });
+
+      $('#smuflGlyphCanvasContainer').scrollTop(
+        ($('#smuflGlyphCanvasContainer').prop('scrollHeight') * 0.5) -
+        ($('#smuflGlyphCanvasContainer').innerHeight() * 0.5));
+
+      $('#smuflGlyphCanvasContainer').scrollLeft(
+        ($('#smuflGlyphCanvasContainer').prop('scrollWidth') * 0.5) -
+        ($('#smuflGlyphCanvasContainer').width() * 0.5));
+    }
+
+    _initMouseHandlers();
+
+
     const $rootContainer = $('#rootContainer');
     const $infoDialog = $('#infoDialog');
     const infoDialogElm = $infoDialog.get(0);
@@ -757,11 +809,7 @@ class SMuFLFontViewer {
       const anchor = glyphData.anchor;
       const repeatOffset = anchor ? anchor.repeatOffset : undefined;
       const engravingDefaults = sMuFLMetadata.fontMetadata().engravingDefaults;
-
-      c.width = c.clientWidth;
-      c.height = c.clientHeight;
-
-      const x = c.width * 0.3;
+      const x = c.width * 0.5;
       const y = c.height * 0.5;
 
       ctx.clearRect(0, 0, c.clientWidth, c.clientHeight);

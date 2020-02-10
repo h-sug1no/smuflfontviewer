@@ -142,9 +142,10 @@
       padding-bottom: 0;
     }
 
-    canvas {
+    #smuflGlyphCanvasContainer {
       width: 100%;
       height: 65%;
+      overflow: auto;
     }
 
     #rootContainer.fakeDialog.fakeDialogVisible > * {
@@ -229,8 +230,10 @@
         <input id="BShowPrev" type="button" title="show prev glyph" value="Show Prev">
         <select id="rangeSelect" title="ranges"></select>
       </div>
-      <canvas id="smuflGlyphCanvas">
-      </canvas>
+      <div id="smuflGlyphCanvasContainer">
+        <canvas id="smuflGlyphCanvas" width="2048" height="2048">
+        </canvas>
+      </div>
       <div id="smuflRenderGlyphOptions">
         <label title="glyph origin"><input id="smuflRenderGlyphOptionsOrigin" type="checkbox" checked />origin</label>
         <label title="glyph bounding box"><input id="smuflRenderGlyphOptionsBbox" type="checkbox" checked />bbox<span
