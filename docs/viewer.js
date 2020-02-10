@@ -567,7 +567,6 @@ class SMuFLFontViewer {
       });
       bbs[akey].vals = vals;
       ctx.save();
-      const crossSize = 10;
       if (akey.startsWith('cutOut')) {
         ctx.fillStyle = '#cccccccc';
         ctx.fillRect(x, y, w, h);
@@ -585,19 +584,7 @@ class SMuFLFontViewer {
               halign, vdir, sbl, engravingDefaults, akey.startsWith('splitStem'));
           }
           else if (akey.startsWith('numeral')) {
-            const glyphData = _getGlyphData('tuplet5');
-            const m = _measureGlyph(glyphData, x, y, sbl);
-            let ox = x - (m.scaledBBox.W);
-            const hw = m.scaledBBox.w * 0.5;
-            let oy = 0; // no y offset for baseline.
-
-            ctx.fillStyle = '#aaaaaacc';
-            _renderGlyph(glyphData, x + ox - hw, y + oy, bbs[akey].fontSizeInfo.fontSize);
-            ctx.fillRect(x - (crossSize * 0.5), y - 0.5, crossSize, 1);
-
-            // center of bbox.
-            ctx.fillStyle = '#0000ffff';
-            ctx.fillRect(m.scaledBBox.W + ox - hw + hw, y - crossSize * 0.5, 1, crossSize);
+            _renderNumeral(x, y, sbl, bbs[akey]);
           }
         }
 
@@ -605,8 +592,7 @@ class SMuFLFontViewer {
         if (akey.startsWith('stem')) {
           ctx.fillStyle = '#4444ffcc';
         }
-        ctx.fillRect(x - (crossSize * 0.5), y - 0.5, crossSize, 1);
-        ctx.fillRect(x - 0.5, y - crossSize * 0.5, 1, crossSize);
+        _renderCross(x, y);
       }
       ctx.restore();
     }
@@ -697,6 +683,27 @@ class SMuFLFontViewer {
           ctx.restore();
         }
       });
+    }
+
+    function _renderCross(x, y, crossSize = 10) {
+      ctx.fillRect(x - (crossSize * 0.5), y - 0.5, crossSize, 1);
+      ctx.fillRect(x - 0.5, y - crossSize * 0.5, 1, crossSize);
+    }
+
+    function _renderNumeral(x, y, sbl, bb) {
+      const glyphData = _getGlyphData('tuplet5');
+      const m = _measureGlyph(glyphData, x, y, sbl);
+      let ox = x - (m.scaledBBox.W);
+      const hw = m.scaledBBox.w * 0.5;
+      let oy = 0; // no y offset for baseline.
+
+      ctx.fillStyle = '#aaaaaacc';
+      _renderGlyph(glyphData, x + ox - hw, y + oy, bb.fontSizeInfo.fontSize);
+
+      // hori: center of bbox.
+      // vert: baseline
+      ctx.fillStyle = '#0000ffff';
+      _renderCross(m.scaledBBox.W + ox - hw + hw, y + oy);
     }
 
     function _getFontSizeInfo() {
@@ -866,7 +873,7 @@ class SMuFLFontViewer {
     };
 
     function _getGlyphData(glyphname) {
-      const option0 = { searchOptional: true};
+      const option0 = {searchOptional: true};
       const uCp = sMuFLMetadata.glyphname2uCodepoint(glyphname, option0);
       let codepoint;
       if (uCp) {
@@ -886,7 +893,7 @@ class SMuFLFontViewer {
       if (isNaN(codepoint)) {
         const cval = getCodepoint();
         const glyphData = _getGlyphData(cval);
-        const option0 = { searchOptional: true};
+        const option0 = {searchOptional: true};
         const uCp = sMuFLMetadata.glyphname2uCodepoint(cval, option0);
         if (uCp) {
           codepoint = sMuFLMetadata.uCodepoint2Codepoint(uCp);
