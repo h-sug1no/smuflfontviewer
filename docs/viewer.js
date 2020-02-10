@@ -114,7 +114,7 @@ class SMuFLFontViewer {
     });
     $smuflRenderGlyphOptionsGlyphSize.trigger('input');
 
-    $smuflRenderGlyphOptionsGlyphSize.on('change', function() {
+    $smuflRenderGlyphOptionsGlyphSize.on('input', function() {
       renderGlyph(currentGlyphData);
     });
 
@@ -141,7 +141,6 @@ class SMuFLFontViewer {
 
       $smuflGlyphCanvasContainer.on('mousedown', function(ev) {
         _setIsActive(true);
-        console.log(ev);
         startPos = {
           clientX: ev.clientX,
           clientY: ev.clientY,
