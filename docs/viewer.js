@@ -78,18 +78,18 @@ class SMuFLFontViewer {
       const inputElm = hintLabel.firstElementChild;
       inputElm.checked = true;
 
-      const isStem = hintLabel.textContent.startsWith('stem') ||
-        hintLabel.textContent.startsWith('graceNoteSlash') ||
-        hintLabel.textContent.startsWith('numeral') ||
-        hintLabel.textContent.startsWith('splitStem');
-      if (isStem || hintLabel.textContent.startsWith('repeatOffset')) {
+      const isIndeterminate = hintLabel.textContent.startsWith('stem') ||
+        hintLabel.textContent.startsWith('splitStem') ||
+        hintLabel.textContent.startsWith('graceNoteSlash');
+      if (isIndeterminate || hintLabel.textContent.startsWith('repeatOffset') ||
+        hintLabel.textContent.startsWith('numeral')) {
         inputElm._on3StateChange = function() {
           inputElm._3state++;
           if (inputElm._3state > 2) {inputElm._3state = 0;}
           inputElm.checked = inputElm._3state & 2;
           inputElm.indeterminate = inputElm._3state & 1;
         };
-        if (isStem) {
+        if (isIndeterminate) {
           inputElm._3state = 0;
         }
         else {
@@ -781,8 +781,8 @@ class SMuFLFontViewer {
         ctx.save();
         if (repeatOffset) {
           ctx.fillStyle = '#44444477';
-          ctx.fillText(str, x + (anchorCsToScreenCsX(repeatOffset[0], sbl)),
-            y + (anchorCsToScreenCsY(repeatOffset[1], sbl)));
+          _renderGlyph(glyphData, x + (anchorCsToScreenCsX(repeatOffset[0], sbl)),
+            y + (anchorCsToScreenCsY(repeatOffset[1], sbl)), fontSize);
         }
         ctx.restore();
       }
