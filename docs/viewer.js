@@ -183,16 +183,19 @@ class SMuFLFontViewer {
     const $infoDialog = $('#infoDialog');
     const infoDialogElm = $infoDialog.get(0);
     const $contentContainer = $('#contentContainer');
+    const _$infoDialog_defaultDescription = 'use browser\'s search to find glyphname, smufl properties, codepoint, etc...';
 
     if (!infoDialogElm.showModal) {
       const $dialogTitle = $('#infoDialog #dialogTitle');
       $rootContainer.addClass('fakeDialog');
-      infoDialogElm.showModal = function(title) {
+      infoDialogElm.showModal = function(title, description = _$infoDialog_defaultDescription) {
         $rootContainer.addClass('fakeDialogVisible');
         $dialogTitle.text(title);
+        $contentContainer.prop('title', description);
       };
       infoDialogElm.close = function() {
         $rootContainer.removeClass('fakeDialogVisible');
+        $contentContainer.prop('title', '');
         document.body.scrollIntoView(); // reset vertical scroll position.
       };
     }
