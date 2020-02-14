@@ -301,6 +301,48 @@ class SMuFLFontViewer {
       renderGlyph(currentGlyphData);
     });
 
+    $('body').keypress(function(ev) {
+      if (ev.target.nodeName === 'INPUT') {
+        if (ev.target.type === 'text') {
+          return;
+        }
+      }
+      if (ev.target.nodeName === 'SELECT') {
+        return;
+      }
+      switch (ev.key) {
+      case 'c':
+        if ($rootContainer.hasClass('fakeDialogVisible')) {
+          $infoDialog.find('input').click();
+        }
+        break;
+      case 'g':
+        window.setTimeout(function() {
+          $('#BGlyphnames').focus();
+        });
+        break;
+      case 'h':
+        $('#BPrev').click();
+        break;
+      case 'j':
+        $('#BShowPrev').click();
+        break;
+      case 'k':
+        window.setTimeout(function() {
+          $('#codepointText').focus();
+        });
+        break;
+      case 'l':
+        $('#BNext').click();
+        break;
+      case 'r':
+        window.setTimeout(function() {
+          $('#rangeSelect').focus();
+        });
+        break;
+      }
+    });
+
     $('body').on('click', function (ev) {
       // console.log(this);
       const targetElm = ev.target;
