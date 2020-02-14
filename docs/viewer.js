@@ -342,78 +342,91 @@ class SMuFLFontViewer {
       $contentContainer.append($('<br>'));
     }
 
-    $('#BGlyphnames').on('click', function () {
-      $contentContainer.empty();
-      const glyphnames = sMuFLMetadata.data.glyphnames;
-      try {
-        for (const key in glyphnames) {
-          addGlyphnameInfo($contentContainer, glyphnames[key], key);
-        }
-        $infoDialog.get(0).showModal('glyphames');
-      } catch(e) {
-        console.log(e);
+    const _$infoDialog_contentDoms = {};
+    function _$infoDialog_showModal(key, func) {
+      let $contentDom = _$infoDialog_contentDoms[key];
+      if (!$contentDom) {
+        $contentDom = _$infoDialog_contentDoms[key] = $('<div></div>');
+        func($contentDom);
       }
+      $contentContainer.empty();
+      $contentContainer.append($contentDom);
+      $infoDialog.get(0).showModal(key);
+    }
+
+    $('#BGlyphnames').on('click', function () {
+      _$infoDialog_showModal('glyphames', function($contentContainer) {
+        const glyphnames = sMuFLMetadata.data.glyphnames;
+        try {
+          for (const key in glyphnames) {
+            addGlyphnameInfo($contentContainer, glyphnames[key], key);
+          }
+        } catch(e) {
+          console.log(e);
+        }
+        return $contentContainer;
+      });
     });
     $('#BOptionalGlyphs').on('click', function () {
-      $contentContainer.empty();
-      const optionalGlyphs = sMuFLMetadata.fontMetadata().optionalGlyphs;
-      if (!optionalGlyphs) {
-        return;
-      }
-      for (const key in optionalGlyphs) {
-        addGlyphnameInfo($contentContainer, optionalGlyphs[key], key);
-      }
-      $infoDialog.get(0).showModal('font metadata optionalGlyphs');
+      _$infoDialog_showModal('font metadata optionalGlyphs', function($contentContainer) {
+        const optionalGlyphs = sMuFLMetadata.fontMetadata().optionalGlyphs;
+        if (!optionalGlyphs) {
+          return;
+        }
+        for (const key in optionalGlyphs) {
+          addGlyphnameInfo($contentContainer, optionalGlyphs[key], key);
+        }
+      });
     });
 
     $('#BFontMetadata').on('click', function () {
-      function add_engravingDefaults(name, engravingDefaults) {
-        $contentContainer.append(`${name}: `);
-        const $tdContaienr = $('<div class="engravingDefaultsContainer"></div>');
-        for (const key in engravingDefaults) {
-          $tdContaienr.append(`${key}: ${engravingDefaults[key]}, `);
+      _$infoDialog_showModal('font metadata', function($contentContainer) {
+        function add_engravingDefaults(name, engravingDefaults) {
+          $contentContainer.append(`${name}: `);
+          const $tdContaienr = $('<div class="engravingDefaultsContainer"></div>');
+          for (const key in engravingDefaults) {
+            $tdContaienr.append(`${key}: ${engravingDefaults[key]}, `);
+          }
+          $contentContainer.append($tdContaienr);
         }
-        $contentContainer.append($tdContaienr);
-      }
 
-      // eslint-disable-next-line no-unused-vars
-      function add_sets(name, sets) {
-        $contentContainer.append(`${name}: ${
-          Object.keys(sMuFLMetadata.fontMetadata().sets).join(', ')
-        }`);
-      }
+        // eslint-disable-next-line no-unused-vars
+        function add_sets(name, sets) {
+          $contentContainer.append(`${name}: ${
+            Object.keys(sMuFLMetadata.fontMetadata().sets).join(', ')
+          }`);
+        }
 
-      $contentContainer.empty();
-      const fontMetadata = sMuFLMetadata.fontMetadata();
-      for (const key in fontMetadata) {
-        let addBr = true;
-        switch (key) {
-        case 'fontName':
-        case 'fontVersion':
-          $contentContainer.append(`${key}: ${fontMetadata[key]}`);
-          break;
-        case 'engravingDefaults':
-          add_engravingDefaults(key, fontMetadata[key]);
-          addBr = false;
-          break;
-        case 'glyphBBoxes':
-        case 'glyphsWithAlternates':
-        case 'glyphsWithAnchors':
-        case 'ligatures':
-        case 'optionalGlyphs':
-          $contentContainer.append(`${key}: ...`);
-          break;
-        case 'sets':
-          add_sets(key, fontMetadata[key]);
-          break;
-        default:
-          break;
+        const fontMetadata = sMuFLMetadata.fontMetadata();
+        for (const key in fontMetadata) {
+          let addBr = true;
+          switch (key) {
+          case 'fontName':
+          case 'fontVersion':
+            $contentContainer.append(`${key}: ${fontMetadata[key]}`);
+            break;
+          case 'engravingDefaults':
+            add_engravingDefaults(key, fontMetadata[key]);
+            addBr = false;
+            break;
+          case 'glyphBBoxes':
+          case 'glyphsWithAlternates':
+          case 'glyphsWithAnchors':
+          case 'ligatures':
+          case 'optionalGlyphs':
+            $contentContainer.append(`${key}: ...`);
+            break;
+          case 'sets':
+            add_sets(key, fontMetadata[key]);
+            break;
+          default:
+            break;
+          }
+          if (addBr) {
+            $contentContainer.append($('<br>'));
+          }
         }
-        if (addBr) {
-          $contentContainer.append($('<br>'));
-        }
-      }
-      $infoDialog.get(0).showModal('font metadata');
+      });
     });
 
     function addLigatureInfo($ligaturesInfo, label, ligature, glyphname) {
@@ -437,71 +450,70 @@ class SMuFLFontViewer {
     }
 
     $('#BFontMetadataLigatures').on('click', function () {
-      $contentContainer.empty();
-
-      try {
-        const ligatures = sMuFLMetadata.getFontInfo().fontMetadata.ligatures;
-        Object.keys(ligatures).forEach(function(glyphname) {
-          const $ligaturesInfo = $(`<div class="ligatureContainer glyphContainer"></div>`);
-          $contentContainer.append($ligaturesInfo);
-          addLigatureInfo($ligaturesInfo, undefined, ligatures[glyphname], glyphname);
-        });
-        $infoDialog.get(0).showModal('font metadata ligatures');
-      } catch(e) {
-        console.log(e);
-      }
+      _$infoDialog_showModal('font metadata ligatures', function($contentContainer) {
+        try {
+          const ligatures = sMuFLMetadata.getFontInfo().fontMetadata.ligatures;
+          Object.keys(ligatures).forEach(function(glyphname) {
+            const $ligaturesInfo = $(`<div class="ligatureContainer glyphContainer"></div>`);
+            $contentContainer.append($ligaturesInfo);
+            addLigatureInfo($ligaturesInfo, undefined, ligatures[glyphname], glyphname);
+          });
+        } catch(e) {
+          console.log(e);
+        }
+      });
     });
 
 
     $('#BFontMetadataSets').on('click', function () {
-      $contentContainer.empty();
+      _$infoDialog_showModal('font metadata sets', function($contentContainer) {
 
-      function _setNameId(setName) {
-        return 'setContainer_' + setName;
-      }
+        function _setNameId(setName) {
+          return 'setContainer_' + setName;
+        }
 
-      function _addLink($c, setName) {
-        const disabled = setName ? false : true;
-        if (disabled) {
-          setName = '....';
+        function _addLink($c, setName) {
+          const disabled = setName ? false : true;
+          if (disabled) {
+            setName = '....';
+          }
+          if (disabled) {
+            $c.append(`<span>${setName}</span> `);
+          }
+          else {
+            $c.append(`<a href="#${_setNameId(setName)}">${setName}</a> `);
+          }
         }
-        if (disabled) {
-          $c.append(`<span>${setName}</span> `);
-        }
-        else {
-          $c.append(`<a href="#${_setNameId(setName)}">${setName}</a> `);
-        }
-      }
 
-      try {
-        const sets = sMuFLMetadata.getFontInfo().fontMetadata.sets;
-        Object.keys(sets).forEach(function(setName, idx, setNames) {
-          const set = sets[setName];
-          const id = _setNameId(setName);
-          const $setContainer = $(`<div class="setContainer" id="${id}"></div>`);
-          $contentContainer.append($setContainer);
-          $setContainer.append(`${setName}: `);
-          _addLink($setContainer, setNames[idx - 1]);
-          _addLink($setContainer, setNames[idx + 1]);
-          $setContainer.append(`\n`);
-          $setContainer.append(`description: ${set.description}: \n`);
-          $setContainer.append(`type: ${set.type}: \n`);
-          const glyphs = set.glyphs;
-          glyphs.forEach(function(glyph) {
-            const $glyphContainer = $('<div class="glyphContainer"></div>');
-            $glyphContainer.append(`description: ${glyph.description}\n`);
-            appendCodepointOrText($glyphContainer, glyph.codepoint);
-            $glyphContainer.append(', ');
-            appendGlyphname($glyphContainer, glyph.name);
-            $glyphContainer.append(', alternateFor: ');
-            appendGlyphname($glyphContainer, glyph.alternateFor);
-            $setContainer.append($glyphContainer);
+        try {
+          const sets = sMuFLMetadata.getFontInfo().fontMetadata.sets;
+          Object.keys(sets).forEach(function(setName, idx, setNames) {
+            const set = sets[setName];
+            const id = _setNameId(setName);
+            const $setContainer = $(`<div class="setContainer" id="${id}"></div>`);
+            $contentContainer.append($setContainer);
+            $setContainer.append(`${setName}: `);
+            _addLink($setContainer, setNames[idx - 1]);
+            _addLink($setContainer, setNames[idx + 1]);
+            $setContainer.append(`\n`);
+            $setContainer.append(`description: ${set.description}: \n`);
+            $setContainer.append(`type: ${set.type}: \n`);
+            const glyphs = set.glyphs;
+            glyphs.forEach(function(glyph) {
+              const $glyphContainer = $('<div class="glyphContainer"></div>');
+              $glyphContainer.append(`description: ${glyph.description}\n`);
+              appendCodepointOrText($glyphContainer, glyph.codepoint);
+              $glyphContainer.append(', ');
+              appendGlyphname($glyphContainer, glyph.name);
+              $glyphContainer.append(', alternateFor: ');
+              appendGlyphname($glyphContainer, glyph.alternateFor);
+              $setContainer.append($glyphContainer);
+            });
           });
-        });
-        $infoDialog.get(0).showModal('font metadata sets');
-      } catch(e) {
-        console.log(e);
-      }
+        } catch(e) {
+          console.log(e);
+        }
+      });
     });
 
     function addAlternatesInfo($alternatesInfo, alternates, baseGlyphname, glyphname) {
@@ -520,38 +532,38 @@ class SMuFLFontViewer {
     }
 
     $('#BFontMetadataGlyphsWithAlternates').on('click', function () {
-      $contentContainer.empty();
-      try {
-        const gwAlternates = sMuFLMetadata.fontMetadata().glyphsWithAlternates;
-        for (const akey in gwAlternates) {
-          const alternates = gwAlternates[akey];
-          const $gwaContainer = $(`<div class="gwalternatesContainer glyphContainer"></div>`);
-          $contentContainer.append($gwaContainer);
-          addAlternatesInfo($gwaContainer, alternates, akey);
+      _$infoDialog_showModal('font metadata glyphsWithAlternates', function($contentContainer) {
+        try {
+          const gwAlternates = sMuFLMetadata.fontMetadata().glyphsWithAlternates;
+          for (const akey in gwAlternates) {
+            const alternates = gwAlternates[akey];
+            const $gwaContainer = $(`<div class="gwalternatesContainer glyphContainer"></div>`);
+            $contentContainer.append($gwaContainer);
+            addAlternatesInfo($gwaContainer, alternates, akey);
+          }
+        } catch(e) {
+          console.log(e);
         }
-        $infoDialog.get(0).showModal('font metadata glyphsWithAlternates');
-      } catch(e) {
-        console.log(e);
-      }
+      });
     });
 
     $('#BFontMetadataGlyphsWithAnchors').on('click', function () {
-      $contentContainer.empty();
-      try {
-        const glyphsWithAnchors = sMuFLMetadata.getFontInfo().fontMetadata.glyphsWithAnchors;
-        Object.keys(glyphsWithAnchors).forEach(function(glyphname) {
-          const glyph = glyphsWithAnchors[glyphname];
-          const $gwaContainer = $(`<div class="gwanchorsContainer"></div>`);
-          $contentContainer.append($gwaContainer);
-          const $glyphContainer = $('<div class="glyphContainer"></div>');
-          appendGlyphname($glyphContainer, glyphname);
-          $glyphContainer.append('&nbsp;' + Object.keys(glyph).join(', '));
-          $gwaContainer.append($glyphContainer);
-        });
-        $infoDialog.get(0).showModal('font metadata glyphsWithAlternates');
-      } catch(e) {
-        console.log(e);
-      }
+      _$infoDialog_showModal('font metadata glyphsWithAlternates', function($contentContainer) {
+        try {
+          const glyphsWithAnchors = sMuFLMetadata.getFontInfo().fontMetadata.glyphsWithAnchors;
+          Object.keys(glyphsWithAnchors).forEach(function(glyphname) {
+            const glyph = glyphsWithAnchors[glyphname];
+            const $gwaContainer = $(`<div class="gwanchorsContainer"></div>`);
+            $contentContainer.append($gwaContainer);
+            const $glyphContainer = $('<div class="glyphContainer"></div>');
+            appendGlyphname($glyphContainer, glyphname);
+            $glyphContainer.append('&nbsp;' + Object.keys(glyph).join(', '));
+            $gwaContainer.append($glyphContainer);
+          });
+        } catch(e) {
+          console.log(e);
+        }
+      });
     });
 
     $infoDialog.find('input').on('click', function() {
@@ -935,9 +947,6 @@ class SMuFLFontViewer {
     }
 
     $('#BShow').on('click', function () {
-
-      $contentContainer.empty();
-
       var codepoint = getCodepointNumber();
       if (isNaN(codepoint)) {
         const cval = getCodepoint();
