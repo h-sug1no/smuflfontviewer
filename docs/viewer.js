@@ -140,6 +140,7 @@ class SMuFLFontViewer {
       _setIsActive(false);
 
       $smuflGlyphCanvasContainer.on('mousedown', function(ev) {
+        if (ev.button !== 0) { return; }
         _setIsActive(true);
         startPos = {
           clientX: ev.clientX,
@@ -159,6 +160,7 @@ class SMuFLFontViewer {
       });
 
       $smuflGlyphCanvasContainer.on('mouseup', function(ev) {
+        if (ev.button !== 0) { return; }
         _setIsActive(false);
       });
       $smuflGlyphCanvasContainer.on('mouseleave', function(ev) {
