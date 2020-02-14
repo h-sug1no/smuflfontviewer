@@ -206,12 +206,12 @@
 
     <div id="infoDialog">
       <div id="dialogUi">
-        <input type="button" value="close"><span id="dialogTitle"></span>
+        <input type="button" class="closeButton" title="(c)lose" value="close"><span id="dialogTitle"></span>
       </div>
       <div id="contentContainer"></div>
     </div>
     <div id="topUiContainer">
-      <input id="BGlyphnames" type="button" title="Show glyphnames" value="glyphnames">
+      <input id="BGlyphnames" type="button" title="Show (g)lyphnames" value="glyphnames">
       <input id="BOptionalGlyphs" type="button" title="Show font metadata optionalGlyphs" value="optionalGlyphs">
       <input id="BFontMetadata" type="button" title="Show font metadata" value="metadata">
       <input id="BFontMetadataLigatures" type="button" title="Show font metadata ligatures" value="ligatures">
@@ -222,13 +222,13 @@
     </div>
     <div id="smuflGlyphContainer">
       <div id="glyphContainer">
-        <input id="BPrev" type="button" value="-" title="show prev codepoint">
-        <input id="codepointText" type="text" style="text-align:center; font-size:150%" size="10" avalue="E000" bvalue="accidental1CommaSharp"
+        <input id="BPrev" type="button" value="-" title="show prev codepoint(h)">
+        <input id="codepointText" title="enter codepoint or glyphname (k)" type="text" style="text-align:center; font-size:150%" size="10" avalue="E000" bvalue="accidental1CommaSharp"
           cvalue="E262" value="E0A3">
-        <input id="BNext" type="button" value="+" title="show next codepoint"><br>
+        <input id="BNext" type="button" value="+" title="show next codepoint(l)"><br>
         <input id="BShow" type="button" value="Show">
-        <input id="BShowPrev" type="button" title="show prev glyph" value="Show Prev">
-        <select id="rangeSelect" title="ranges"></select>
+        <input id="BShowPrev" type="button" title="show prev glyph(j)" value="Show Prev">
+        <select id="rangeSelect" title="(r)anges"></select>
       </div>
       <div id="smuflGlyphCanvasContainer">
         <canvas id="smuflGlyphCanvas" width="2048" height="2048">
