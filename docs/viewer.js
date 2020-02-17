@@ -311,7 +311,7 @@ class SMuFLFontViewer {
         return;
       }
       switch (ev.key) {
-      case 'c':
+      case 'w':
         if ($rootContainer.hasClass('fakeDialogVisible')) {
           $infoDialog.find('input').click();
         }
@@ -321,18 +321,19 @@ class SMuFLFontViewer {
           $('#BGlyphnames').focus();
         });
         break;
-      case 'h':
+      case 'k':
         $('#BPrev').click();
         break;
-      case 'j':
+      case 'h':
+      case 'l':
         $('#BShowPrev').click();
         break;
-      case 'k':
+      case 'c':
         window.setTimeout(function() {
           $('#codepointText').focus();
         });
         break;
-      case 'l':
+      case 'j':
         $('#BNext').click();
         break;
       case 'r':
