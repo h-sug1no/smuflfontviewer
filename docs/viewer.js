@@ -62,7 +62,9 @@ class SMuFLFontViewer {
       else {
         that._handle_onSMuFLMetadataReady();
         $('#BShow').click();
-        $('#BFontMetadata').click();
+        if (options.has('showFontMetadata')) {
+          $('#BFontMetadata').click();
+        }
       }
     });
 
