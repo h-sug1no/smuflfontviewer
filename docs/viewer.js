@@ -10,6 +10,7 @@ class SMuFLFontViewer {
   constructor() {
     // eslint-disable-next-line no-undef
     this.sMuFLMetadata = new SMuFLMetadata();
+    this.sSRenderer = new SSRenderer();
   }
 
   init(options) {
@@ -61,6 +62,9 @@ class SMuFLFontViewer {
       else {
         that._handle_onSMuFLMetadataReady();
         $('#BShow').click();
+        if (options.has('showFontMetadata')) {
+          $('#BFontMetadata').click();
+        }
       }
     });
 
@@ -472,6 +476,19 @@ class SMuFLFontViewer {
             $contentContainer.append($('<br>'));
           }
         }
+        const $gmCanvas = $('<canvas id="gm_canvas"></canvas>');
+        $contentContainer.append($gmCanvas);
+        window.setTimeout(function() {
+          const gmCanvasElm = $gmCanvas.get(0);
+          gmCanvasElm.width = gmCanvasElm.clientWidth;
+          gmCanvasElm.height = gmCanvasElm.clientHeight;
+          that.sSRenderer.draw(gmCanvasElm.getContext('2d'), {
+            _measureGlyph: _measureGlyph,
+            _renderGlyph: _renderGlyph,
+            _getGlyphData: _getGlyphData,
+            _renderCross: _renderCross
+          });
+        });
       });
     });
 
@@ -796,9 +813,9 @@ class SMuFLFontViewer {
       });
     }
 
-    function _renderCross(x, y, crossSize = 10) {
-      ctx.fillRect(x - (crossSize * 0.5), y - 0.5, crossSize, 1);
-      ctx.fillRect(x - 0.5, y - crossSize * 0.5, 1, crossSize);
+    function _renderCross(x, y, crossSize = 10, tCtx = ctx) {
+      tCtx.fillRect(x - (crossSize * 0.5), y - 0.5, crossSize, 1);
+      tCtx.fillRect(x - 0.5, y - crossSize * 0.5, 1, crossSize);
     }
 
     function _renderNumeral(x, y, sbl, bb) {
@@ -826,10 +843,10 @@ class SMuFLFontViewer {
       };
     }
 
-    function _renderGlyph(glyphData, x, y, fontSize) {
-      ctx.font = fontSize + 'px SMuFLFont';
+    function _renderGlyph(glyphData, x, y, fontSize, tctx = ctx) {
+      tctx.font = fontSize + 'px SMuFLFont';
       const str = String.fromCodePoint(glyphData.codepoint);
-      ctx.fillText(str, x, y);
+      tctx.fillText(str, x, y);
     }
 
     function _measureGlyph(glyphData, x, y, sbl) {
@@ -1189,6 +1206,10 @@ class SMuFLFontViewer {
     });
 
     this._handle_onSMuFLMetadataReady = function() {
+      this.sSRenderer.init({
+        sMuFLMetadata: sMuFLMetadata
+      });
+
       const ranges = sMuFLMetadata.data.ranges;
       for (const rk in ranges) {
         const $option = $(`<option value="${rk}">${rk}</option>`);
