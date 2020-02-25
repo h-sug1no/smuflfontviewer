@@ -175,7 +175,12 @@ class SSRenderer {
 
       const glyphData = util._getGlyphData('repeatDots');
       const m = util._measureGlyph(glyphData, 0, 0, dCtx.sbl);
-      util._renderGlyph(glyphData, x, y + sbbox.h, dCtx.sbl * 4, ctx);
+      util._renderGlyph(glyphData, x, system.y + system.h, dCtx.sbl * 4, ctx);
+
+      ctx.save();
+      ctx.fillStyle = "#ff000088";
+      util._renderCross(x, system.y + system.h, 10, ctx);
+      ctx.restore();
 
       _drawMarker(x, y + maOffset, m.scaledBBox.w, maSize);
 
@@ -207,6 +212,7 @@ class SSRenderer {
       ctx.restore();
     }
 
+    const sbl = 10;
     const dCtx = {
       ctx: ctx,
       util: util,
@@ -216,10 +222,11 @@ class SSRenderer {
           x: 10,
           y: 10,
           w: 200,
+          h: sbl * 4,
           draw: drawBarlines,
         }
       ],
-      sbl: 10,
+      sbl: sbl,
       toScreenCSX: function(engravingDefaultsVal) {
         return this.sbl * engravingDefaultsVal;
       },
@@ -231,7 +238,7 @@ class SSRenderer {
     };
 
     dCtx.ctx.save();
-    dCtx.ctx.scale(3, 3);
+    dCtx.ctx.scale(4, 4);
     this.drawStaffs(dCtx);
     dCtx.ctx.restore();
   }

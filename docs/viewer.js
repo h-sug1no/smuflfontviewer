@@ -483,7 +483,8 @@ class SMuFLFontViewer {
           that.sSRenderer.draw(gmCanvasElm.getContext('2d'), {
             _measureGlyph: _measureGlyph,
             _renderGlyph: _renderGlyph,
-            _getGlyphData: _getGlyphData
+            _getGlyphData: _getGlyphData,
+            _renderCross: _renderCross
           });
         });
       });
@@ -810,9 +811,9 @@ class SMuFLFontViewer {
       });
     }
 
-    function _renderCross(x, y, crossSize = 10) {
-      ctx.fillRect(x - (crossSize * 0.5), y - 0.5, crossSize, 1);
-      ctx.fillRect(x - 0.5, y - crossSize * 0.5, 1, crossSize);
+    function _renderCross(x, y, crossSize = 10, tCtx = ctx) {
+      tCtx.fillRect(x - (crossSize * 0.5), y - 0.5, crossSize, 1);
+      tCtx.fillRect(x - 0.5, y - crossSize * 0.5, 1, crossSize);
     }
 
     function _renderNumeral(x, y, sbl, bb) {
