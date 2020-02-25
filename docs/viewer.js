@@ -126,8 +126,12 @@ class SMuFLFontViewer {
       renderGlyph(currentGlyphData);
     });
 
+    this.resizeHandlers = [];
     $(window).on('resize', function() {
       renderGlyph(currentGlyphData);
+      that.resizeHandlers.forEach(function(func) {
+        window.setTimeout(func);
+      });
     });
 
     function _initMouseHandlers() {
@@ -201,6 +205,7 @@ class SMuFLFontViewer {
         $rootContainer.removeClass('fakeDialogVisible');
         $contentContainer.prop('title', '');
         document.body.scrollIntoView(); // reset vertical scroll position.
+        renderGlyph(currentGlyphData);
       };
     }
 
@@ -399,9 +404,16 @@ class SMuFLFontViewer {
         $contentDom = _$infoDialog_contentDoms[key] = $('<div></div>');
         func($contentDom);
       }
+      const contentDomElm = $contentDom.get(0);
       $contentContainer.empty();
       $contentContainer.append($contentDom);
       $infoDialog.get(0).showModal(key);
+
+      if (contentDomElm.dlRepaint) {
+        window.setTimeout(function() {
+          contentDomElm.dlRepaint();
+        });
+      }
     }
 
     $('#BGlyphnames').on('click', function () {
@@ -478,17 +490,22 @@ class SMuFLFontViewer {
         }
         const $gmCanvas = $('<canvas id="gm_canvas"></canvas>');
         $contentContainer.append($gmCanvas);
-        window.setTimeout(function() {
+        const drawSs = function() {
           const gmCanvasElm = $gmCanvas.get(0);
+
+          // canvas is cleared by resize.
           gmCanvasElm.width = gmCanvasElm.clientWidth;
           gmCanvasElm.height = gmCanvasElm.clientHeight;
+
           that.sSRenderer.draw(gmCanvasElm.getContext('2d'), {
             _measureGlyph: _measureGlyph,
             _renderGlyph: _renderGlyph,
             _getGlyphData: _getGlyphData,
             _renderCross: _renderCross
           });
-        });
+        }
+        that.resizeHandlers.push(drawSs);
+        $contentContainer.get(0).dlRepaint = drawSs;
       });
     });
 
