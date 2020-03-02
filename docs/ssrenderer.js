@@ -212,6 +212,49 @@ class SSRenderer {
       ctx.restore();
     }
 
+    function drawLegerLine(dCtx, x, y, noteheadMetrics) {
+      /*
+        "legerLineThickness" 	The thickness of a leger line (normally somewhat thicker
+           than a staff line)
+
+        "legerLineExtension" 	The amount by which a leger line should extend either
+          side of a notehead, scaled proportionally with the notehead's size, e.g.
+          when scaled down as a grace note
+      */
+      const llThickness = dCtx.toScreenCSX(that.engravingDefaults.legerLineThickness);
+      const llExt =  that.engravingDefaults.legerLineExtension * noteheadMetrics.scaledBBox.w;
+      const ctx = dCtx.ctx;
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(x - llExt, y);
+      ctx.lineTo(x + noteheadMetrics.scaledBBox.w + llExt, y);
+      ctx.lineWidth = llThickness;
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawNotes(dCtx, system, sbbox) {
+      const ctx = dCtx.ctx;
+      let glyphData = util._getGlyphData('noteheadBlack');
+      let x = system.x + 10;
+      let y = system.y - sbl * 2;
+      util._renderGlyph(glyphData, x, y, dCtx.sbl * 4, ctx);
+      const noteheadBlackMetrics = util._measureGlyph(glyphData, 0, 0, dCtx.sbl);
+
+      drawLegerLine(dCtx, x, y + sbl, noteheadBlackMetrics);
+      drawLegerLine(dCtx, x, y, noteheadBlackMetrics);
+
+
+      x += 40;
+      glyphData = util._getGlyphData('noteheadWhole');
+      const noteheadWholeMetrics = util._measureGlyph(glyphData, 0, 0, dCtx.sbl);
+      util._renderGlyph(glyphData, x, y, dCtx.sbl * 4, ctx);
+
+      drawLegerLine(dCtx, x, y + sbl, noteheadWholeMetrics);
+      drawLegerLine(dCtx, x, y, noteheadWholeMetrics);
+    }
+
     const sbl = 10;
     const dCtx = {
       ctx: ctx,
@@ -224,17 +267,19 @@ class SSRenderer {
           w: 200,
           h: sbl * 4,
           draw: drawBarlines,
+        },
+        {
+          x: 10,
+          y: 10 + sbl * 9,
+          w: 200,
+          h: sbl * 4,
+          draw: drawNotes,
         }
       ],
       sbl: sbl,
       toScreenCSX: function(engravingDefaultsVal) {
         return this.sbl * engravingDefaultsVal;
       },
-      renderGlyph: function(x, y, codepoint, fontSize) {
-        this.ctx.font = fontSize + 'px SMuFLFont';
-        const str = String.fromCodePoint(codepoint);
-        ctx.fillText(str, x, y);
-      }
     };
 
     dCtx.ctx.save();
