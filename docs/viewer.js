@@ -501,9 +501,15 @@ class SMuFLFontViewer {
             _measureGlyph: _measureGlyph,
             _renderGlyph: _renderGlyph,
             _getGlyphData: _getGlyphData,
-            _renderCross: _renderCross
+            _renderCross: _renderCross,
+            _anchorCsToScreenCs: _anchorCsToScreenCs,
+            _getAnchor: function(glyphname, anchorName) {
+              let anchors = sMuFLMetadata.fontMetadata().glyphsWithAnchors;
+              anchors = anchors ? anchors[glyphname] : undefined;
+              return anchors ? anchors[anchorName] : undefined;
+            }
           });
-        }
+        };
         that.resizeHandlers.push(drawSs);
         $contentContainer.get(0).dlRepaint = drawSs;
       });
@@ -659,6 +665,13 @@ class SMuFLFontViewer {
       return val * sbl;
     }
 
+    function _anchorCsToScreenCs(scaledBBox, anchor, sbl) {
+      return {
+        x: scaledBBox.x + anchorCsToScreenCsX(Number(anchor[0]), sbl),
+        y: scaledBBox.y + anchorCsToScreenCsY(Number(anchor[1]), sbl)
+      };
+    }
+
     function renderAnchor(akey, anchor, types, scaledBBox, engravingDefaults, isIndeterminate, bbs) {
       if (!anchor) {
         console.warn('fixme !anchor');
@@ -669,11 +682,7 @@ class SMuFLFontViewer {
       let w;
       let h;
       const sbl = scaledBBox.sbl;
-
-      let vals = {
-        x: scaledBBox.x + anchorCsToScreenCsX(Number(anchor[0]), sbl),
-        y: scaledBBox.y + anchorCsToScreenCsY(Number(anchor[1]), sbl)
-      };
+      let vals = _anchorCsToScreenCs(scaledBBox, anchor, sbl);
 
       // eslint-disable-next-line no-unused-vars
       let halign = 'L';
@@ -1020,9 +1029,12 @@ class SMuFLFontViewer {
       if (uCp) {
         codepoint = sMuFLMetadata.uCodepoint2Codepoint(uCp);
       }
+      const gwanchors = sMuFLMetadata.fontMetadata().glyphsWithAnchors;
+      const anchors = gwanchors ? gwanchors[glyphname] : undefined;
       return {
         glyphname: glyphname,
-        codepoint: codepoint
+        codepoint: codepoint,
+        anchors: anchors
       };
     }
 

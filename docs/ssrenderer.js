@@ -234,25 +234,92 @@ class SSRenderer {
       ctx.restore();
     }
 
+    function drawStem(dCtx, anchorPos, h, hAlign) {
+      const stemThickness = dCtx.toScreenCSX(that.engravingDefaults.stemThickness);
+      const x = anchorPos.x - (hAlign == 'R' ? stemThickness : 0) ;
+      const y = anchorPos.y;
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(x , y);
+      ctx.lineTo(x + stemThickness, y);
+      ctx.lineTo(x + stemThickness, y + h);
+      ctx.lineTo(x, y + h);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function drawSimpleBeams(dCtx, tlPos, trPos, nBeams) {
+      const ctx = dCtx.ctx;
+      const bs = dCtx.toScreenCSX(that.engravingDefaults.beamSpacing);
+      const bt = dCtx.toScreenCSX(that.engravingDefaults.beamThickness);
+      const hbt = bt * 0.5;
+
+      let x = tlPos.x;
+      let y = tlPos.y + hbt;
+      let x1 = trPos.x;
+      let y1 = y; // FIXME: support slope.
+
+      ctx.save();
+      ctx.lineWidth = bt;
+      for (let i = 0; i < nBeams; i++) {
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x1, y1);
+        ctx.stroke();
+        y += bs + bt;
+        y1 = y;
+      }
+      ctx.restore();
+    }
+
     function drawNotes(dCtx, system, sbbox) {
       const ctx = dCtx.ctx;
-      let glyphData = util._getGlyphData('noteheadBlack');
+      const gdNoteheadBlack = util._getGlyphData('noteheadBlack');
       let x = system.x + 10;
       let y = system.y - sbl * 2;
-      util._renderGlyph(glyphData, x, y, dCtx.sbl * 4, ctx);
-      const noteheadBlackMetrics = util._measureGlyph(glyphData, 0, 0, dCtx.sbl);
+      util._renderGlyph(gdNoteheadBlack, x, y, dCtx.sbl * 4, ctx);
+      const noteheadBlackMetrics = util._measureGlyph(gdNoteheadBlack, 0, 0, dCtx.sbl);
 
       drawLegerLine(dCtx, x, y + sbl, noteheadBlackMetrics);
       drawLegerLine(dCtx, x, y, noteheadBlackMetrics);
 
 
       x += 40;
-      glyphData = util._getGlyphData('noteheadWhole');
-      const noteheadWholeMetrics = util._measureGlyph(glyphData, 0, 0, dCtx.sbl);
-      util._renderGlyph(glyphData, x, y, dCtx.sbl * 4, ctx);
+      const gdNoteheadWhole = util._getGlyphData('noteheadWhole');
+      const noteheadWholeMetrics = util._measureGlyph(gdNoteheadWhole, 0, 0, dCtx.sbl);
+      util._renderGlyph(gdNoteheadWhole, x, y, dCtx.sbl * 4, ctx);
 
       drawLegerLine(dCtx, x, y + sbl, noteheadWholeMetrics);
       drawLegerLine(dCtx, x, y, noteheadWholeMetrics);
+
+      /////////////////////////////////////////////////////////////
+      // beamed notes.
+
+      x += 40;
+      y = system.y + sbl * 1.5;
+
+      util._renderGlyph(gdNoteheadBlack, x, y, dCtx.sbl * 4, ctx);
+      const m1 = util._measureGlyph(gdNoteheadBlack, x, y, dCtx.sbl);
+      let anchor = util._getAnchor('noteheadBlack', 'stemUpSE');
+
+
+      x += 25;
+      util._renderGlyph(gdNoteheadBlack, x, y, dCtx.sbl * 4, ctx);
+      const m2 = util._measureGlyph(gdNoteheadBlack, x, y, dCtx.sbl);
+      if (anchor) {
+        const stemHeight = -3 * dCtx.sbl;
+        const pos1 = util._anchorCsToScreenCs(m1.scaledBBox, anchor, dCtx.sbl);
+        drawStem(dCtx, pos1, stemHeight, 'R');
+
+        const pos2 = util._anchorCsToScreenCs(m2.scaledBBox, anchor, dCtx.sbl);
+        drawStem(dCtx, pos2, stemHeight, 'R');
+
+        const ty = pos1.y + (stemHeight);
+        pos1.y = ty;
+        pos2.y = ty;
+        drawSimpleBeams(dCtx, pos1, pos2, 2);
+
+      }
     }
 
     const sbl = 10;
