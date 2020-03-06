@@ -285,6 +285,36 @@ class SSRenderer {
       ctx.restore();
     }
 
+    function drawCurve(dCtx, pos, cps, type) {
+      const ctx = dCtx.ctx;
+
+      /*
+      "slurEndpointThickness" 	The thickness of the end of a slur
+      "slurMidpointThickness" 	The thickness of the mid-point of a slur (i.e. its thickest point)
+      "tieEndpointThickness" 	The thickness of the end of a tie
+      "tieMidpointThickness" 	The thickness of the mid-point of a tie
+      */
+
+      const et = dCtx.toScreenCSX(that.engravingDefaults[type + 'EndpointThickness']);
+      const mt = dCtx.toScreenCSX(that.engravingDefaults[type + 'MidpointThickness']);
+      const het = et * 0.5;
+      const hmt = mt * 0.5;
+
+      ctx.beginPath();
+      ctx.moveTo(pos.x1, pos.y1 - het);
+      ctx.bezierCurveTo(cps.x1, cps.y1 - hmt,
+        cps.x2, cps.y2 - hmt,
+        pos.x2, pos.y2 - het
+      );
+      ctx.lineTo(pos.x2, pos.y2 + het);
+      ctx.bezierCurveTo(cps.x2, cps.y2 + hmt,
+        cps.x1, cps.y1 + hmt,
+        pos.x1, pos.y1 + het
+      );
+      ctx.closePath();
+      ctx.fill();
+    }
+
     function drawNotes(dCtx, system, sbbox) {
       const ctx = dCtx.ctx;
       const gdNoteheadBlack = util._getGlyphData('noteheadBlack');
@@ -292,6 +322,16 @@ class SSRenderer {
       const fontSize = dCtx.fontSize;
       let x = system.x + 10;
       let y = system.y - sbl * 2;
+
+      const gdNoteheadWhole = util._getGlyphData('noteheadWhole');
+      const noteheadWholeMetrics = util._measureGlyph(gdNoteheadWhole, 0, 0, dCtx.sbl);
+      util._renderGlyph(gdNoteheadWhole, x, y, fontSize, ctx);
+
+      drawLegerLine(dCtx, x, y + sbl, noteheadWholeMetrics);
+      drawLegerLine(dCtx, x, y, noteheadWholeMetrics);
+
+      x += 40;
+
       util._renderGlyph(gdNoteheadBlack, x, y, fontSize, ctx);
       const noteheadBlackMetrics = util._measureGlyph(gdNoteheadBlack, x, y, dCtx.sbl);
 
@@ -302,15 +342,6 @@ class SSRenderer {
         const pos0 = util._anchorCsToScreenCs(noteheadBlackMetrics.scaledBBox, nb_stemDownNWAnchor, dCtx.sbl);
         drawStem(dCtx, pos0, stemHeight + sbl - (pos0.y - y), 'L');
       }
-
-
-      x += 40;
-      const gdNoteheadWhole = util._getGlyphData('noteheadWhole');
-      const noteheadWholeMetrics = util._measureGlyph(gdNoteheadWhole, 0, 0, dCtx.sbl);
-      util._renderGlyph(gdNoteheadWhole, x, y, fontSize, ctx);
-
-      drawLegerLine(dCtx, x, y + sbl, noteheadWholeMetrics);
-      drawLegerLine(dCtx, x, y, noteheadWholeMetrics);
 
       /////////////////////////////////////////////////////////////
       // beamed notes.
@@ -345,10 +376,74 @@ class SSRenderer {
       }
 
       // curves
-      x = system.x + 10;
-      y = system.y + sbl * 5;
+      x = system.x + 50;
+      y = system.y + sbl * 3;
 
+      const npos = [{
+        x: x,
+        y: y
+      }];
 
+      util._renderGlyph(gdNoteheadBlack, x, y, fontSize, ctx);
+      if (nb_stemDownNWAnchor) {
+        const m = util._measureGlyph(gdNoteheadBlack, x, y, dCtx.sbl);
+        const pos0 = util._anchorCsToScreenCs(m.scaledBBox, nb_stemDownNWAnchor, dCtx.sbl);
+        drawStem(dCtx, pos0, stemHeight - (pos0.y - y), 'L');
+      }
+
+      x += 60;
+      npos.push({
+        x: x,
+        y: y
+      });
+
+      util._renderGlyph(gdNoteheadBlack, x, y, fontSize, ctx);
+      if (nb_stemDownNWAnchor) {
+        const m = util._measureGlyph(gdNoteheadBlack, x, y, dCtx.sbl);
+        const pos0 = util._anchorCsToScreenCs(m.scaledBBox, nb_stemDownNWAnchor, dCtx.sbl);
+        drawStem(dCtx, pos0, stemHeight - (pos0.y - y), 'L');
+      }
+
+      x += 50;
+      y += sbl;
+      npos.push({
+        x: x,
+        y: y
+      });
+      util._renderGlyph(gdNoteheadBlack, x, y, fontSize, ctx);
+      if (nb_stemDownNWAnchor) {
+        const m = util._measureGlyph(gdNoteheadBlack, x, y, dCtx.sbl);
+        const pos0 = util._anchorCsToScreenCs(m.scaledBBox, nb_stemDownNWAnchor, dCtx.sbl);
+        drawStem(dCtx, pos0, stemHeight - (pos0.y - y), 'L');
+      }
+
+      const spos = {
+        x1: npos[1].x + 3,
+        y1: npos[1].y + 2 * sbl,
+        x2: npos[2].x - 2,
+        y2: npos[2].y + 2 * sbl,
+      };
+      const scps = {
+          x1: spos.x1 + 2,
+          y1: spos.y1 + 4,
+          x2: spos.x2 - 16,
+          y2: spos.y2 + 6
+      };
+      drawCurve(dCtx, spos, scps, 'slur');
+
+      const tpos = {
+        x1: npos[0].x + 5,
+        y1: npos[0].y + 8,
+        x2: npos[1].x - 2,
+        y2: npos[1].y + 8,
+      };
+      const tcps = {
+          x1: tpos.x1 + 8,
+          y1: tpos.y1 + 8,
+          x2: tpos.x2 - 8,
+          y2: tpos.y2 + 8
+      };
+      drawCurve(dCtx, tpos, tcps, 'tie');
     }
 
     const sbl = 10;
