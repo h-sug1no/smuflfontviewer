@@ -297,22 +297,26 @@ class SSRenderer {
 
       const et = dCtx.toScreenCSX(that.engravingDefaults[type + 'EndpointThickness']);
       const mt = dCtx.toScreenCSX(that.engravingDefaults[type + 'MidpointThickness']);
-      const het = et * 0.5;
-      const hmt = mt * 0.5;
+      const hmt = mt * 0.5; // FIXME: More accurate calculation.
 
+      ctx.save();
       ctx.beginPath();
-      ctx.moveTo(pos.x1, pos.y1 - het);
+      ctx.moveTo(pos.x1, pos.y1);
       ctx.bezierCurveTo(cps.x1, cps.y1 - hmt,
         cps.x2, cps.y2 - hmt,
-        pos.x2, pos.y2 - het
+        pos.x2, pos.y2
       );
-      ctx.lineTo(pos.x2, pos.y2 + het);
+
       ctx.bezierCurveTo(cps.x2, cps.y2 + hmt,
         cps.x1, cps.y1 + hmt,
-        pos.x1, pos.y1 + het
+        pos.x1, pos.y1
       );
+
+      ctx.lineWidth = et;
+      ctx.stroke();
       ctx.closePath();
       ctx.fill();
+      ctx.restore();
     }
 
     function drawNotes(dCtx, system, sbbox) {
