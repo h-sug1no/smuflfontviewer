@@ -466,7 +466,7 @@ class SSRenderer {
         },
         {
           x: 10,
-          y: 10 + sbl * 9,
+          y: 10 + sbl * 10,
           w: 200,
           h: sbl * 4,
           draw: drawNotes,
