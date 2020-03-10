@@ -319,6 +319,47 @@ class SSRenderer {
       ctx.restore();
     }
 
+    function drawTuplet(dCtx, pos, n, placement) {
+      const ctx = dCtx.ctx;
+      const tt = dCtx.toScreenCSX(that.engravingDefaults.tupletBracketThickness);
+
+      const bh = sbl * (placement === 'above' ? 1 : -1);
+
+      const w = pos.x2 - pos.x1;
+      const h = pos.y2 - pos.y1;
+      const slope = h / w;
+      const gdTupletNumber = util._getGlyphData('tuplet' + n);
+      const fontSize = dCtx.sbl * 3;
+      const gm = util._measureGlyph(gdTupletNumber, 0, 0, fontSize / 5);
+
+      const lw = (w * 0.5) - (gm.scaledBBox.w * 0.5) - (dCtx.sbl * 0.5);
+      const middlePos = {
+        x1: pos.x1 + lw,
+        y1: pos.y1 + (slope * lw),
+        x2: pos.x2 - lw,
+        y2: pos.y1 + (slope * (w - lw)),
+      };
+
+      ctx.save();
+      ctx.lineWidth = tt;
+      ctx.beginPath();
+      ctx.moveTo(pos.x1, pos.y1 + bh);
+      ctx.lineTo(pos.x1, pos.y1);
+      ctx.lineTo(middlePos.x1, middlePos.y1);
+
+      ctx.moveTo(middlePos.x2, middlePos.y2);
+      ctx.lineTo(pos.x2, pos.y2);
+      ctx.lineTo(pos.x2, pos.y2 + bh);
+      ctx.stroke();
+
+      ctx.textAlign = 'center';
+      util._renderGlyph(gdTupletNumber, pos.x1 + (w * 0.5),
+        (gm.scaledBBox.h * 0.5) + Math.min(pos.y2, pos.y1) + (h * 0.5),
+        fontSize, ctx);
+
+      ctx.restore();
+    }
+
     function drawNotes(dCtx, system, sbbox) {
       const ctx = dCtx.ctx;
       const gdNoteheadBlack = util._getGlyphData('noteheadBlack');
@@ -448,6 +489,14 @@ class SSRenderer {
           y2: tpos.y2 + 8
       };
       drawCurve(dCtx, tpos, tcps, 'tie');
+
+      drawTuplet(dCtx, {
+          x1: npos[0].x,
+          y1: npos[0].y + 4.5 * sbl,
+          x2: npos[2].x + m1.scaledBBox.w,
+          y2: npos[2].y + 4.5 * sbl,
+        },
+        3, 'below');
     }
 
     const sbl = 10;
