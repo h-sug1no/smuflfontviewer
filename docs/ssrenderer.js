@@ -437,6 +437,7 @@ class SSRenderer {
       }
 
       x += 60;
+      y += sbl;
       npos.push({
         x: x,
         y: y
@@ -450,7 +451,6 @@ class SSRenderer {
       }
 
       x += 50;
-      y += sbl;
       npos.push({
         x: x,
         y: y
@@ -462,11 +462,25 @@ class SSRenderer {
         drawStem(dCtx, pos0, stemHeight - (pos0.y - y), 'L');
       }
 
+      const tpos = {
+        x1: npos[1].x + 6,
+        y1: npos[1].y - 7,
+        x2: npos[2].x + 6,
+        y2: npos[2].y - 7,
+      };
+      const tcps = {
+          x1: tpos.x1 + 8,
+          y1: tpos.y1 - 9,
+          x2: tpos.x2 - 8,
+          y2: tpos.y2 - 9
+      };
+      drawCurve(dCtx, tpos, tcps, 'tie');
+
       const spos = {
-        x1: npos[1].x + 3,
-        y1: npos[1].y + 2 * sbl,
-        x2: npos[2].x - 2,
-        y2: npos[2].y + 2 * sbl,
+        x1: npos[0].x + 3,
+        y1: npos[0].y + 2 * sbl,
+        x2: npos[1].x - 2,
+        y2: npos[1].y + 2 * sbl,
       };
       const scps = {
           x1: spos.x1 + 2,
@@ -476,19 +490,6 @@ class SSRenderer {
       };
       drawCurve(dCtx, spos, scps, 'slur');
 
-      const tpos = {
-        x1: npos[0].x + 5,
-        y1: npos[0].y + 8,
-        x2: npos[1].x - 2,
-        y2: npos[1].y + 8,
-      };
-      const tcps = {
-          x1: tpos.x1 + 8,
-          y1: tpos.y1 + 8,
-          x2: tpos.x2 - 8,
-          y2: tpos.y2 + 8
-      };
-      drawCurve(dCtx, tpos, tcps, 'tie');
 
       drawTuplet(dCtx, {
           x1: npos[0].x,
