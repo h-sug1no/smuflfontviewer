@@ -329,7 +329,7 @@ class SSRenderer {
       const h = pos.y2 - pos.y1;
       const slope = h / w;
       const gdTupletNumber = util._getGlyphData('tuplet' + n);
-      const fontSize = dCtx.sbl * 3;
+      const fontSize = dCtx.sbl * 3; // FIXME: how to resolve font size?
       const gm = util._measureGlyph(gdTupletNumber, 0, 0, fontSize / 5);
 
       const lw = (w * 0.5) - (gm.scaledBBox.w * 0.5) - (dCtx.sbl * 0.5);
@@ -490,7 +490,7 @@ class SSRenderer {
       };
       drawCurve(dCtx, spos, scps, 'slur');
 
-
+      // FIXME: how to resolve hook length?
       drawTuplet(dCtx, {
           x1: npos[0].x,
           y1: npos[0].y + 4.5 * sbl,
