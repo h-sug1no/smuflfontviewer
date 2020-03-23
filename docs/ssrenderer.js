@@ -360,6 +360,29 @@ class SSRenderer {
       ctx.restore();
     }
 
+    function drawRehearsalMark(dCtx, pos, str) {
+      const ctx = dCtx.ctx;
+      ctx.save();
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const fontSize = (dCtx.sbl * 1.5);
+      ctx.font = (fontSize) + 'px serif';
+      let hw = ctx.measureText(str).width * 0.5;
+      let hh = fontSize * 0.5;
+      ctx.fillText(str, pos.x, pos.y);
+      ctx.lineWidth = dCtx.toScreenCSX(that.engravingDefaults.textEnclosureThickness);
+      ctx.beginPath();
+      const padding = fontSize * 0.2;
+      const hPadding = padding * 1.5;
+      ctx.rect(pos.x - hw - hPadding,
+        pos.y - hh - padding,
+        (hw * 2) + (hPadding * 2),
+        (hh * 2) + (padding * 2)
+      );
+      ctx.stroke();
+      ctx.restore();
+    }
+
     function drawNotes(dCtx, system, sbbox) {
       const ctx = dCtx.ctx;
       const gdNoteheadBlack = util._getGlyphData('noteheadBlack');
@@ -401,6 +424,11 @@ class SSRenderer {
       const m1 = util._measureGlyph(gdNoteheadBlack, x, y, dCtx.sbl);
       const nb_stemUpSEAnchor = util._getAnchor('noteheadBlack', 'stemUpSE');
 
+      // text enclosure.
+      drawRehearsalMark(dCtx, {
+        x: x + sbl,
+        y: y - (4.5 * sbl),
+      }, 'A');
 
       x += 25;
       util._renderGlyph(gdNoteheadBlack, x, y, fontSize, ctx);
