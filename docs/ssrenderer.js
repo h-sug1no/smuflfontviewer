@@ -118,6 +118,23 @@ class SSRenderer {
       ctx.restore();
     }
 
+    function drawHorizontalArrowLine(dCtx, startPos, endPos) {
+      const ctx = dCtx.ctx;
+
+      // FIXME: Is this an expected example?
+      const ast = dCtx.toScreenCSX(that.engravingDefaults.arrowShaftThickness);
+      const glyphData = util._getGlyphData('arrowheadBlackRight');
+      const m = util._measureGlyph(glyphData, 0, 0, dCtx.sbl);
+      ctx.save();
+      ctx.lineWidth = ast;
+      ctx.beginPath();
+      ctx.moveTo(startPos.x, startPos.y);
+      ctx.lineTo(endPos.x - (m.scaledBBox.w * 0.5), endPos.y);
+      ctx.stroke();
+      util._renderGlyph(glyphData, endPos.x - m.scaledBBox.w, endPos.y + (m.scaledBBox.h * 0.5), dCtx.fontSize, ctx);
+      ctx.restore();
+    }
+
     function drawBarlines(dCtx, system, sbbox) {
       ctx.save();
 
@@ -251,6 +268,11 @@ class SSRenderer {
 
       octaveBracketPos.endPos.x = x;
       drawOctavaBracket(dCtx, octaveBracketPos.startPos, octaveBracketPos.endPos);
+
+      const arrowLineOffsetY = sbl * -1.2;
+      octaveBracketPos.startPos.y += arrowLineOffsetY;
+      octaveBracketPos.endPos.y += arrowLineOffsetY;
+      drawHorizontalArrowLine(dCtx, octaveBracketPos.startPos, octaveBracketPos.endPos);
     }
 
     function drawLegerLine(dCtx, x, y, noteheadMetrics) {
