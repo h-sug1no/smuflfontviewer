@@ -93,6 +93,31 @@ class SSRenderer {
       ctx.stroke();
       ctx.restore();
     }
+
+    function drawOctavaBracket(dCtx, startPos, endPos) {
+      const ctx = dCtx.ctx;
+      const olt = dCtx.toScreenCSX(that.engravingDefaults.octaveLineThickness);
+      const glyphData = util._getGlyphData('ottavaAlta');
+      const m = util._measureGlyph(glyphData, 0, 0, dCtx.sbl);
+      ctx.save();
+      util._renderGlyph(glyphData, startPos.x, startPos.y + (dCtx.sbl * 1), dCtx.fontSize, ctx);
+
+      const dv = dCtx.sbl * 0.8;
+      ctx.setLineDash([0, dv, dv, 0]);
+      ctx.beginPath();
+      ctx.moveTo(m.scaledBBox.w + startPos.x - (dCtx.sbl * 0.5), startPos.y);
+      ctx.lineTo(endPos.x, endPos.y);
+      ctx.stroke();
+
+      ctx.setLineDash([]);
+      ctx.beginPath();
+      ctx.moveTo(endPos.x, endPos.y - (olt * 0.45));
+      ctx.lineTo(endPos.x, endPos.y + (dCtx.sbl * 1.5));
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
     function drawBarlines(dCtx, system, sbbox) {
       ctx.save();
 
@@ -100,6 +125,17 @@ class SSRenderer {
 
       const maOffset = -(sbl * 0.5);
       const maSize = sbl * 0.3;
+
+      const octaveBracketPos = {
+        startPos: {
+          x: 0,
+          y: system.y - (sbl * 3)
+        },
+        endPos: {
+          x: 0,
+          y: system.y - (sbl * 3)
+        }
+      };
 
       _drawMarker(system.x - sbl * 0.5, system.y - sbbox.slt * 0.5, sbl * 0.3, sbbox.slt,
         'blue', true);
@@ -120,6 +156,7 @@ class SSRenderer {
       // thick braline.
       const thickbt = dCtx.toScreenCSX(that.engravingDefaults.thickBarlineThickness);
       x += 30;
+      octaveBracketPos.startPos.x = x;
       ctx.beginPath();
       ctx.moveTo(x, y);
       ctx.lineTo(x, y + sbbox.h);
@@ -135,6 +172,7 @@ class SSRenderer {
       const dblgl = dCtx.toScreenCSX(that.engravingDefaults.dashedBarlineGapLength);
 
       x += 30;
+
       ctx.save();
       ctx.beginPath();
       ctx.moveTo(x, y);
@@ -210,6 +248,9 @@ class SSRenderer {
       _drawMarker(x - thickbt * 0.5, y + maOffset, thickbt, maSize);
 
       ctx.restore();
+
+      octaveBracketPos.endPos.x = x;
+      drawOctavaBracket(dCtx, octaveBracketPos.startPos, octaveBracketPos.endPos);
     }
 
     function drawLegerLine(dCtx, x, y, noteheadMetrics) {
@@ -254,6 +295,7 @@ class SSRenderer {
       const bt = dCtx.toScreenCSX(that.engravingDefaults.beamThickness);
       const hbt = bt * 0.5;
 
+      // tlPos: top left, trPos: top right
       let x = tlPos.x;
       let y = tlPos.y + hbt;
       let x1 = trPos.x;
@@ -537,14 +579,14 @@ class SSRenderer {
       systems: [
         {
           x: 10,
-          y: 10,
+          y: 50,
           w: 200,
           h: sbl * 4,
           draw: drawBarlines,
         },
         {
           x: 10,
-          y: 10 + sbl * 10,
+          y: 50 + sbl * 10,
           w: 200,
           h: sbl * 4,
           draw: drawNotes,
