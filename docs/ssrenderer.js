@@ -93,6 +93,48 @@ class SSRenderer {
       ctx.stroke();
       ctx.restore();
     }
+
+    function drawOctavaBracket(dCtx, startPos, endPos) {
+      const ctx = dCtx.ctx;
+      const olt = dCtx.toScreenCSX(that.engravingDefaults.octaveLineThickness);
+      const glyphData = util._getGlyphData('ottavaAlta');
+      const m = util._measureGlyph(glyphData, 0, 0, dCtx.sbl);
+      ctx.save();
+      util._renderGlyph(glyphData, startPos.x, startPos.y + (dCtx.sbl * 1), dCtx.fontSize, ctx);
+
+      const dv = dCtx.sbl * 0.8;
+      ctx.setLineDash([0, dv, dv, 0]); // fixme: how to resolve?
+      ctx.beginPath();
+      ctx.moveTo(m.scaledBBox.w + startPos.x - (dCtx.sbl * 0.5), startPos.y);
+      ctx.lineTo(endPos.x, endPos.y);
+      ctx.stroke();
+
+      ctx.setLineDash([]);
+      ctx.beginPath();
+      ctx.moveTo(endPos.x, endPos.y - (olt * 0.45));
+      ctx.lineTo(endPos.x, endPos.y + (dCtx.sbl * 1.5));
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    function drawHorizontalArrowLine(dCtx, startPos, endPos) {
+      const ctx = dCtx.ctx;
+
+      // FIXME: Is this an expected example?
+      const ast = dCtx.toScreenCSX(that.engravingDefaults.arrowShaftThickness);
+      const glyphData = util._getGlyphData('arrowheadBlackRight');
+      const m = util._measureGlyph(glyphData, 0, 0, dCtx.sbl);
+      ctx.save();
+      ctx.lineWidth = ast;
+      ctx.beginPath();
+      ctx.moveTo(startPos.x, startPos.y);
+      ctx.lineTo(endPos.x - (m.scaledBBox.w * 0.5), endPos.y);
+      ctx.stroke();
+      util._renderGlyph(glyphData, endPos.x - m.scaledBBox.w, endPos.y + (m.scaledBBox.h * 0.5), dCtx.fontSize, ctx);
+      ctx.restore();
+    }
+
     function drawBarlines(dCtx, system, sbbox) {
       ctx.save();
 
@@ -100,6 +142,17 @@ class SSRenderer {
 
       const maOffset = -(sbl * 0.5);
       const maSize = sbl * 0.3;
+
+      const octaveBracketPos = {
+        startPos: {
+          x: 0,
+          y: system.y - (sbl * 3)
+        },
+        endPos: {
+          x: 0,
+          y: system.y - (sbl * 3)
+        }
+      };
 
       _drawMarker(system.x - sbl * 0.5, system.y - sbbox.slt * 0.5, sbl * 0.3, sbbox.slt,
         'blue', true);
@@ -120,6 +173,7 @@ class SSRenderer {
       // thick braline.
       const thickbt = dCtx.toScreenCSX(that.engravingDefaults.thickBarlineThickness);
       x += 30;
+      octaveBracketPos.startPos.x = x;
       ctx.beginPath();
       ctx.moveTo(x, y);
       ctx.lineTo(x, y + sbbox.h);
@@ -135,6 +189,7 @@ class SSRenderer {
       const dblgl = dCtx.toScreenCSX(that.engravingDefaults.dashedBarlineGapLength);
 
       x += 30;
+
       ctx.save();
       ctx.beginPath();
       ctx.moveTo(x, y);
@@ -210,6 +265,14 @@ class SSRenderer {
       _drawMarker(x - thickbt * 0.5, y + maOffset, thickbt, maSize);
 
       ctx.restore();
+
+      octaveBracketPos.endPos.x = x;
+      drawOctavaBracket(dCtx, octaveBracketPos.startPos, octaveBracketPos.endPos);
+
+      const arrowLineOffsetY = sbl * -1.2;
+      octaveBracketPos.startPos.y += arrowLineOffsetY;
+      octaveBracketPos.endPos.y += arrowLineOffsetY;
+      drawHorizontalArrowLine(dCtx, octaveBracketPos.startPos, octaveBracketPos.endPos);
     }
 
     function drawLegerLine(dCtx, x, y, noteheadMetrics) {
@@ -254,6 +317,7 @@ class SSRenderer {
       const bt = dCtx.toScreenCSX(that.engravingDefaults.beamThickness);
       const hbt = bt * 0.5;
 
+      // tlPos: top left, trPos: top right
       let x = tlPos.x;
       let y = tlPos.y + hbt;
       let x1 = trPos.x;
@@ -360,6 +424,29 @@ class SSRenderer {
       ctx.restore();
     }
 
+    function drawRehearsalMark(dCtx, pos, str) {
+      const ctx = dCtx.ctx;
+      ctx.save();
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const fontSize = (dCtx.sbl * 1.5);
+      ctx.font = (fontSize) + 'px serif';
+      let hw = ctx.measureText(str).width * 0.5;
+      let hh = fontSize * 0.5;
+      ctx.fillText(str, pos.x, pos.y);
+      ctx.lineWidth = dCtx.toScreenCSX(that.engravingDefaults.textEnclosureThickness);
+      ctx.beginPath();
+      const padding = fontSize * 0.2;
+      const hPadding = padding * 1.5;
+      ctx.rect(pos.x - hw - hPadding,
+        pos.y - hh - padding,
+        (hw * 2) + (hPadding * 2),
+        (hh * 2) + (padding * 2)
+      );
+      ctx.stroke();
+      ctx.restore();
+    }
+
     function drawNotes(dCtx, system, sbbox) {
       const ctx = dCtx.ctx;
       const gdNoteheadBlack = util._getGlyphData('noteheadBlack');
@@ -401,6 +488,11 @@ class SSRenderer {
       const m1 = util._measureGlyph(gdNoteheadBlack, x, y, dCtx.sbl);
       const nb_stemUpSEAnchor = util._getAnchor('noteheadBlack', 'stemUpSE');
 
+      // text enclosure.
+      drawRehearsalMark(dCtx, {
+        x: x + sbl,
+        y: y - (4.5 * sbl),
+      }, 'A');
 
       x += 25;
       util._renderGlyph(gdNoteheadBlack, x, y, fontSize, ctx);
@@ -509,14 +601,14 @@ class SSRenderer {
       systems: [
         {
           x: 10,
-          y: 10,
+          y: 50,
           w: 200,
           h: sbl * 4,
           draw: drawBarlines,
         },
         {
           x: 10,
-          y: 10 + sbl * 10,
+          y: 50 + sbl * 10,
           w: 200,
           h: sbl * 4,
           draw: drawNotes,
