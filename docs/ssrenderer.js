@@ -103,7 +103,7 @@ class SSRenderer {
       util._renderGlyph(glyphData, startPos.x, startPos.y + (dCtx.sbl * 1), dCtx.fontSize, ctx);
 
       const dv = dCtx.sbl * 0.8;
-      ctx.setLineDash([0, dv, dv, 0]);
+      ctx.setLineDash([0, dv, dv, 0]); // fixme: how to resolve?
       ctx.beginPath();
       ctx.moveTo(m.scaledBBox.w + startPos.x - (dCtx.sbl * 0.5), startPos.y);
       ctx.lineTo(endPos.x, endPos.y);
