@@ -744,20 +744,21 @@ class SSRenderer {
       });
     });
 
-    // FIXME: sub stave bracket. like this?
-    ctx.strokeStyle = "#666666";
-    ctx.lineWidth = dCtx.toScreenCSX(this.engravingDefaults.subBracketThickness);
-    const sbx = systems[0].x + (ctx.lineWidth * 0.5);
+    // https://steinberg.help/dorico/v1/en/dorico/topics/notation_reference/notation_reference_brackets_braces_c.html
+    ctx.lineWidth = dCtx.toScreenCSX(this.engravingDefaults.thinBarlineThickness);
+    const blx = systems[0].x + (ctx.lineWidth * 0.5);
     ctx.beginPath();
-    ctx.moveTo(sbx, systems[0].y);
-    ctx.lineTo(sbx, systems[1].y + (sbl * (nStaffLines - 1)));
+    ctx.moveTo(blx, systems[0].y);
+    ctx.lineTo(blx, systems[1].y + (sbl * (nStaffLines - 1)));
     ctx.stroke();
 
-    // FIXME: stave bracket. like this?
+
+    // stave bracket.
     ctx.lineWidth = dCtx.toScreenCSX(this.engravingDefaults.bracketThickness);
-    const bx = systems[0].x - (sbl * 1.2);
-    const by1 = systems[0].y - (sbl * 0.5);
-    const by2 = systems[1].y + (sbl * (nStaffLines - 1 + 0.5));
+    const bx = systems[0].x - (sbl * 0.8);
+    const bp = 0.2;
+    const by1 = systems[0].y - (sbl * bp);
+    const by2 = systems[1].y + (sbl * (nStaffLines - 1 + bp));
     ctx.beginPath();
     ctx.moveTo(bx + (ctx.lineWidth * 0.5), by1);
     ctx.lineTo(bx + (ctx.lineWidth * 0.5), by2);
@@ -775,5 +776,18 @@ class SSRenderer {
       //const noteheadWholeMetrics = util._measureGlyph(gdNoteheadWhole, 0, 0, dCtx.sbl);
       dCtx.util._renderGlyph(gd, bx, def.y, dCtx.fontSize, ctx);
     });
+
+    // sub stave bracket.
+    ctx.strokeStyle = "#666666";
+    ctx.lineWidth = dCtx.toScreenCSX(this.engravingDefaults.subBracketThickness);
+    const sbx = systems[0].x + (ctx.lineWidth * 0.5);
+    const shw = sbl * 1.3;
+    ctx.beginPath();
+    ctx.moveTo(sbx, systems[0].y);
+    ctx.lineTo(sbx - shw, systems[0].y);
+    ctx.lineTo(sbx - shw, systems[1].y + (sbl * (nStaffLines - 1)));
+    ctx.lineTo(sbx, systems[1].y + (sbl * (nStaffLines - 1)));
+    ctx.stroke();
+
   }
 }
