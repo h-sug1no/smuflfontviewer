@@ -690,14 +690,14 @@ class SSRenderer {
       fontSize: sbl * 4,
       systems: [
         {
-          x: 10,
+          x: 50,
           y: 50,
           w: 200,
           h: sbl * 4,
           draw: drawBarlines,
         },
         {
-          x: 10,
+          x: 50,
           y: 50 + sbl * 10,
           w: 200,
           h: sbl * 4,
@@ -742,6 +742,38 @@ class SSRenderer {
         h: ((nStaffLines - 1) * sbl) + slt,
         slt: slt
       });
+    });
+
+    // FIXME: sub stave bracket. like this?
+    ctx.strokeStyle = "#666666";
+    ctx.lineWidth = dCtx.toScreenCSX(this.engravingDefaults.subBracketThickness);
+    const sbx = systems[0].x + (ctx.lineWidth * 0.5);
+    ctx.beginPath();
+    ctx.moveTo(sbx, systems[0].y);
+    ctx.lineTo(sbx, systems[1].y + (sbl * (nStaffLines - 1)));
+    ctx.stroke();
+
+    // FIXME: stave bracket. like this?
+    ctx.lineWidth = dCtx.toScreenCSX(this.engravingDefaults.bracketThickness);
+    const bx = systems[0].x - (sbl * 1.2);
+    const by1 = systems[0].y - (sbl * 0.5);
+    const by2 = systems[1].y + (sbl * (nStaffLines - 1 + 0.5));
+    ctx.beginPath();
+    ctx.moveTo(bx + (ctx.lineWidth * 0.5), by1);
+    ctx.lineTo(bx + (ctx.lineWidth * 0.5), by2);
+    ctx.stroke();
+
+    [{
+      gname: 'bracketTop',
+      y: by1
+    },
+    {
+      gname: 'bracketBottom',
+      y: by2
+    }].forEach((def) => {
+      const gd = dCtx.util._getGlyphData(def.gname);
+      //const noteheadWholeMetrics = util._measureGlyph(gdNoteheadWhole, 0, 0, dCtx.sbl);
+      dCtx.util._renderGlyph(gd, bx, def.y, dCtx.fontSize, ctx);
     });
   }
 }
