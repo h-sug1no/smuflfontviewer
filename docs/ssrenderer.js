@@ -155,7 +155,7 @@ class SSRenderer {
         }
       };
 
-      _drawMarker(system.x - sbl * 0.5, system.y - sbbox.slt * 0.5, sbl * 0.3, sbbox.slt,
+      _drawMarker(system.x + system.w + sbl * 0.5, system.y - sbbox.slt * 0.5, sbl * 0.3, sbbox.slt,
         'blue', true);
 
 
@@ -513,7 +513,7 @@ class SSRenderer {
       const gdNoteheadBlack = util._getGlyphData('noteheadBlack');
       const stemHeight = 3 * dCtx.sbl;
       const fontSize = dCtx.fontSize;
-      let x = system.x + 10;
+      let x = system.x + 20;
       let y = system.y - sbl * 2;
 
       const gdNoteheadWhole = util._getGlyphData('noteheadWhole');
@@ -540,7 +540,7 @@ class SSRenderer {
       // beamed notes.
 
       // hairpin
-      drawHairpin(dCtx, system.x, system.y - sbl * 3.2, system.x + 100, sbl * 1.2);
+      drawHairpin(dCtx, system.x + 10, system.y - sbl * 3.2, system.x + 100, sbl * 1.2);
 
       x += 60;
       y = system.y + sbl;
@@ -594,7 +594,7 @@ class SSRenderer {
       }
 
       // curves
-      x = system.x + 50;
+      x = system.x + 60;
       y = system.y + sbl * 3;
 
       const npos = [{
@@ -690,14 +690,14 @@ class SSRenderer {
       fontSize: sbl * 4,
       systems: [
         {
-          x: 10,
+          x: 50,
           y: 50,
           w: 200,
           h: sbl * 4,
           draw: drawBarlines,
         },
         {
-          x: 10,
+          x: 50,
           y: 50 + sbl * 10,
           w: 200,
           h: sbl * 4,
@@ -743,5 +743,51 @@ class SSRenderer {
         slt: slt
       });
     });
+
+    // https://steinberg.help/dorico/v1/en/dorico/topics/notation_reference/notation_reference_brackets_braces_c.html
+    ctx.lineWidth = dCtx.toScreenCSX(this.engravingDefaults.thinBarlineThickness);
+    const blx = systems[0].x + (ctx.lineWidth * 0.5);
+    ctx.beginPath();
+    ctx.moveTo(blx, systems[0].y);
+    ctx.lineTo(blx, systems[1].y + (sbl * (nStaffLines - 1)));
+    ctx.stroke();
+
+
+    // stave bracket.
+    ctx.lineWidth = dCtx.toScreenCSX(this.engravingDefaults.bracketThickness);
+    const bx = systems[0].x - (sbl * 0.8);
+    const bp = 0.2;
+    const by1 = systems[0].y - (sbl * bp);
+    const by2 = systems[1].y + (sbl * (nStaffLines - 1 + bp));
+    ctx.beginPath();
+    ctx.moveTo(bx + (ctx.lineWidth * 0.5), by1);
+    ctx.lineTo(bx + (ctx.lineWidth * 0.5), by2);
+    ctx.stroke();
+
+    [{
+      gname: 'bracketTop',
+      y: by1
+    },
+    {
+      gname: 'bracketBottom',
+      y: by2
+    }].forEach((def) => {
+      const gd = dCtx.util._getGlyphData(def.gname);
+      //const noteheadWholeMetrics = util._measureGlyph(gdNoteheadWhole, 0, 0, dCtx.sbl);
+      dCtx.util._renderGlyph(gd, bx, def.y, dCtx.fontSize, ctx);
+    });
+
+    // sub stave bracket.
+    ctx.strokeStyle = "#666666";
+    ctx.lineWidth = dCtx.toScreenCSX(this.engravingDefaults.subBracketThickness);
+    const sbx = systems[0].x + (ctx.lineWidth * 0.5);
+    const shw = sbl * 1.3;
+    ctx.beginPath();
+    ctx.moveTo(sbx, systems[0].y);
+    ctx.lineTo(sbx - shw, systems[0].y);
+    ctx.lineTo(sbx - shw, systems[1].y + (sbl * (nStaffLines - 1)));
+    ctx.lineTo(sbx, systems[1].y + (sbl * (nStaffLines - 1)));
+    ctx.stroke();
+
   }
 }
