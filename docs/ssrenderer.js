@@ -513,7 +513,7 @@ class SSRenderer {
       const gdNoteheadBlack = util._getGlyphData('noteheadBlack');
       const stemHeight = 3 * dCtx.sbl;
       const fontSize = dCtx.fontSize;
-      let x = system.x + 10;
+      let x = system.x + 20;
       let y = system.y - sbl * 2;
 
       const gdNoteheadWhole = util._getGlyphData('noteheadWhole');
@@ -540,7 +540,7 @@ class SSRenderer {
       // beamed notes.
 
       // hairpin
-      drawHairpin(dCtx, system.x, system.y - sbl * 3.2, system.x + 100, sbl * 1.2);
+      drawHairpin(dCtx, system.x + 10, system.y - sbl * 3.2, system.x + 100, sbl * 1.2);
 
       x += 60;
       y = system.y + sbl;
@@ -594,7 +594,7 @@ class SSRenderer {
       }
 
       // curves
-      x = system.x + 50;
+      x = system.x + 60;
       y = system.y + sbl * 3;
 
       const npos = [{
