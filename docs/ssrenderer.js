@@ -100,6 +100,7 @@ class SSRenderer {
       const glyphData = util._getGlyphData('ottavaAlta');
       const m = util._measureGlyph(glyphData, 0, 0, dCtx.sbl);
       ctx.save();
+      ctx.lineWidth = olt;
       util._renderGlyph(glyphData, startPos.x, startPos.y + (dCtx.sbl * 1), dCtx.fontSize, ctx);
 
       const dv = dCtx.sbl * 0.8;
@@ -111,7 +112,7 @@ class SSRenderer {
 
       ctx.setLineDash([]);
       ctx.beginPath();
-      ctx.moveTo(endPos.x, endPos.y - (olt * 0.45));
+      ctx.moveTo(endPos.x, endPos.y - (olt * 0.5));
       ctx.lineTo(endPos.x, endPos.y + (dCtx.sbl * 1.5));
       ctx.stroke();
 
@@ -464,6 +465,26 @@ class SSRenderer {
       ctx.restore();
     }
 
+    function drawPedal(dCtx, sym1,
+      x1, y, x2) {
+      const ctx = dCtx.ctx;
+
+      ctx.save();
+      ctx.lineWidth = dCtx.toScreenCSX(that.engravingDefaults.pedalLineThickness);
+      const gdSym1 = util._getGlyphData(sym1);
+      const mSym1 = util._measureGlyph(gdSym1, 0, 0, dCtx.sbl);
+      util._renderGlyph(gdSym1, x1, y, dCtx.fontSize, ctx);
+
+      ctx.beginPath();
+      const ly = y - (ctx.lineWidth * 0.5);
+      ctx.moveTo(x1 + mSym1.scaledBBox.w + (dCtx.fontSize * 0.1), ly);
+      ctx.lineTo(x2, ly);
+      ctx.lineTo(x2, ly - (mSym1.scaledBBox.h * 0.7)); // fake hook...
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
     function drawRehearsalMark(dCtx, pos, str) {
       const ctx = dCtx.ctx;
       ctx.save();
@@ -655,6 +676,10 @@ class SSRenderer {
       lyricDefs[1].x = npos[1].x + (m1.scaledBBox.w * 0.5);
       lyricDefs[2].x = npos[2].x + m1.scaledBBox.w;
       drawLyrics(dCtx, lyricDefs);
+
+      drawPedal(dCtx, 'keyboardPedalPed',
+        npos[0].x, lyricLineY + (sbl * 4),
+        npos[2].x);
     }
 
     const sbl = 10;
