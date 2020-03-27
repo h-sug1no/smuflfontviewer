@@ -155,7 +155,7 @@ class SSRenderer {
         }
       };
 
-      _drawMarker(system.x - sbl * 0.5, system.y - sbbox.slt * 0.5, sbl * 0.3, sbbox.slt,
+      _drawMarker(system.x + system.w + sbl * 0.5, system.y - sbbox.slt * 0.5, sbl * 0.3, sbbox.slt,
         'blue', true);
 
 
