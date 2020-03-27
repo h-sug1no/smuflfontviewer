@@ -424,6 +424,46 @@ class SSRenderer {
       ctx.restore();
     }
 
+    function drawLyrics(dCtx, lyricDefs) {
+      const ctx = dCtx.ctx;
+      const fontSize = (dCtx.sbl * 1.6);
+      ctx.save();
+      ctx.font = (fontSize) + 'px serif';
+      ctx.textAlign = 'center';
+      const lines = [];
+      lyricDefs.forEach((def) => {
+        let offsetX = 0;
+        if (def.text) {
+          ctx.fillText(def.text, def.x, def.y);
+          offsetX = ctx.measureText(def.text).width * 0.5;
+          offsetX += fontSize * 0.1;
+        }
+        if (def.lineEnd) {
+          if (lines.length) {
+            lines[lines.length -1].x2 = def.x;
+            lines[lines.length -1].y2 = def.y;
+          }
+        }
+        if (def.lineStart) {
+          lines.push({
+            x1: def.x + offsetX,
+            y1: def.y,
+            x2: NaN,
+            y2: NaN
+          });
+        }
+      });
+
+      ctx.lineWidth = dCtx.toScreenCSX(that.engravingDefaults.lyricLineThickness);
+      lines.forEach((line) => {
+        ctx.beginPath();
+        ctx.moveTo(line.x1, line.y1);
+        ctx.lineTo(line.x2, line.y2);
+        ctx.stroke();
+      });
+      ctx.restore();
+    }
+
     function drawRehearsalMark(dCtx, pos, str) {
       const ctx = dCtx.ctx;
       ctx.save();
@@ -487,6 +527,26 @@ class SSRenderer {
       util._renderGlyph(gdNoteheadBlack, x, y, fontSize, ctx);
       const m1 = util._measureGlyph(gdNoteheadBlack, x, y, dCtx.sbl);
       const nb_stemUpSEAnchor = util._getAnchor('noteheadBlack', 'stemUpSE');
+
+      const lyricLineY = system.y + (sbl * 10.5);
+      const lyricDefs = [
+        {
+            x: 0,
+            y: lyricLineY,
+            text: 'lyric'
+        },
+        {
+            x: 0,
+            y: lyricLineY,
+            text: 'line',
+            lineStart: true
+        },
+        {
+            x: 0,
+            y: lyricLineY,
+            lineEnd: true
+        }
+      ];
 
       // text enclosure.
       drawRehearsalMark(dCtx, {
@@ -590,6 +650,11 @@ class SSRenderer {
           y2: npos[2].y + 4.5 * sbl,
         },
         3, 'below');
+
+      lyricDefs[0].x = npos[0].x + (m1.scaledBBox.w * 0.5);
+      lyricDefs[1].x = npos[1].x + (m1.scaledBBox.w * 0.5);
+      lyricDefs[2].x = npos[2].x + m1.scaledBBox.w;
+      drawLyrics(dCtx, lyricDefs);
     }
 
     const sbl = 10;
