@@ -606,7 +606,7 @@ class SMuFLFontViewer {
       _$infoDialog_showModal('ranges', function($contentContainer) {
 
         function _rangeNameId(rangeName) {
-          return 'rangeContainer_' + rangeName;
+          return 'classesContainer_' + rangeName;
         }
 
         function _addLink($c, rangeName) {
@@ -639,6 +639,50 @@ class SMuFLFontViewer {
               const $glyphContainer = $('<div class="glyphContainer"></div>');
               appendGlyphname($glyphContainer, glyphName);
               $rangeContainer.append($glyphContainer);
+            });
+          });
+        } catch(e) {
+          console.log(e);
+        }
+      });
+    });
+
+    $('#BClasses').on('click', function () {
+      _$infoDialog_showModal('classes', function($contentContainer) {
+
+        function _classNameId(className) {
+          return 'rangeContainer_' + className;
+        }
+
+        function _addLink($c, className) {
+          const disabled = className ? false : true;
+          if (disabled) {
+            className = '....';
+          }
+          if (disabled) {
+            $c.append(`<span>${className}</span> `);
+          }
+          else {
+            $c.append(`<a href="#${_classNameId(className)}">${className}</a> `);
+          }
+        }
+
+        try {
+          const classes = sMuFLMetadata.data.classes;
+          Object.keys(classes).forEach(function(className, idx, classNames) {
+            const clazz = classes[className];
+            const id = _classNameId(className);
+            const $classContainer = $(`<div class="rangeContainer" id="${id}"></div>`);
+            $contentContainer.append($classContainer);
+            $classContainer.append(`${className}: `);
+            _addLink($classContainer, classNames[idx - 1]);
+            _addLink($classContainer, classNames[idx + 1]);
+            $classContainer.append(`\n`);
+            const glyphs = clazz;
+            glyphs.forEach(function(glyphName) {
+              const $glyphContainer = $('<div class="glyphContainer"></div>');
+              appendGlyphname($glyphContainer, glyphName);
+              $classContainer.append($glyphContainer);
             });
           });
         } catch(e) {
