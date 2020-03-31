@@ -152,7 +152,11 @@
       overflow: auto;
     }
 
-    #rootContainer.fakeDialog.fakeDialogVisible > * {
+    body.fakeDialogVisible #referencesContainer {
+      display: none;
+    }
+
+    body.fakeDialogVisible #rootContainer.fakeDialog > * {
       display: none;
     }
 
@@ -166,7 +170,7 @@
       background-color: white;
     }
 
-    #rootContainer.fakeDialog.fakeDialogVisible div#infoDialog {
+    body.fakeDialogVisible #rootContainer.fakeDialog div#infoDialog {
       display: inline-block;
     }
 
@@ -194,6 +198,12 @@
       height: 1900px;
     }
 
+  </style>
+
+  <style type="text/css" media="print">
+    #dialogUi {
+      display: none;
+    }
   </style>
 
   <script src="https://code.jquery.com/jquery-2.1.0.js"></script>

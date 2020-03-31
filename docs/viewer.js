@@ -186,7 +186,7 @@ class SMuFLFontViewer {
 
     _initMouseHandlers();
 
-
+    const $body = $('body');
     const $rootContainer = $('#rootContainer');
     const $infoDialog = $('#infoDialog');
     const infoDialogElm = $infoDialog.get(0);
@@ -197,12 +197,12 @@ class SMuFLFontViewer {
       const $dialogTitle = $('#infoDialog #dialogTitle');
       $rootContainer.addClass('fakeDialog');
       infoDialogElm.showModal = function(title, description = _$infoDialog_defaultDescription) {
-        $rootContainer.addClass('fakeDialogVisible');
+        $body.addClass('fakeDialogVisible');
         $dialogTitle.text(title);
         $contentContainer.prop('title', description);
       };
       infoDialogElm.close = function() {
-        $rootContainer.removeClass('fakeDialogVisible');
+        $body.removeClass('fakeDialogVisible');
         $contentContainer.prop('title', '');
         document.body.scrollIntoView(); // reset vertical scroll position.
         renderGlyph(currentGlyphData);
@@ -321,7 +321,7 @@ class SMuFLFontViewer {
       }
       switch (ev.key) {
       case 'w':
-        if ($rootContainer.hasClass('fakeDialogVisible')) {
+        if ($body.hasClass('fakeDialogVisible')) {
           $infoDialog.find('input').click();
         }
         break;
