@@ -152,7 +152,11 @@
       overflow: auto;
     }
 
-    #rootContainer.fakeDialog.fakeDialogVisible > * {
+    body.fakeDialogVisible #referencesContainer {
+      display: none;
+    }
+
+    body.fakeDialogVisible #rootContainer.fakeDialog > * {
       display: none;
     }
 
@@ -166,7 +170,7 @@
       background-color: white;
     }
 
-    #rootContainer.fakeDialog.fakeDialogVisible div#infoDialog {
+    body.fakeDialogVisible #rootContainer.fakeDialog div#infoDialog {
       display: inline-block;
     }
 
