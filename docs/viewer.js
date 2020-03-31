@@ -602,6 +602,52 @@ class SMuFLFontViewer {
       });
     });
 
+    $('#BRanges').on('click', function () {
+      _$infoDialog_showModal('ranges', function($contentContainer) {
+
+        function _rangeNameId(rangeName) {
+          return 'rangeContainer_' + rangeName;
+        }
+
+        function _addLink($c, rangeName) {
+          const disabled = rangeName ? false : true;
+          if (disabled) {
+            rangeName = '....';
+          }
+          if (disabled) {
+            $c.append(`<span>${rangeName}</span> `);
+          }
+          else {
+            $c.append(`<a href="#${_rangeNameId(rangeName)}">${rangeName}</a> `);
+          }
+        }
+
+        try {
+          const ranges = sMuFLMetadata.data.ranges;
+          Object.keys(ranges).forEach(function(rangeName, idx, rangeNames) {
+            const range = ranges[rangeName];
+            const id = _rangeNameId(rangeName);
+            const $rangeContainer = $(`<div class="rangeContainer" id="${id}"></div>`);
+            $contentContainer.append($rangeContainer);
+            $rangeContainer.append(`${rangeName}: `);
+            _addLink($rangeContainer, rangeNames[idx - 1]);
+            _addLink($rangeContainer, rangeNames[idx + 1]);
+            $rangeContainer.append(`\n`);
+            $rangeContainer.append(`description: ${range.description}: \n`);
+            const glyphs = range.glyphs;
+            glyphs.forEach(function(glyphName) {
+              const $glyphContainer = $('<div class="glyphContainer"></div>');
+              appendGlyphname($glyphContainer, glyphName);
+              $rangeContainer.append($glyphContainer);
+            });
+          });
+        } catch(e) {
+          console.log(e);
+        }
+      });
+    });
+
+
     function addAlternatesInfo($alternatesInfo, alternates, baseGlyphname, glyphname) {
       if (alternates && alternates.alternates) {
         $alternatesInfo.append('alternates: ');
