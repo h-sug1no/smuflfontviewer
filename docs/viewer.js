@@ -724,7 +724,7 @@ class SMuFLFontViewer {
     });
 
     $('#BFontMetadataGlyphsWithAnchors').on('click', function () {
-      _$infoDialog_showModal('font metadata glyphsWithAlternates', function($contentContainer) {
+      _$infoDialog_showModal('font metadata glyphsWithAnchors', function($contentContainer) {
         try {
           const glyphsWithAnchors = sMuFLMetadata.getFontInfo().fontMetadata.glyphsWithAnchors;
           Object.keys(glyphsWithAnchors).forEach(function(glyphname) {
