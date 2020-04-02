@@ -550,144 +550,108 @@ class SMuFLFontViewer {
       });
     });
 
+    function _createAnyListPage($contentContainer, listName, dict,
+      addItemFunc, getGlyphsFunc, addGlyphFunc) {
+      function _hrefId(hrefName) {
+        return listName + 'Container_' + hrefName;
+      }
+
+      function _addLink($c, hrefName, items) {
+        const disabled = hrefName ? false : true;
+        if (disabled) {
+          hrefName = '....';
+        }
+        if (disabled) {
+          $c.append(`<span>${hrefName}</span> `);
+        }
+        else {
+          $c.append(`<a href="#${_hrefId(hrefName)}">${hrefName}</a> `);
+        }
+      }
+
+      try {
+        Object.keys(dict).forEach(function(itemName, idx, items) {
+          const item = dict[itemName];
+          const id = _hrefId(itemName);
+          const $itemContainer = $(`<div class="${listName}Container" id="${id}"></div>`);
+          $contentContainer.append($itemContainer);
+          $itemContainer.append(`${itemName}: `);
+          _addLink($itemContainer, items[idx - 1]);
+          _addLink($itemContainer, items[idx + 1]);
+          $itemContainer.append(`\n`);
+          addItemFunc($itemContainer, item);
+          const glyphs = getGlyphsFunc(item);
+          glyphs.forEach(function(glyph) {
+            const $glyphContainer = $('<div class="glyphContainer"></div>');
+            addGlyphFunc($glyphContainer, glyph);
+            $itemContainer.append($glyphContainer);
+          });
+        });
+      } catch(e) {
+        console.log(e);
+      }
+    }
 
     $('#BFontMetadataSets').on('click', function () {
       _$infoDialog_showModal('font metadata sets', function($contentContainer) {
-
-        function _setNameId(setName) {
-          return 'setContainer_' + setName;
-        }
-
-        function _addLink($c, setName) {
-          const disabled = setName ? false : true;
-          if (disabled) {
-            setName = '....';
-          }
-          if (disabled) {
-            $c.append(`<span>${setName}</span> `);
-          }
-          else {
-            $c.append(`<a href="#${_setNameId(setName)}">${setName}</a> `);
-          }
-        }
-
-        try {
-          const sets = sMuFLMetadata.getFontInfo().fontMetadata.sets;
-          Object.keys(sets).forEach(function(setName, idx, setNames) {
-            const set = sets[setName];
-            const id = _setNameId(setName);
-            const $setContainer = $(`<div class="setContainer" id="${id}"></div>`);
-            $contentContainer.append($setContainer);
-            $setContainer.append(`${setName}: `);
-            _addLink($setContainer, setNames[idx - 1]);
-            _addLink($setContainer, setNames[idx + 1]);
-            $setContainer.append(`\n`);
-            $setContainer.append(`description: ${set.description}: \n`);
-            $setContainer.append(`type: ${set.type}: \n`);
-            const glyphs = set.glyphs;
-            glyphs.forEach(function(glyph) {
-              const $glyphContainer = $('<div class="glyphContainer"></div>');
-              $glyphContainer.append(`description: ${glyph.description}\n`);
-              appendCodepointOrText($glyphContainer, glyph.codepoint);
-              $glyphContainer.append(', ');
-              appendGlyphname($glyphContainer, glyph.name);
-              $glyphContainer.append(', alternateFor: ');
-              appendGlyphname($glyphContainer, glyph.alternateFor);
-              $setContainer.append($glyphContainer);
-            });
+        _createAnyListPage($contentContainer, 'set',
+          sMuFLMetadata.getFontInfo().fontMetadata.sets,
+          //addItemFunc
+          ($itemContainer, item) => {
+            $itemContainer.append(`description: ${item.description}: \n`);
+            $itemContainer.append(`type: ${item.type}: \n`);
+          },
+          // getGlyphsFunc
+          (item) => {
+            return item.glyphs;
+          },
+          // addGlyphFunc
+          ($glyphContainer, glyph) => {
+            $glyphContainer.append(`description: ${glyph.description}\n`);
+            appendCodepointOrText($glyphContainer, glyph.codepoint);
+            $glyphContainer.append(', ');
+            appendGlyphname($glyphContainer, glyph.name);
+            $glyphContainer.append(', alternateFor: ');
+            appendGlyphname($glyphContainer, glyph.alternateFor);
           });
-        } catch(e) {
-          console.log(e);
-        }
       });
     });
 
     $('#BRanges').on('click', function () {
       _$infoDialog_showModal('ranges', function($contentContainer) {
-
-        function _rangeNameId(rangeName) {
-          return 'classesContainer_' + rangeName;
-        }
-
-        function _addLink($c, rangeName) {
-          const disabled = rangeName ? false : true;
-          if (disabled) {
-            rangeName = '....';
-          }
-          if (disabled) {
-            $c.append(`<span>${rangeName}</span> `);
-          }
-          else {
-            $c.append(`<a href="#${_rangeNameId(rangeName)}">${rangeName}</a> `);
-          }
-        }
-
-        try {
-          const ranges = sMuFLMetadata.data.ranges;
-          Object.keys(ranges).forEach(function(rangeName, idx, rangeNames) {
-            const range = ranges[rangeName];
-            const id = _rangeNameId(rangeName);
-            const $rangeContainer = $(`<div class="rangeContainer" id="${id}"></div>`);
-            $contentContainer.append($rangeContainer);
-            $rangeContainer.append(`${rangeName}: `);
-            _addLink($rangeContainer, rangeNames[idx - 1]);
-            _addLink($rangeContainer, rangeNames[idx + 1]);
-            $rangeContainer.append(`\n`);
-            $rangeContainer.append(`description: ${range.description}: \n`);
-            const glyphs = range.glyphs;
-            glyphs.forEach(function(glyphName) {
-              const $glyphContainer = $('<div class="glyphContainer"></div>');
-              appendGlyphname($glyphContainer, glyphName);
-              $rangeContainer.append($glyphContainer);
-            });
+        _createAnyListPage($contentContainer, 'range',
+          sMuFLMetadata.data.ranges,
+          //addItemFunc
+          ($itemContainer, item) => {
+            $itemContainer.append(`description: ${item.description}: \n`);
+          },
+          // getGlyphsFunc
+          (item) => {
+            return item.glyphs;
+          },
+          // addGlyphFunc
+          ($glyphContainer, glyphName) => {
+            appendGlyphname($glyphContainer, glyphName);
           });
-        } catch(e) {
-          console.log(e);
-        }
       });
     });
 
     $('#BClasses').on('click', function () {
       _$infoDialog_showModal('classes', function($contentContainer) {
 
-        function _classNameId(className) {
-          return 'rangeContainer_' + className;
-        }
-
-        function _addLink($c, className) {
-          const disabled = className ? false : true;
-          if (disabled) {
-            className = '....';
-          }
-          if (disabled) {
-            $c.append(`<span>${className}</span> `);
-          }
-          else {
-            $c.append(`<a href="#${_classNameId(className)}">${className}</a> `);
-          }
-        }
-
-        try {
-          const classes = sMuFLMetadata.data.classes;
-          Object.keys(classes).forEach(function(className, idx, classNames) {
-            const clazz = classes[className];
-            const id = _classNameId(className);
-            const $classContainer = $(`<div class="rangeContainer" id="${id}"></div>`);
-            $contentContainer.append($classContainer);
-            $classContainer.append(`${className}: `);
-            _addLink($classContainer, classNames[idx - 1]);
-            _addLink($classContainer, classNames[idx + 1]);
-            $classContainer.append(`\n`);
-            const glyphs = clazz;
-            glyphs.forEach(function(glyphName) {
-              const $glyphContainer = $('<div class="glyphContainer"></div>');
-              appendGlyphname($glyphContainer, glyphName);
-              $classContainer.append($glyphContainer);
-            });
+        _createAnyListPage($contentContainer, 'class',
+          sMuFLMetadata.data.classes,
+          //addItemFunc
+          ($itemContainer, item) => {
+          },
+          // getGlyphsFunc
+          (item) => {
+            return item;
+          },
+          // addGlyphFunc
+          ($glyphContainer, glyphName) => {
+            appendGlyphname($glyphContainer, glyphName);
           });
-        } catch(e) {
-          console.log(e);
-        }
       });
     });
 
