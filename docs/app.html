@@ -3,7 +3,7 @@
 <head>
   <meta name="copyright" content="Copyright (c) 2019 h-sug1no">
   <title>SMuFL font viewer</title>
-  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.css">
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.default.css">
   <style>
     /*
     @font-face {
@@ -202,23 +202,12 @@
     .selectize-dropdown,
     .selectize-input,
     .selectize-input input {
-      color: #303030;
-      font-family: inherit;
-      afont-size: 120%;
-      aline-height: 120%;
-      -webkit-font-smoothing: inherit;
-      text-align: left;
+      font-size: 100%;
+      line-height: 100%;
     }
 
-    #codepointSelect {
-      /* text-align:center; */
-      font-size:120%;
-      text-align: left;
-    }
 
     .selectize-control {
-      display: inline-block;
-      awidth: 10em;
       text-align: left;
     }
 
@@ -274,11 +263,11 @@
     </div>
     <div id="smuflGlyphContainer">
       <div id="glyphContainer">
-        <input id="BPrev" type="button" value="-" title="show prev codepoint(k)">
         <input id="codepointText" title="enter (c)odepoint or glyphname" type="text" style="text-align:center; font-size:150%" size="10" avalue="E000" bvalue="accidental1CommaSharp"
           cvalue="E262" value="E0A3">
         <select id="codepointSelect"></select>
-        <input id="BNext" type="button" value="+" title="show next codepoint(j)"><br>
+        <input id="BPrev" type="button" value="-" title="show prev codepoint(k)">
+        <input id="BNext" type="button" value="+" title="show next codepoint(j)">
         <input id="BShow" type="button" value="Show">
         <input id="BShowPrev" type="button" title="show prev glyph(h,l)" value="Show Prev">
         <select id="rangeSelect" title="(r)anges"></select>

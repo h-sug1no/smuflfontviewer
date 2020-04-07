@@ -1384,7 +1384,7 @@ class SMuFLFontViewer {
         $rangeSelect.append($option);
       }
 
-      let glyph = params.get('glyph');
+      let glyph = params.get('glyph') || 'E0A3';
       if (glyph) {
         var gd = _getGlyphData(glyph);
         if (!isNaN(gd.codepoint)) {
