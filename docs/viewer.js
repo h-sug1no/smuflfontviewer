@@ -103,7 +103,7 @@ class SMuFLFontViewer {
           maxItems: 1,
           create: false,
           onType: function(str) {
-            console.log(str);
+            //console.log(str);
             str = str.toUpperCase();
             if (str.match(/^[A-F0-9]+$/)) {
               $codepointSelect_selectize.addCodePointItem(str);
@@ -114,7 +114,7 @@ class SMuFLFontViewer {
             setCodepointByString(value);
           },
           //openOnFocus: false,
-          plugins: ['optgroup_columns']
+          //plugins: ['optgroup_columns']
         });
 
         $codepointSelect_selectize = $codepointSelect[0].selectize;
