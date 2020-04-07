@@ -3,6 +3,7 @@
 <head>
   <meta name="copyright" content="Copyright (c) 2019 h-sug1no">
   <title>SMuFL font viewer</title>
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.default.css">
   <style>
     /*
     @font-face {
@@ -90,7 +91,7 @@
       margin: 0 0.3em;
     }
 
-    #BShow {
+    #BShowPrev {
       margin: 0.5em;
     }
 
@@ -198,15 +199,29 @@
       height: 1900px;
     }
 
+    .selectize-dropdown,
+    .selectize-input,
+    .selectize-input input {
+      font-size: 100%;
+      line-height: 100%;
+    }
+
+
+    .selectize-control {
+      text-align: left;
+    }
+
   </style>
 
   <style type="text/css" media="print">
     #dialogUi {
       display: none;
     }
+    
   </style>
 
   <script src="https://code.jquery.com/jquery-2.1.0.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js"></script>
 
   <script src="./js/smuflutils.js"></script>
   <script src="./ssrenderer.js"></script>
@@ -221,6 +236,7 @@
 </head>
 
 <body onload="javascript:smuFLFontViewer.init(searchParams)">
+  
   <div id="rootContainer">
 
     <div id="infoDialog">
@@ -243,11 +259,9 @@
     </div>
     <div id="smuflGlyphContainer">
       <div id="glyphContainer">
+        <select id="codepointSelect"></select>
         <input id="BPrev" type="button" value="-" title="show prev codepoint(k)">
-        <input id="codepointText" title="enter (c)odepoint or glyphname" type="text" style="text-align:center; font-size:150%" size="10" avalue="E000" bvalue="accidental1CommaSharp"
-          cvalue="E262" value="E0A3">
-        <input id="BNext" type="button" value="+" title="show next codepoint(j)"><br>
-        <input id="BShow" type="button" value="Show">
+        <input id="BNext" type="button" value="+" title="show next codepoint(j)">
         <input id="BShowPrev" type="button" title="show prev glyph(h,l)" value="Show Prev">
         <select id="rangeSelect" title="(r)anges"></select>
       </div>

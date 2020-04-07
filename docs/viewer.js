@@ -56,6 +56,9 @@ class SMuFLFontViewer {
 
     _initFontFace();
 
+    const $codepointSelect = $('#codepointSelect');
+    let $codepointSelect_selectize;
+
     sMuFLMetadata.init(options).then(function (/* obj */) {
       if (sMuFLMetadata.initErrors.length) {
         alert(sMuFLMetadata.initErrors.map(function(str) {
@@ -63,6 +66,67 @@ class SMuFLFontViewer {
         }));
       }
       else {
+        const soptions = [];
+        const glyphnames = sMuFLMetadata.data.glyphnames;
+
+        Object.keys(glyphnames).forEach((gname) => {
+        //{series: 'optionalGlyphs', value: 10, name: '1'},
+          const cp = glyphnames[gname].codepoint.replace('U+', '');
+          soptions.push({
+            series: 'glyphnames',
+            value: cp,
+            name: cp + ': ' + gname
+          });
+        });
+
+        const optionalGlyphs = sMuFLMetadata.fontMetadata().optionalGlyphs;
+        Object.keys(optionalGlyphs).forEach((gname) => {
+          const cp = optionalGlyphs[gname].codepoint.replace('U+', '');
+          soptions.push({
+            series: 'optionalGlyphs',
+            value: cp,
+            name: cp + ': ' + gname
+          });
+        });
+
+        $codepointSelect.selectize({
+          options: soptions,
+          optgroups: [
+            {value: 'glyphnames', label: 'glyphnames'},
+            {value: 'optionalGlyphs', label: 'optionalGlyphs'},
+            {value: 'codepoint', label: 'codepoint'},
+          ],
+          optgroupField: 'series',
+          labelField: 'name',
+          searchField: ['name'],
+          placeholder: 'enter glyphname or codepoint',
+          maxItems: 1,
+          create: false,
+          onType: function(str) {
+            console.log(str);
+            str = str.toUpperCase();
+            if (str.match(/^[A-F0-9]+$/)) {
+              $codepointSelect_selectize.addCodePointItem(str);
+              $codepointSelect_selectize.refreshOptions(true);
+            }
+          },
+          onChange: function(value) {
+            setCodepointByString(value);
+          },
+          //openOnFocus: false,
+          plugins: ['optgroup_columns']
+        });
+
+        $codepointSelect_selectize = $codepointSelect[0].selectize;
+        $codepointSelect_selectize.addCodePointItem = function(cp) {
+          cp = cp.toUpperCase();
+          $codepointSelect_selectize.addOption({
+            series: 'codepoint',
+            value: cp,
+            name: cp
+          });
+          return cp;
+        };
         that._handle_onResourceReady('smuflMetadata');
       }
     });
@@ -218,12 +282,11 @@ class SMuFLFontViewer {
     const $rangeSelect = $('#rangeSelect');
     $rangeSelect.on('change', function() {
       const $range = $rangeSelect.children('option:selected');
-      setCodepointByNumber($range.get(0).codepoint_);
+      selectCodepointByNumber($range.get(0).codepoint_);
     });
 
-    const $codepointText = $('#codepointText');
     function getCodepoint() {
-      return $codepointText.val();
+      return $codepointSelect.val();
     }
 
     function formatCodepointNumber(codepointNumber) {
@@ -287,16 +350,23 @@ class SMuFLFontViewer {
       $c.append($t);
     }
 
-    let prevUCodepoint;
+    const history = {
+      prevUCodepoint: undefined,
+      currentUCodepoint: undefined
+    };
 
     $('#BShowPrev').on('click', function () {
-      setCodepointByString(prevUCodepoint || $codepointText.val());
+      selectCodepointByString(history.prevUCodepoint || $codepointSelect.val());
     });
 
     function setCodepointByString(codepointStr) {
-      prevUCodepoint = $codepointText.val();
-      $codepointText.val(codepointStr);
-      $codepointText.change();
+      if (!(codepointStr || '').length) {
+        return;
+      }
+      history.prevUCodepoint = history.currentUCodepoint;
+      $codepointSelect.val(codepointStr);
+      history.currentUCodepoint = getCodepoint();
+      _postDraw();
     }
 
     $('#smuflGlyphHints').on('change', function (ev) {
@@ -338,7 +408,7 @@ class SMuFLFontViewer {
         break;
       case 'c':
         window.setTimeout(function() {
-          $('#codepointText').focus();
+          $codepointSelect_selectize.focus();
         });
         break;
       case 'j':
@@ -364,7 +434,7 @@ class SMuFLFontViewer {
       if (targetElm.classList.contains('smuflCodepoint')) {
         _closeDialog();
         window.setTimeout(function () {
-          setCodepointByString(targetElm.textContent.slice(2));
+          selectCodepointByString(targetElm.textContent.slice(2));
         });
       }
       if (!targetElm.closest('#smuflGlyphInfoText')) {
@@ -372,21 +442,26 @@ class SMuFLFontViewer {
           let uCodepoint = targetElm.uCodepoint;
           if (uCodepoint) {
             _closeDialog();
-            setCodepointByString(uCodepoint.slice(2));
+            selectCodepointByString(uCodepoint.slice(2));
           }
         }
       }
     });
 
-    $codepointText.on('change', function () {
-      $('#BShow').click();
-    });
+    function selectCodepointByString(cp) {
+      cp = $codepointSelect_selectize.addCodePointItem(cp);
+      $codepointSelect_selectize.setValue(cp);
+    }
+
+    function selectCodepointByNumber(cp) {
+      selectCodepointByString(formatCodepointNumber(cp));
+    }
 
     $('#BPrev').on('click', function () {
-      setCodepointByNumber(getCodepointNumber() - 1);
+      selectCodepointByNumber(getCodepointNumber() - 1);
     });
     $('#BNext').on('click', function () {
-      setCodepointByNumber(getCodepointNumber() + 1);
+      selectCodepointByNumber(getCodepointNumber() + 1);
     });
 
     function addGlyphnameInfo($contentContainer, ginfo, glyphname) {
@@ -1091,7 +1166,11 @@ class SMuFLFontViewer {
       };
     }
 
-    $('#BShow').on('click', function () {
+    function _postDraw() {
+      window.setTimeout(_draw);
+    }
+
+    function _draw() {
       var codepoint = getCodepointNumber();
       if (isNaN(codepoint)) {
         const cval = getCodepoint();
@@ -1103,7 +1182,7 @@ class SMuFLFontViewer {
         }
       }
 
-      $codepointText.val(formatCodepointNumber(codepoint));
+      $codepointSelect.val(formatCodepointNumber(codepoint));
       const uCodepoint = sMuFLMetadata.ensureUCodepoint(getCodepoint());
       const option1 = { searchOptional: true, searchAlternateCodepoint: true };
       const glyphname = sMuFLMetadata.uCodepoint2Glyphname(uCodepoint, option1);
@@ -1285,7 +1364,7 @@ class SMuFLFontViewer {
       window.setTimeout(function() {
         document.firstElementChild.scrollIntoView(true);
       });
-    });
+    }
 
     const resources = {
       smuflFontFace: false,
@@ -1311,12 +1390,19 @@ class SMuFLFontViewer {
         $rangeSelect.append($option);
       }
 
-      const glyph = params.get('glyph');
+      let glyph = params.get('glyph') || 'E0A3';
       if (glyph) {
-        $codepointText.val(glyph);
+        var gd = _getGlyphData(glyph);
+        if (!isNaN(gd.codepoint)) {
+          glyph = formatCodepointNumber(gd.codepoint);
+        }
+        else {
+          glyph = glyph.toUpperCase();
+        }
+        $codepointSelect_selectize.setValue(glyph);
       }
 
-      $('#BShow').click();
+      _postDraw();
       if (options.has('showFontMetadata')) {
         $('#BFontMetadata').click();
       }
