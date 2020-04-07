@@ -45,6 +45,9 @@ class SMuFLFontViewer {
       smuflFontFace.load().then(function(loaded_face) {
         // loaded_face holds the loaded FontFace
         document.fonts.add(loaded_face);
+        window.setTimeout(function() {
+          that._handle_onResourceReady('smuflFontFace');
+        });
       }).catch(function(error) {
         // error occurred
         alert(error + ': ' + fontFace.fontUrl);
@@ -60,11 +63,7 @@ class SMuFLFontViewer {
         }));
       }
       else {
-        that._handle_onSMuFLMetadataReady();
-        $('#BShow').click();
-        if (options.has('showFontMetadata')) {
-          $('#BFontMetadata').click();
-        }
+        that._handle_onResourceReady('smuflMetadata');
       }
     });
 
@@ -1288,7 +1287,17 @@ class SMuFLFontViewer {
       });
     });
 
-    this._handle_onSMuFLMetadataReady = function() {
+    const resources = {
+      smuflFontFace: false,
+      smuflMetadata: false
+    };
+
+    this._handle_onResourceReady = function(type) {
+      resources[type] = true;
+      if (!resources.smuflFontFace || !resources.smuflMetadata) {
+        return;
+      }
+
       this.sSRenderer.init({
         sMuFLMetadata: sMuFLMetadata
       });
@@ -1306,6 +1315,12 @@ class SMuFLFontViewer {
       if (glyph) {
         $codepointText.val(glyph);
       }
+
+      $('#BShow').click();
+      if (options.has('showFontMetadata')) {
+        $('#BFontMetadata').click();
+      }
     };
+
   }
 }
