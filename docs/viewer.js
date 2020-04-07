@@ -126,7 +126,7 @@ class SMuFLFontViewer {
             name: cp
           });
           return cp;
-        }
+        };
         that._handle_onResourceReady('smuflMetadata');
       }
     });
