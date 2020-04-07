@@ -92,9 +92,9 @@ class SMuFLFontViewer {
         $codepointSelect.selectize({
           options: soptions,
           optgroups: [
-          {value: 'glyphnames', label: 'glyphnames'},
-          {value: 'optionalGlyphs', label: 'optionalGlyphs'},
-          {value: 'codepoint', label: 'codepoint'},
+            {value: 'glyphnames', label: 'glyphnames'},
+            {value: 'optionalGlyphs', label: 'optionalGlyphs'},
+            {value: 'codepoint', label: 'codepoint'},
           ],
           optgroupField: 'series',
           labelField: 'name',
