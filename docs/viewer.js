@@ -138,6 +138,26 @@ class SMuFLFontViewer {
     function toHintlabelIdStr(name) {
       return 'hintLabel_' + name;
     }
+
+    function input_make3State(inputElm, isIndeterminate, isUnchecked) {
+      inputElm._on3StateChange = function() {
+        inputElm._3state++;
+        if (inputElm._3state > 2) {inputElm._3state = 0;}
+        inputElm.checked = inputElm._3state & 2;
+        inputElm.indeterminate = inputElm._3state & 1;
+      };
+      if (isIndeterminate) {
+        inputElm._3state = 0;
+      }
+      else if (isUnchecked) {
+        inputElm._3state = 2;
+      }
+      else {
+        inputElm._3state = 1;
+      }
+      inputElm._on3StateChange();
+    }
+
     const hintLabels = $smuflGlyphHints.children('label');
     for (let li = 0; li < hintLabels.length; li++) {
       const hintLabel = hintLabels[li];
@@ -150,20 +170,8 @@ class SMuFLFontViewer {
         hintLabel.textContent.startsWith('graceNoteSlash');
       if (isIndeterminate || hintLabel.textContent.startsWith('repeatOffset') ||
         hintLabel.textContent.startsWith('numeral')) {
-        inputElm._on3StateChange = function() {
-          inputElm._3state++;
-          if (inputElm._3state > 2) {inputElm._3state = 0;}
-          inputElm.checked = inputElm._3state & 2;
-          inputElm.indeterminate = inputElm._3state & 1;
-        };
-        if (isIndeterminate) {
-          inputElm._3state = 0;
+          input_make3State(inputElm, isIndeterminate);
         }
-        else {
-          inputElm._3state = 1;
-        }
-        inputElm._on3StateChange();
-      }
     }
 
     const $smuflGlyphHints_repatOffset3StateBox =
@@ -176,6 +184,9 @@ class SMuFLFontViewer {
     const $smuflRenderGlyphOptionsBbox = $('#smuflRenderGlyphOptionsBbox');
 
     const $smuflRenderGlyphOptionsGlyphSize = $('#smuflRenderGlyphOptionsGlyphSize');
+    const $smuflRenderGlyphOptionsSl = $('#smuflRenderGlyphOptionsSl');
+    input_make3State($smuflRenderGlyphOptionsSl.get(0), false, true);
+
     $smuflRenderGlyphOptionsGlyphSize.on('input', function() {
       this.nextElementSibling.textContent = this.value;
     });
@@ -185,7 +196,10 @@ class SMuFLFontViewer {
       renderGlyph(currentGlyphData);
     });
 
-    $('#smuflRenderGlyphOptions input').on('change', function() {
+    $('#smuflRenderGlyphOptions input').on('change', function(ev) {
+      if (ev.target._on3StateChange) {
+        ev.target._on3StateChange();
+      }
       renderGlyph(currentGlyphData);
     });
 
@@ -1047,6 +1061,22 @@ class SMuFLFontViewer {
       const fontSizeInfo = _getFontSizeInfo();
       const fontSize = fontSizeInfo.fontSize;
       const sbl = fontSizeInfo.sbl;
+
+      const slChecked = $smuflRenderGlyphOptionsSl.prop('checked');
+      const slIndeterminate = $smuflRenderGlyphOptionsSl.prop('indeterminate');
+      if (slChecked || slIndeterminate) {
+        ctx.save();
+        ctx.strokeStyle = '#cccccc';
+        ctx.lineWidth = anchorCsToScreenCsX(engravingDefaults.staffLineThickness, sbl);
+        const slY = y + (slChecked ? sbl * 0.5 : 0);
+        for (let yi = -7; yi < 8; yi++) {
+          ctx.beginPath();
+          ctx.moveTo(0, slY + (sbl * yi));
+          ctx.lineTo(c.width, slY + (sbl * yi));
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
 
       const m = _measureGlyph(glyphData, x, y, sbl);
       const scaledBBox = m.scaledBBox;
