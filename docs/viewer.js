@@ -99,20 +99,30 @@ class SMuFLFontViewer {
           optgroupField: 'series',
           labelField: 'name',
           searchField: ['name'],
-          placeholder: 'enter glyphname or codepoint',
+          placeholder: 'enter glyphname or (c)odepoint',
           maxItems: 1,
           create: false,
           onType: function(str) {
-            //console.log(str);
+            // console.log(str);
             str = str.toUpperCase();
             if (str.match(/^[A-F0-9]+$/)) {
-              $codepointSelect_selectize.addCodePointItem(str);
-              $codepointSelect_selectize.refreshOptions(true);
+              try {
+                String.fromCodePoint(parseInt(str, 16));
+                $codepointSelect_selectize.addCodePointItem(str);
+                $codepointSelect_selectize.refreshOptions(true);
+              } catch(e) {}
             }
           },
           onChange: function(value) {
-            setCodepointByString(value);
+            if (value.length) {
+              setCodepointByString(value);
+            }
           },
+          onBlur: function() {
+            if (!$codepointSelect_selectize.getValue().length) {
+              $codepointSelect_selectize.setValue(history.currentUCodepoint, true);
+            }
+          }
           //openOnFocus: false,
           //plugins: ['optgroup_columns']
         });
@@ -294,10 +304,8 @@ class SMuFLFontViewer {
     const $setsInfo = $('#setsInfo');
 
     const $rangeSelect = $('#rangeSelect');
-    $rangeSelect.on('change', function() {
-      const $range = $rangeSelect.children('option:selected');
-      selectCodepointByNumber($range.get(0).codepoint_);
-    });
+    let $rangeSelect_selectize;
+
 
     function getCodepoint() {
       return $codepointSelect.val();
@@ -430,7 +438,7 @@ class SMuFLFontViewer {
         break;
       case 'r':
         window.setTimeout(function() {
-          $('#rangeSelect').focus();
+          $rangeSelect_selectize.focus();
         });
         break;
       }
@@ -1256,7 +1264,8 @@ class SMuFLFontViewer {
         $rangeInfo.append('range: ');
         $rangeInfo.append(tRange.key);
 
-        $rangeSelect.val(tRange.key);
+        $rangeSelect_selectize.setValue(tRange.key, true);
+        $rangeSelect_selectize.currentValue_ = tRange.key;
 
         $rangeInfo.append('\n');
         tRange = tRange.r;
@@ -1412,13 +1421,38 @@ class SMuFLFontViewer {
       });
 
       const ranges = sMuFLMetadata.data.ranges;
+      const rangeItems = [];
+      const rangeItemDic = {};
+
       for (const rk in ranges) {
-        const $option = $(`<option value="${rk}">${rk}</option>`);
-        const elm = $option.get(0);
         const range = ranges[rk];
-        elm.codepoint_ = sMuFLMetadata.uCodepoint2Codepoint(range.range_start);
-        $rangeSelect.append($option);
+        rangeItemDic[rk] = {
+          value: rk,
+          name: rk,
+          codepoint: sMuFLMetadata.uCodepoint2Codepoint(range.range_start)
+        };
+        rangeItems.push(rangeItemDic[rk]);
       }
+
+      $rangeSelect.selectize({
+        options: rangeItems,
+        labelField: 'name',
+        searchField: ['name'],
+        maxItems: 1,
+        placeholder: 'enter (r)ange',
+        onChange: function(value) {
+          if (value.length && rangeItemDic[value]) {
+            $rangeSelect_selectize.currentValue_ = value;
+            selectCodepointByNumber(rangeItemDic[value].codepoint);
+          }
+        },
+        onBlur: function() {
+          if (!$rangeSelect_selectize.getValue().length) {
+            $rangeSelect_selectize.setValue($rangeSelect_selectize.currentValue_, true);
+          }
+        }
+      });
+      $rangeSelect_selectize = $rangeSelect[0].selectize;
 
       let glyph = params.get('glyph') || 'E0A3';
       if (glyph) {
