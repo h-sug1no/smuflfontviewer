@@ -480,10 +480,16 @@ class SMuFLFontViewer {
     }
 
     $('#BPrev').on('click', function () {
-      selectCodepointByNumber(getCodepointNumber() - 1);
+      const cpNumber = getCodepointNumber();
+      if (cpNumber > 0) {
+        selectCodepointByNumber(cpNumber - 1);
+      }
     });
     $('#BNext').on('click', function () {
-      selectCodepointByNumber(getCodepointNumber() + 1);
+      const cpNumber = getCodepointNumber();
+      if (cpNumber < 0x10FFFF) {
+        selectCodepointByNumber(getCodepointNumber() + 1);
+      }
     });
 
     function addGlyphnameInfo($contentContainer, ginfo, glyphname) {
