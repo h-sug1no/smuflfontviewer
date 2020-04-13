@@ -190,6 +190,15 @@
       margin-top: 3em;
     }
 
+    #infoDialog .stlinkContainer .urlText {
+      width: 40em;
+      height: 10em;
+    }
+
+    #infoDialog .stlinkContainer .msgText {
+      margin-top: 1em;
+    }
+
     #topUiContainer {
       padding: 1em;
     }
@@ -241,7 +250,7 @@
 
     <div id="infoDialog">
       <div id="dialogUi">
-        <input type="button" class="closeButton" title="close(w)" value="close"><span id="dialogTitle"></span>
+        <input type="button" class="closeButton" title="close(w, Escape)" value="close"><span id="dialogTitle"></span>
       </div>
       <div id="contentContainer"></div>
     </div>
@@ -256,6 +265,7 @@
       <input id="BFontMetadataGlyphsWithAlternates" type="button" title="Show font metadata glyphsWithAlternates"
         value="glyphsWithAlternates">
       <input id="BFontMetadataGlyphsWithAnchors" type="button" title="Show font metadata glyphsWithAnchors" value="glyphsWithAnchors">
+      <input id="BStaticLink" type="button" title="copy static link url to clipboard" value="static link">
     </div>
     <div id="smuflGlyphContainer">
       <div id="glyphContainer">
