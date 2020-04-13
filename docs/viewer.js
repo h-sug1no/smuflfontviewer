@@ -401,7 +401,7 @@ class SMuFLFontViewer {
       renderGlyph(currentGlyphData);
     });
 
-    $('body').keypress(function(ev) {
+    $('body').keyup(function(ev) {
       if (ev.target.nodeName === 'INPUT') {
         if (ev.target.type === 'text') {
           return;
@@ -412,6 +412,7 @@ class SMuFLFontViewer {
       }
       switch (ev.key) {
       case 'w':
+      case 'Escape':
         if ($body.hasClass('fakeDialogVisible')) {
           $infoDialog.find('input').click();
         }
@@ -806,6 +807,39 @@ class SMuFLFontViewer {
           console.log(e);
         }
       });
+    });
+
+    $('#BStaticLink').on('click', function () {
+      const key = 'static link';
+      _$infoDialog_showModal(key, function($contentContainer) {
+        try {
+          const $stlinkContainer = $(`<div class="stlinkContainer"></div>`);
+          $contentContainer.append($stlinkContainer);
+
+          const $urlText = $(`<textarea class="urlText" readonly></textarea>`);
+          $stlinkContainer.append($urlText);
+          $contentContainer.$urlText = $urlText;
+
+          const $msgText = $(`<div class="msgText">URL copied to clipboard.</div>`);
+          $stlinkContainer.append($msgText);
+        } catch(e) {
+          console.log(e);
+        }
+      });
+
+      const params = new URLSearchParams(window.location.search);
+      params.set('glyph', $codepointSelect.val());
+      params.delete('showFontMetadata');
+
+      var t = new URL('./app.html', location);
+      params.forEach((value, key) => {
+        t.searchParams.set(key, value);
+      });
+
+      const $dom = _$infoDialog_contentDoms[key];
+      $dom.$urlText.text(t.href);
+      $dom.$urlText.select();
+      document.execCommand('copy');
     });
 
     $infoDialog.find('input').on('click', function() {

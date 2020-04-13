@@ -74,9 +74,10 @@
           }
         });
 
+        let wid = 0;
         containerElm.addEventListener('click', function(ev) {
           if (ev.target === openBtnElm) {
-            window.open(createUrl(), '_smuflfontviewer_app_' );
+            window.open(createUrl(), '_smuflfontviewer_app_' + (++wid));
           }
         });
 
@@ -101,10 +102,10 @@
           demolistElm.appendChild(optionElm);
         }
 
-        function _createDemolistOptions(lFontBasePath, lMetadataBasePath) {
+        function _createDemolistOptions(lFontBasePath, lMetadataBasePath, optFontPath, optFontMetadataPath) {
             return {
-              fontUrl: lFontBasePath + '/woff/Bravura.woff2',
-              fontMetadataUrl: lFontBasePath + '/bravura_metadata.json',
+              fontUrl: lFontBasePath + (optFontPath || '/woff/Bravura.woff2'),
+              fontMetadataUrl: lFontBasePath + (optFontMetadataPath || '/bravura_metadata.json'),
               glyphnamesUrl: lMetadataBasePath + '/glyphnames.json',
               classesUrl: lMetadataBasePath + '/classes.json',
               rangesUrl: lMetadataBasePath + '/ranges.json'
@@ -116,16 +117,28 @@
           // and clone followings in packages/.
           //   https://github.com/w3c/smufl.git
           //   https://github.com/steinbergmedia/bravura
+          //   https://github.com/steinbergmedia/petaluma
           //
           addDemolistItem('local Bravura(debug)', _createDemolistOptions(
             './packages/bravura/redist',
             './packages/smufl/metadata'
+          ));
+          addDemolistItem('local Petaluma(debug)', _createDemolistOptions(
+            './packages/petaluma/redist',
+            './packages/smufl/metadata',
+            '/woff/Petaluma.woff2', '/petaluma_metadata.json'
           ));
         }
 
         addDemolistItem('steinbergmedia/bravura/master + w3c/smufl', _createDemolistOptions(
           'https://raw.githubusercontent.com/steinbergmedia/bravura/master/redist',
           'https://raw.githubusercontent.com/w3c/smufl/gh-pages/metadata'
+        ));
+
+        addDemolistItem('steinbergmedia/petaluma/master + w3c/smufl', _createDemolistOptions(
+          'https://raw.githubusercontent.com/steinbergmedia/petaluma/master/redist',
+          'https://raw.githubusercontent.com/w3c/smufl/gh-pages/metadata',
+          '/woff/Petaluma.woff2', '/petaluma_metadata.json'
         ));
 
         var evt = new Event("change", {"bubbles":true, "cancelable":true});
