@@ -1351,23 +1351,24 @@ class SMuFLFontViewer {
 
       $alternatesInfo.empty();
       let alternates = sMuFLMetadata.fontMetadata().glyphsWithAlternates;
-      let baseGlyphname = glyphname;
+      let baseGlyphnames = [];
       if (option1.isOptionalGlyph) {
-        for (var gk in alternates) {
-          if (glyphname === gk) {
-            baseGlyphname = gk;
-            break;
-          }
-          else {
-            
+        const fontInfo = sMuFLMetadata.getFontInfo();
+        if (fontInfo) {
+          const alternateForsByUCodepoint = fontInfo.alternateForsByUCodepoint;
+          if (alternateForsByUCodepoint[uCodepoint]) {
+            baseGlyphnames = alternateForsByUCodepoint[uCodepoint];
           }
         }
       }
+      else {
+        baseGlyphnames.push(glyphname);
+      }
 
-      // TODO: search alternates[glyphname].alternates[].name and add all entries like sets.
-
-      alternates = alternates ? alternates[baseGlyphname] : undefined;
-      addAlternatesInfo($alternatesInfo, alternates, baseGlyphname, glyphname);
+      baseGlyphnames.forEach(function(baseGlyphname) {
+        const tAalternates = alternates ? alternates[baseGlyphname] : undefined;
+        addAlternatesInfo($alternatesInfo, tAalternates, baseGlyphname, glyphname);
+      });
 
       const classes = sMuFLMetadata.data.classes;
       const tClasses = [];

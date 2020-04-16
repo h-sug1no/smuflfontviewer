@@ -77,6 +77,19 @@ class SMuFLMetadata {
           });
         });
       }
+
+      const alternateForsByUCodepoint = fontInfo.alternateForsByUCodepoint = {};
+      const glyphsWithAlternates = fontMetadata.glyphsWithAlternates;
+      if (glyphsWithAlternates) {
+        Object.keys(glyphsWithAlternates).forEach(function(key) {
+          const tAlternates = glyphsWithAlternates[key].alternates;
+          tAlternates.forEach(function(v) {
+            const tAlternateFors = alternateForsByUCodepoint[v.codepoint] =
+              alternateForsByUCodepoint[v.codepoint] || [];
+            tAlternateFors.push(key);
+          });
+        });
+      }
     }
 
     return new Promise(function(resolve) {
