@@ -293,8 +293,10 @@ class SMuFLFontViewer {
         $body.addClass('fakeDialogVisible');
         $dialogTitle.text(title);
         $contentContainer.prop('title', description);
+        $body.scrollTop($contentContainer.$contentDom.prevScrollTop||0);
       };
       infoDialogElm.close = function() {
+        $contentContainer.$contentDom.prevScrollTop = $body.scrollTop();
         $body.removeClass('fakeDialogVisible');
         $contentContainer.prop('title', '');
         document.body.scrollIntoView(); // reset vertical scroll position.
@@ -510,12 +512,13 @@ class SMuFLFontViewer {
     function _$infoDialog_showModal(key, func) {
       let $contentDom = _$infoDialog_contentDoms[key];
       if (!$contentDom) {
-        $contentDom = _$infoDialog_contentDoms[key] = $('<div></div>');
+        $contentDom = _$infoDialog_contentDoms[key] = $('<div class="infoDialogContents"></div>');
         func($contentDom);
       }
       const contentDomElm = $contentDom.get(0);
       $contentContainer.empty();
       $contentContainer.append($contentDom);
+      $contentContainer.$contentDom = $contentDom;
       $infoDialog.get(0).showModal(key);
 
       if (contentDomElm.dlRepaint) {
