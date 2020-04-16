@@ -126,6 +126,10 @@ class SSRenderer {
       const ast = dCtx.toScreenCSX(that.engravingDefaults.arrowShaftThickness);
       const glyphData = util._getGlyphData('arrowheadBlackRight');
       const m = util._measureGlyph(glyphData, 0, 0, dCtx.sbl);
+      if (!m.scaledBBox) {
+        console.warn('no arrowheadBlackRight bbox.');
+        return;
+      }
       ctx.save();
       ctx.lineWidth = ast;
       ctx.beginPath();

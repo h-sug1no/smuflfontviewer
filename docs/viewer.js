@@ -173,7 +173,10 @@ class SMuFLFontViewer {
       const hintLabel = hintLabels[li];
       hintLabel.id = toHintlabelIdStr(hintLabel.textContent);
       const inputElm = hintLabel.firstElementChild;
-      inputElm.checked = true;
+
+      if (!hintLabel.textContent.startsWith('cutOutOrigin_BBL')) {
+        inputElm.checked = true;
+      }
 
       const isIndeterminate = hintLabel.textContent.startsWith('stem') ||
         hintLabel.textContent.startsWith('splitStem') ||
@@ -186,6 +189,9 @@ class SMuFLFontViewer {
 
     const $smuflGlyphHints_repatOffset3StateBox =
       $smuflGlyphHints.find('#' + toHintlabelIdStr('repeatOffset') + ' input');
+
+    const $smuflGlyphHints_cutOutOrigin_BBL =
+      $smuflGlyphHints.find('#' + toHintlabelIdStr('cutOutOrigin_BBL') + ' input');
 
     var c = document.getElementById('smuflGlyphCanvas');
     var ctx = c.getContext('2d');
@@ -287,8 +293,10 @@ class SMuFLFontViewer {
         $body.addClass('fakeDialogVisible');
         $dialogTitle.text(title);
         $contentContainer.prop('title', description);
+        $body.scrollTop($contentContainer.$contentDom.prevScrollTop||0);
       };
       infoDialogElm.close = function() {
+        $contentContainer.$contentDom.prevScrollTop = $body.scrollTop();
         $body.removeClass('fakeDialogVisible');
         $contentContainer.prop('title', '');
         document.body.scrollIntoView(); // reset vertical scroll position.
@@ -504,12 +512,13 @@ class SMuFLFontViewer {
     function _$infoDialog_showModal(key, func) {
       let $contentDom = _$infoDialog_contentDoms[key];
       if (!$contentDom) {
-        $contentDom = _$infoDialog_contentDoms[key] = $('<div></div>');
+        $contentDom = _$infoDialog_contentDoms[key] = $('<div class="infoDialogContents"></div>');
         func($contentDom);
       }
       const contentDomElm = $contentDom.get(0);
       $contentContainer.empty();
       $contentContainer.append($contentDom);
+      $contentContainer.$contentDom = $contentDom;
       $infoDialog.get(0).showModal(key);
 
       if (contentDomElm.dlRepaint) {
@@ -855,10 +864,10 @@ class SMuFLFontViewer {
       return val * sbl;
     }
 
-    function _anchorCsToScreenCs(scaledBBox, anchor, sbl) {
+    function _anchorCsToScreenCs(scaledBBox, anchor, sbl, relativeToBBL) {
       return {
-        x: scaledBBox.x + anchorCsToScreenCsX(Number(anchor[0]), sbl),
-        y: scaledBBox.y + anchorCsToScreenCsY(Number(anchor[1]), sbl)
+        x: (relativeToBBL ? scaledBBox.W : scaledBBox.x) + anchorCsToScreenCsX(Number(anchor[0]), sbl),
+        y: (relativeToBBL ? scaledBBox.S : scaledBBox.y) + anchorCsToScreenCsY(Number(anchor[1]), sbl)
       };
     }
 
@@ -872,7 +881,10 @@ class SMuFLFontViewer {
       let w;
       let h;
       const sbl = scaledBBox.sbl;
-      let vals = _anchorCsToScreenCs(scaledBBox, anchor, sbl);
+      const isCutOut = akey.startsWith('cutOut');
+      const isCutOutOriginBBL = $smuflGlyphHints_cutOutOrigin_BBL.prop('checked');
+      let vals = _anchorCsToScreenCs(scaledBBox, anchor, sbl,
+        isCutOut && isCutOutOriginBBL);
 
       // eslint-disable-next-line no-unused-vars
       let halign = 'L';
@@ -911,9 +923,16 @@ class SMuFLFontViewer {
       });
       bbs[akey].vals = vals;
       ctx.save();
-      if (akey.startsWith('cutOut')) {
-        ctx.fillStyle = '#cccccccc';
+      if (isCutOut) {
+        if (isCutOutOriginBBL) {
+          ctx.fillStyle = '#ccccd5cc';
+        }
+        else {
+          ctx.fillStyle = '#cccccccc';
+        }
         ctx.fillRect(x, y, w, h);
+        ctx.fillStyle = '#44aaffcc';
+        _renderCross(vals.x, vals.y);
       }
       else if (akey.startsWith('splitStem') || akey.startsWith('stem') ||
         akey.startsWith('numeral') || akey.startsWith('graceNoteSlash') || akey === 'repeatOffset' ||
@@ -1422,10 +1441,17 @@ class SMuFLFontViewer {
       const anchors = sMuFLMetadata.fontMetadata().glyphsWithAnchors;
       const anchor = anchors ? anchors[glyphname] : undefined;
       hintLabels.hide();
+
+      let hasCutOut = false;
       if (anchor) {
         for (const key in anchor) {
+          hasCutOut |= key.startsWith('cutOut');
           $smuflGlyphHints.children(`#${toHintlabelIdStr(key)}`).show();
         }
+      }
+
+      if (hasCutOut) {
+        $smuflGlyphHints.children(`#${toHintlabelIdStr('cutOutOrigin_BBL')}`).show();
       }
 
       currentGlyphData = {
