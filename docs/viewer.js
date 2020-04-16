@@ -420,7 +420,7 @@ class SMuFLFontViewer {
       }
       switch (ev.key) {
       case 'w':
-      case 'Escape':
+      //case 'Escape':
         if ($body.hasClass('fakeDialogVisible')) {
           $infoDialog.find('input').click();
         }
@@ -1357,6 +1357,9 @@ class SMuFLFontViewer {
           if (glyphname === gk) {
             baseGlyphname = gk;
             break;
+          }
+          else {
+            
           }
         }
       }
