@@ -713,7 +713,12 @@ class SMuFLFontViewer {
       }
 
       try {
-        Object.keys(dict).forEach(function(itemName, idx, items) {
+        const dictKeys = Object.keys(dict);
+        if (!dictKeys.length) {
+          $contentContainer.append(`no ${listName} items`);
+          return;
+        }
+        dictKeys.forEach(function(itemName, idx, items) {
           const item = dict[itemName];
           const id = _hrefId(itemName);
           const $itemContainer = $(`<div class="${listName}Container" id="${id}"></div>`);
