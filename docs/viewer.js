@@ -431,10 +431,15 @@ class SMuFLFontViewer {
         });
         break;
       case 'k':
-        $('#BPrev').click();
+        $('#BPrevGlyph').click();
         break;
       case 'h':
+        $('#BPrev').click();
+        break;
       case 'l':
+        $('#BNext').click();
+        break;
+      case 'p':
         $('#BShowPrev').click();
         break;
       case 'c':
@@ -443,7 +448,7 @@ class SMuFLFontViewer {
         });
         break;
       case 'j':
-        $('#BNext').click();
+        $('#BNextGlyph').click();
         break;
       case 'r':
         window.setTimeout(function() {
@@ -488,17 +493,43 @@ class SMuFLFontViewer {
       selectCodepointByString(formatCodepointNumber(cp));
     }
 
-    $('#BPrev').on('click', function () {
-      const cpNumber = getCodepointNumber();
-      if (cpNumber > 0) {
-        selectCodepointByNumber(cpNumber - 1);
+    function seekToCodepoint(cpNumber, d, checkHasGlyph) {
+      const fontInfo = sMuFLMetadata.getFontInfo();
+      let glyphsByUCodepoint;
+      if (fontInfo) {
+        glyphsByUCodepoint = fontInfo.glyphsByUCodepoint;
       }
+
+      let codepointStr;
+      while ((cpNumber += d) && cpNumber > 0 && cpNumber < 0x10FFFF & !codepointStr) {
+        const tCodepointStr = formatCodepointNumber(cpNumber);
+        if (checkHasGlyph && glyphsByUCodepoint) {
+          if (glyphsByUCodepoint[sMuFLMetadata.ensureUCodepoint(tCodepointStr)]) {
+            codepointStr = tCodepointStr;
+          }
+        }
+        else {
+          codepointStr = tCodepointStr;
+        }
+      }
+      if (codepointStr) {
+        selectCodepointByString(codepointStr);
+      }
+    }
+
+    $('#BPrev').on('click', function () {
+      seekToCodepoint(getCodepointNumber(), -1, false);
     });
     $('#BNext').on('click', function () {
-      const cpNumber = getCodepointNumber();
-      if (cpNumber < 0x10FFFF) {
-        selectCodepointByNumber(getCodepointNumber() + 1);
-      }
+      seekToCodepoint(getCodepointNumber(), 1, false);
+    });
+
+
+    $('#BPrevGlyph').on('click', function () {
+      seekToCodepoint(getCodepointNumber(), -1, true);
+    });
+    $('#BNextGlyph').on('click', function () {
+      seekToCodepoint(getCodepointNumber(), 1, true);
     });
 
     function addGlyphnameInfo($contentContainer, ginfo, glyphname) {

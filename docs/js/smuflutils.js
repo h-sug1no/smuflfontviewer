@@ -90,6 +90,24 @@ class SMuFLMetadata {
           });
         });
       }
+
+      const glyphsByUCodepoint = fontInfo.glyphsByUCodepoint = {};
+      const glyphnames = that.data.glyphnames;
+      Object.keys(glyphnames).forEach(function(key) {
+        const glyphname = glyphnames[key];
+        glyphsByUCodepoint[glyphname.codepoint] = {
+          glyphname: key
+        };
+      });
+
+      const optionalGlyphs = fontMetadata.optionalGlyphs;
+      Object.keys(optionalGlyphs).forEach(function(key) {
+        const optionalGlyph = optionalGlyphs[key];
+        glyphsByUCodepoint[optionalGlyph.codepoint] = {
+          glyphname: key,
+          isOptionalGlyph: true
+        };
+      });
     }
 
     return new Promise(function(resolve) {
