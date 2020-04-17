@@ -92,22 +92,22 @@ class SMuFLMetadata {
       }
 
       const glyphsByUCodepoint = fontInfo.glyphsByUCodepoint = {};
-      const glyphnames = that.data.glyphnames;
-      Object.keys(glyphnames).forEach(function(key) {
-        const glyphname = glyphnames[key];
-        glyphsByUCodepoint[glyphname.codepoint] = {
-          glyphname: key
-        };
-      });
 
-      const optionalGlyphs = fontMetadata.optionalGlyphs;
-      Object.keys(optionalGlyphs).forEach(function(key) {
-        const optionalGlyph = optionalGlyphs[key];
-        glyphsByUCodepoint[optionalGlyph.codepoint] = {
-          glyphname: key,
-          isOptionalGlyph: true
-        };
-      });
+      [{names: that.data.glyphnames, isOptionalGlyph: false},
+       {names: fontMetadata.optionalGlyphs, isOptionalGlyph: false}].forEach(function(namesDef) {
+        const names = namesDef.names;
+        Object.keys(namesDef.names).forEach(function(key) {
+          const name = names[key];
+          const cp = name.codepoint;
+          if (glyphsByUCodepoint[cp]) {
+            console.error(`duplicate codepoint: ${cp}: ${key}, ${glyphsByUCodepoint[cp].glyphname}`)
+          }
+          glyphsByUCodepoint[cp] = {
+            glyphname: key,
+            isOptionalGlyph: namesDef.isOptionalGlyph
+          };
+        });
+       });
     }
 
     return new Promise(function(resolve) {
