@@ -1439,10 +1439,10 @@ class SMuFLFontViewer {
       const fontInfo = sMuFLMetadata.getFontInfo();
       if (fontInfo) {
         const setsByAlternateForItem = fontInfo.setsByAlternateFor[glyphname];
-        const setsByNameImte = fontInfo.setsByName[glyphname];
+        const setsByNameItem = fontInfo.setsByName[glyphname];
         let $setInfosContainer;
         let $setNames;
-        if (setsByAlternateForItem || setsByNameImte) {
+        if (setsByAlternateForItem || setsByNameItem) {
           $setsInfo.append('sets: ');
           $setNames = $('<span class="setNames"></span>');
           $setsInfo.append($setNames);
@@ -1450,7 +1450,7 @@ class SMuFLFontViewer {
           $setsInfo.append($setInfosContainer);
         }
 
-        [setsByAlternateForItem, setsByNameImte].forEach(function(items) {
+        [setsByAlternateForItem, setsByNameItem].forEach(function(items) {
           if (!items) {
             return;
           }
