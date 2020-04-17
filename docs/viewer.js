@@ -597,8 +597,9 @@ class SMuFLFontViewer {
 
         // eslint-disable-next-line no-unused-vars
         function add_sets(name, sets) {
+          const setsKeys = Object.keys(sMuFLMetadata.fontMetadata().sets);
           $contentContainer.append(`${name}: ${
-            Object.keys(sMuFLMetadata.fontMetadata().sets).join(', ')
+            setsKeys.length ? setsKeys.join(', ') : 'none'
           }`);
         }
 
