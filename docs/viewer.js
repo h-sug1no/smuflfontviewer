@@ -420,7 +420,7 @@ class SMuFLFontViewer {
       }
       switch (ev.key) {
       case 'w':
-      case 'Escape':
+      //case 'Escape':
         if ($body.hasClass('fakeDialogVisible')) {
           $infoDialog.find('input').click();
         }
@@ -431,10 +431,15 @@ class SMuFLFontViewer {
         });
         break;
       case 'k':
-        $('#BPrev').click();
+        $('#BPrevGlyph').click();
         break;
       case 'h':
+        $('#BPrev').click();
+        break;
       case 'l':
+        $('#BNext').click();
+        break;
+      case 'p':
         $('#BShowPrev').click();
         break;
       case 'c':
@@ -443,7 +448,7 @@ class SMuFLFontViewer {
         });
         break;
       case 'j':
-        $('#BNext').click();
+        $('#BNextGlyph').click();
         break;
       case 'r':
         window.setTimeout(function() {
@@ -488,17 +493,43 @@ class SMuFLFontViewer {
       selectCodepointByString(formatCodepointNumber(cp));
     }
 
-    $('#BPrev').on('click', function () {
-      const cpNumber = getCodepointNumber();
-      if (cpNumber > 0) {
-        selectCodepointByNumber(cpNumber - 1);
+    function seekToCodepoint(cpNumber, d, checkHasGlyph) {
+      const fontInfo = sMuFLMetadata.getFontInfo();
+      let glyphsByUCodepoint;
+      if (fontInfo) {
+        glyphsByUCodepoint = fontInfo.glyphsByUCodepoint;
       }
+
+      let codepointStr;
+      while ((cpNumber += d) && cpNumber > 0 && cpNumber < 0x10FFFF & !codepointStr) {
+        const tCodepointStr = formatCodepointNumber(cpNumber);
+        if (checkHasGlyph && glyphsByUCodepoint) {
+          if (glyphsByUCodepoint[sMuFLMetadata.ensureUCodepoint(tCodepointStr)]) {
+            codepointStr = tCodepointStr;
+          }
+        }
+        else {
+          codepointStr = tCodepointStr;
+        }
+      }
+      if (codepointStr) {
+        selectCodepointByString(codepointStr);
+      }
+    }
+
+    $('#BPrev').on('click', function () {
+      seekToCodepoint(getCodepointNumber(), -1, false);
     });
     $('#BNext').on('click', function () {
-      const cpNumber = getCodepointNumber();
-      if (cpNumber < 0x10FFFF) {
-        selectCodepointByNumber(getCodepointNumber() + 1);
-      }
+      seekToCodepoint(getCodepointNumber(), 1, false);
+    });
+
+
+    $('#BPrevGlyph').on('click', function () {
+      seekToCodepoint(getCodepointNumber(), -1, true);
+    });
+    $('#BNextGlyph').on('click', function () {
+      seekToCodepoint(getCodepointNumber(), 1, true);
     });
 
     function addGlyphnameInfo($contentContainer, ginfo, glyphname) {
@@ -519,6 +550,10 @@ class SMuFLFontViewer {
       $contentContainer.empty();
       $contentContainer.append($contentDom);
       $contentContainer.$contentDom = $contentDom;
+      if ($contentDom.onAttachedToDom) {
+        $contentDom.onAttachedToDom();
+      }
+
       $infoDialog.get(0).showModal(key);
 
       if (contentDomElm.dlRepaint) {
@@ -566,8 +601,9 @@ class SMuFLFontViewer {
 
         // eslint-disable-next-line no-unused-vars
         function add_sets(name, sets) {
+          const setsKeys = Object.keys(sMuFLMetadata.fontMetadata().sets);
           $contentContainer.append(`${name}: ${
-            Object.keys(sMuFLMetadata.fontMetadata().sets).join(', ')
+            setsKeys.length ? setsKeys.join(', ') : 'none'
           }`);
         }
 
@@ -600,6 +636,30 @@ class SMuFLFontViewer {
             $contentContainer.append($('<br>'));
           }
         }
+
+        const $ssOptionsGlyphSizeContainer =
+        $contentContainer.append($(`
+        <div id='ssOptionsGlyphSizeContainer'>
+          <label>glyph size: <input id="ssOptionsGlyphSize"
+              type="range" min="40" max="250" value="40"><span><span></label>
+        </div>`));
+
+        const $ssOptionsGlyphSize = $ssOptionsGlyphSizeContainer.find('label input');
+
+        $contentContainer.onAttachedToDom = function() {
+          $ssOptionsGlyphSize.off('input.ssUI');
+          $ssOptionsGlyphSize.off('input.ssUI');
+
+          $ssOptionsGlyphSize.on('input.ssUI', function() {
+            this.nextElementSibling.textContent = this.value;
+          });
+          $ssOptionsGlyphSize.trigger('input');
+
+          $ssOptionsGlyphSize.on('input.ssUI', function() {
+            drawSs();
+          });
+        };
+
         const $gmCanvas = $('<canvas id="gm_canvas"></canvas>');
         $contentContainer.append($gmCanvas);
         const drawSs = function() {
@@ -610,6 +670,7 @@ class SMuFLFontViewer {
           gmCanvasElm.height = gmCanvasElm.clientHeight;
 
           that.sSRenderer.draw(gmCanvasElm.getContext('2d'), {
+            ssOptionsGlyphSize: Number($ssOptionsGlyphSize.val()),
             _measureGlyph: _measureGlyph,
             _renderGlyph: _renderGlyph,
             _getGlyphData: _getGlyphData,
@@ -682,7 +743,12 @@ class SMuFLFontViewer {
       }
 
       try {
-        Object.keys(dict).forEach(function(itemName, idx, items) {
+        const dictKeys = Object.keys(dict);
+        if (!dictKeys.length) {
+          $contentContainer.append(`no ${listName} items`);
+          return;
+        }
+        dictKeys.forEach(function(itemName, idx, items) {
           const item = dict[itemName];
           const id = _hrefId(itemName);
           const $itemContainer = $(`<div class="${listName}Container" id="${id}"></div>`);
@@ -1351,20 +1417,24 @@ class SMuFLFontViewer {
 
       $alternatesInfo.empty();
       let alternates = sMuFLMetadata.fontMetadata().glyphsWithAlternates;
-      let baseGlyphname = glyphname;
+      let baseGlyphnames = [];
       if (option1.isOptionalGlyph) {
-        for (var gk in alternates) {
-          if (glyphname === gk) {
-            baseGlyphname = gk;
-            break;
+        const fontInfo = sMuFLMetadata.getFontInfo();
+        if (fontInfo) {
+          const alternateForsByUCodepoint = fontInfo.alternateForsByUCodepoint;
+          if (alternateForsByUCodepoint[uCodepoint]) {
+            baseGlyphnames = alternateForsByUCodepoint[uCodepoint];
           }
         }
       }
+      else {
+        baseGlyphnames.push(glyphname);
+      }
 
-      // TODO: search alternates[glyphname].alternates[].name and add all entries like sets.
-
-      alternates = alternates ? alternates[baseGlyphname] : undefined;
-      addAlternatesInfo($alternatesInfo, alternates, baseGlyphname, glyphname);
+      baseGlyphnames.forEach(function(baseGlyphname) {
+        const tAalternates = alternates ? alternates[baseGlyphname] : undefined;
+        addAlternatesInfo($alternatesInfo, tAalternates, baseGlyphname, glyphname);
+      });
 
       const classes = sMuFLMetadata.data.classes;
       const tClasses = [];
@@ -1404,10 +1474,10 @@ class SMuFLFontViewer {
       const fontInfo = sMuFLMetadata.getFontInfo();
       if (fontInfo) {
         const setsByAlternateForItem = fontInfo.setsByAlternateFor[glyphname];
-        const setsByNameImte = fontInfo.setsByName[glyphname];
+        const setsByNameItem = fontInfo.setsByName[glyphname];
         let $setInfosContainer;
         let $setNames;
-        if (setsByAlternateForItem || setsByNameImte) {
+        if (setsByAlternateForItem || setsByNameItem) {
           $setsInfo.append('sets: ');
           $setNames = $('<span class="setNames"></span>');
           $setsInfo.append($setNames);
@@ -1415,7 +1485,7 @@ class SMuFLFontViewer {
           $setsInfo.append($setInfosContainer);
         }
 
-        [setsByAlternateForItem, setsByNameImte].forEach(function(items) {
+        [setsByAlternateForItem, setsByNameItem].forEach(function(items) {
           if (!items) {
             return;
           }

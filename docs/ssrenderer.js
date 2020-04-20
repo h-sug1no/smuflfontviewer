@@ -128,7 +128,11 @@ class SSRenderer {
       const m = util._measureGlyph(glyphData, 0, 0, dCtx.sbl);
       if (!m.scaledBBox) {
         console.warn('no arrowheadBlackRight bbox.');
-        return;
+        m.scaledBBox = {
+          isFakeBBox: true,
+          w: dCtx.fontSize * 0.5,
+          h: dCtx.fontSize
+        };
       }
       ctx.save();
       ctx.lineWidth = ast;
@@ -136,7 +140,19 @@ class SSRenderer {
       ctx.moveTo(startPos.x, startPos.y);
       ctx.lineTo(endPos.x - (m.scaledBBox.w * 0.5), endPos.y);
       ctx.stroke();
-      util._renderGlyph(glyphData, endPos.x - m.scaledBBox.w, endPos.y + (m.scaledBBox.h * 0.5), dCtx.fontSize, ctx);
+      if (!m.scaledBBox.isFakeBBox) {
+        util._renderGlyph(glyphData, endPos.x - m.scaledBBox.w, endPos.y + (m.scaledBBox.h * 0.5), dCtx.fontSize, ctx);
+      }
+      else {
+        ctx.beginPath();
+        ctx.moveTo(endPos.x, endPos.y);
+        const aX = endPos.x - (m.scaledBBox.w * 0.5);
+        const aYd = dCtx.sbl * 0.5;
+        ctx.lineTo(aX, endPos.y + aYd);
+        ctx.lineTo(aX, endPos.y - aYd);
+        ctx.closePath();
+        ctx.stroke();
+      }
       ctx.restore();
     }
 
@@ -716,7 +732,8 @@ class SSRenderer {
 
     dCtx.ctx.save();
     dCtx.ctx.clearRect(0, 0, dCtx.ctx.canvas.clientWidth, dCtx.ctx.canvas.clientHeight);
-    dCtx.ctx.scale(4, 4);
+    const scaleVal = util.ssOptionsGlyphSize / (sbl * 4);
+    dCtx.ctx.scale(scaleVal, scaleVal);
     this.drawStaffs(dCtx);
     dCtx.ctx.restore();
   }
