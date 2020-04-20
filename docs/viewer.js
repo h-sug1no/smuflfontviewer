@@ -550,6 +550,10 @@ class SMuFLFontViewer {
       $contentContainer.empty();
       $contentContainer.append($contentDom);
       $contentContainer.$contentDom = $contentDom;
+      if ($contentDom.onAttachedToDom) {
+        $contentDom.onAttachedToDom();
+      }
+
       $infoDialog.get(0).showModal(key);
 
       if (contentDomElm.dlRepaint) {
@@ -632,6 +636,30 @@ class SMuFLFontViewer {
             $contentContainer.append($('<br>'));
           }
         }
+
+        const $ssOptionsGlyphSizeContainer =
+        $contentContainer.append($(`
+        <div id='ssOptionsGlyphSizeContainer'>
+          <label>glyph size: <input id="ssOptionsGlyphSize"
+              type="range" min="40" max="250" value="40"><span><span></label>
+        </div>`));
+
+        const $ssOptionsGlyphSize = $ssOptionsGlyphSizeContainer.find('label input');
+
+        $contentContainer.onAttachedToDom = function() {
+          $ssOptionsGlyphSize.off('input.ssUI');
+          $ssOptionsGlyphSize.off('input.ssUI');
+
+          $ssOptionsGlyphSize.on('input.ssUI', function() {
+            this.nextElementSibling.textContent = this.value;
+          });
+          $ssOptionsGlyphSize.trigger('input');
+
+          $ssOptionsGlyphSize.on('input.ssUI', function() {
+            drawSs();
+          });
+        };
+
         const $gmCanvas = $('<canvas id="gm_canvas"></canvas>');
         $contentContainer.append($gmCanvas);
         const drawSs = function() {
@@ -642,6 +670,7 @@ class SMuFLFontViewer {
           gmCanvasElm.height = gmCanvasElm.clientHeight;
 
           that.sSRenderer.draw(gmCanvasElm.getContext('2d'), {
+            ssOptionsGlyphSize: Number($ssOptionsGlyphSize.val()),
             _measureGlyph: _measureGlyph,
             _renderGlyph: _renderGlyph,
             _getGlyphData: _getGlyphData,

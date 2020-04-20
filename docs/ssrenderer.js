@@ -732,7 +732,8 @@ class SSRenderer {
 
     dCtx.ctx.save();
     dCtx.ctx.clearRect(0, 0, dCtx.ctx.canvas.clientWidth, dCtx.ctx.canvas.clientHeight);
-    dCtx.ctx.scale(4, 4);
+    const scaleVal = util.ssOptionsGlyphSize / (sbl * 4);
+    dCtx.ctx.scale(scaleVal, scaleVal);
     this.drawStaffs(dCtx);
     dCtx.ctx.restore();
   }
