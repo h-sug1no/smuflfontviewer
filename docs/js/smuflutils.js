@@ -100,7 +100,7 @@ class SMuFLMetadata {
           const name = names[key];
           const cp = name.codepoint;
           if (glyphsByUCodepoint[cp]) {
-            console.error(`duplicate codepoint: ${cp}: ${key}, ${glyphsByUCodepoint[cp].glyphname}`)
+            console.error(`duplicate codepoint: ${cp}: ${key}, ${glyphsByUCodepoint[cp].glyphname}`);
           }
           glyphsByUCodepoint[cp] = {
             glyphname: key,
