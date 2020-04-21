@@ -180,6 +180,7 @@ class SMuFLFontViewer {
 
       const isIndeterminate = hintLabel.textContent.startsWith('stem') ||
         hintLabel.textContent.startsWith('splitStem') ||
+        hintLabel.textContent.startsWith('opticalCenter') ||
         hintLabel.textContent.startsWith('graceNoteSlash');
       if (isIndeterminate || hintLabel.textContent.startsWith('repeatOffset') ||
         hintLabel.textContent.startsWith('numeral')) {
@@ -1015,6 +1016,9 @@ class SMuFLFontViewer {
           else if (akey.startsWith('numeral')) {
             _renderNumeral(x, y, sbl, bbs[akey]);
           }
+          else if (akey === 'opticalCenter') {
+            _renderSampleNoteheadAlignToOpticalCenter(x, y, scaledBBox, engravingDefaults, bbs[akey]);
+          }
         }
 
         ctx.fillStyle = '#ff4444cc';
@@ -1133,6 +1137,24 @@ class SMuFLFontViewer {
       // vert: baseline
       ctx.fillStyle = '#0000ffff';
       _renderCross(m.scaledBBox.W + ox - hw + hw, y + oy);
+    }
+
+    function _renderSampleNoteheadAlignToOpticalCenter(ocX, ocY, ocScaledBBox, engravingDefaults, bb) {
+      const glyphData = _getGlyphData('noteheadWhole');
+      const m = _measureGlyph(glyphData, 0, 0, ocScaledBBox.sbl);
+
+      ctx.save();
+      ctx.fillStyle = '#aaaaaaaa';
+      const nhY = ocScaledBBox.y - (ocScaledBBox.sbl * 3.5);
+      _renderGlyph(glyphData, ocX - (m.scaledBBox.w * 0.5), nhY, bb.fontSizeInfo.fontSize);
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = ctx.fillStyle;
+      ctx.setLineDash([5, 5]);
+      ctx.beginPath();
+      ctx.moveTo(ocX, nhY);
+      ctx.lineTo(ocX, ocY);
+      ctx.stroke();
+      ctx.restore();
     }
 
     function _getFontSizeInfo() {
