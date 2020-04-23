@@ -1012,7 +1012,7 @@ class SMuFLFontViewer {
           if ((akey.startsWith('splitStem') || akey.startsWith('stem'))) {
             _renderStem(x, y,
               Math.max(scaledBBox.h, anchorCsToScreenCsX(3.5, sbl)),
-              halign, vdir, sbl, engravingDefaults, akey.startsWith('splitStem'));
+              halign, vdir, sbl, engravingDefaults, akey.startsWith('splitStem'), scaledBBox, akey, bbs[akey]);
           }
           else if (akey.startsWith('numeral')) {
             _renderNumeral(x, y, sbl, bbs[akey]);
@@ -1064,15 +1064,67 @@ class SMuFLFontViewer {
       $valSibling.parent().find('.val').text(text);
     }
 
-    function _renderStem(x, y, h, halign, vdir, sbl, engravingDefaults, isSplitStem) {
+    function _renderStemEx(nhScaledBBox, w, h, bb, stemAnchorName) {
+      const stemAnchor = bb.glyphData.anchor[stemAnchorName];
+      const stemAttachmentPos = _anchorCsToScreenCs(nhScaledBBox, stemAnchor, nhScaledBBox.sbl);
+
+      const x = stemAttachmentPos.x - (w * 0.5 * (stemAnchorName.endsWith('NW') ? -1 : 1));
+      const y = stemAttachmentPos.y;
+      ctx.save();
+      ctx.lineWidth = Math.abs(w);
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x, y + h);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    const stemAnchorNamesByHV = {
+      R_BTT: 'stemUpSE',
+      R_TTB: 'stemDownNW',
+      L_BTT: 'stemUpSE',
+      L_TTB: 'stemDownNW'
+    };
+
+    function _renderAllteredUnison(halign, vdir, stemEndPos, w, h, nhScaledBBox, bb) {
+      ctx.save();
+      ctx.strokeStyle = '#aaaaaa';
+      ctx.fillStyle = '#aaaaaa';
+
+      const nhX = stemEndPos.x - (vdir === 'BTT' ? nhScaledBBox.w : 0) -
+        (Math.abs(w) * 0.5 * (vdir === 'BTT' ? -1 : 1));
+
+      _renderGlyph(bb.glyphData, nhX, nhScaledBBox.y, bb.fontSizeInfo.fontSize);
+      const m = _measureGlyph(bb.glyphData, nhX, nhScaledBBox.y, nhScaledBBox.sbl);
+
+      const angd = _getGlyphData('accidentalNatural');
+      const anm = _measureGlyph(angd, 0, 0,nhScaledBBox.sbl);
+      _renderGlyph(angd, m.scaledBBox.x - anm.scaledBBox.w - (m.scaledBBox.sbl * 0.15),
+        m.scaledBBox.y, bb.fontSizeInfo.fontSize);
+
+      const asgd = _getGlyphData('accidentalSharp');
+      const asm = _measureGlyph(asgd, 0, 0,nhScaledBBox.sbl);
+      _renderGlyph(asgd, nhScaledBBox.x - asm.scaledBBox.w - (m.scaledBBox.sbl * 0.15),
+        nhScaledBBox.y, bb.fontSizeInfo.fontSize);
+
+      console.log(vdir, halign, w);
+      const stemAnchorName = stemAnchorNamesByHV[`${halign}_${vdir}`];
+      _renderStemEx(m.scaledBBox, Math.abs(w), h, bb, stemAnchorName);
+      ctx.restore();
+    }
+
+    function _renderStem(x, y, h, halign, vdir, sbl, engravingDefaults, isSplitStem, nhScaledBBox, akey, bb) {
       let w = anchorCsToScreenCsX(engravingDefaults.stemThickness, sbl);
       let rad = 0;
+
+      const nhWInAnchorCS = nhScaledBBox.w / nhScaledBBox.sbl;
+      const sdx = ((halign === 'L' && vdir === 'BTT') || (halign === 'R' && vdir === 'TTB')) ?
+        nhWInAnchorCS + 1 : nhWInAnchorCS;
+      const sdy = 1;
       if (isSplitStem) {
         // https://steinberg.help/dorico/v2/en/_shared_picts/picts/dorico/notation_reference/accidentals_altered_unison_tree.png
         // https://www.steinberg.net/forums/download/file.php?id=16781
         // FIXME: draw sample stem and noteheads(altered unison)...
-        const sdx = 1.2;
-        const sdy = 1;
         rad = Math.atan2(sdx, sdy);
       }
 
@@ -1095,7 +1147,12 @@ class SMuFLFontViewer {
       ctx.beginPath();
       ctx.rect(x, y, w, h);
       ctx.fill();
+      const cm = ctx.getTransform();
       ctx.restore();
+      if (isSplitStem) {
+        const tpos = new DOMPoint(x + (w*0.5), y + h);
+        _renderAllteredUnison(halign, vdir, tpos.matrixTransform(cm), w, h, nhScaledBBox, bb);
+      }
     }
 
     function _renderGraceNoteSlash(bbs, engravingDefaults, sbl) {
@@ -1341,7 +1398,8 @@ class SMuFLFontViewer {
             isIndeterminate: isIndeterminate,
             anchor: anchor,
             anchorDef: anchorDef,
-            fontSizeInfo: fontSizeInfo
+            fontSizeInfo: fontSizeInfo,
+            glyphData: glyphData
           };
           renderAnchor(akey, anchor[akey], anchorDef, scaledBBox, engravingDefaults, isIndeterminate, bbs);
         }
