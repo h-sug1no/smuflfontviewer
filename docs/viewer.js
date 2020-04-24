@@ -1064,7 +1064,7 @@ class SMuFLFontViewer {
       $valSibling.parent().find('.val').text(text);
     }
 
-    function _renderStemEx(nhScaledBBox, w, h, bb, stemAnchorName) {
+    function _renderStemEx(nhScaledBBox, w, endY, bb, stemAnchorName) {
       const stemAnchor = bb.glyphData.anchor[stemAnchorName];
       const stemAttachmentPos = _anchorCsToScreenCs(nhScaledBBox, stemAnchor, nhScaledBBox.sbl);
 
@@ -1074,7 +1074,7 @@ class SMuFLFontViewer {
       ctx.lineWidth = Math.abs(w);
       ctx.beginPath();
       ctx.moveTo(x, y);
-      ctx.lineTo(x, y + h);
+      ctx.lineTo(x, endY);
       ctx.stroke();
       ctx.restore();
     }
@@ -1098,31 +1098,34 @@ class SMuFLFontViewer {
       const asgd = _getGlyphData('accidentalSharp');
       const asm = _measureGlyph(asgd, 0, 0,nhScaledBBox.sbl);
 
-      const paddingX =  (nhScaledBBox.sbl * 0.15);
+      const paddingX =  (nhScaledBBox.sbl * 0.4);
+      const accidentalPaddingX =  (nhScaledBBox.sbl * 0.15);
 
       let nh1X = nhScaledBBox.x;
 
       if (halign === 'R') {
         // n p [nh1 p # p] nh0
-        nh1X -= (asm.scaledBBox.w + nhScaledBBox.w + (paddingX * 2));
+        nh1X -= (asm.scaledBBox.w + nhScaledBBox.w + (paddingX + accidentalPaddingX));
       }
       else {
         // # p [nh0 p n p nh1]
-        nh1X += (nhScaledBBox.w + anm.scaledBBox.w + (paddingX * 2));
+        nh1X += (nhScaledBBox.w + anm.scaledBBox.w + (paddingX + accidentalPaddingX));
       }
 
       _renderGlyph(bb.glyphData, nh1X, nhScaledBBox.y, bb.fontSizeInfo.fontSize);
       const m = _measureGlyph(bb.glyphData, nh1X, nhScaledBBox.y, nhScaledBBox.sbl);
 
-      _renderGlyph(angd, m.scaledBBox.x - anm.scaledBBox.w - paddingX,
+      _renderGlyph(angd, m.scaledBBox.x - anm.scaledBBox.w - accidentalPaddingX,
         m.scaledBBox.y, bb.fontSizeInfo.fontSize);
 
-      _renderGlyph(asgd, nhScaledBBox.x - asm.scaledBBox.w - paddingX,
+      _renderGlyph(asgd, nhScaledBBox.x - asm.scaledBBox.w - accidentalPaddingX,
         nhScaledBBox.y, bb.fontSizeInfo.fontSize);
 
       console.log(vdir, halign, w);
       const stemAnchorName = stemAnchorNamesByHV[`${halign}_${vdir}`];
-      _renderStemEx(m.scaledBBox, Math.abs(w), h, bb, stemAnchorName);
+      _renderStemEx(m.scaledBBox, Math.abs(w),
+        m.scaledBBox.y - (m.scaledBBox.sbl * 4 * (vdir === 'BTT' ? 1 : -1)),
+        bb, stemAnchorName);
       ctx.restore();
     }
 
