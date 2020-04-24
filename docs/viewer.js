@@ -1077,6 +1077,8 @@ class SMuFLFontViewer {
       ctx.lineTo(x, endY);
       ctx.stroke();
       ctx.restore();
+
+      return x;
     }
 
     const stemAnchorNamesByHV = {
@@ -1086,17 +1088,16 @@ class SMuFLFontViewer {
       L_TTB: 'stemDownNW'
     };
 
-    function _renderAllteredUnison(halign, vdir, stemEndPos, w, h, nhScaledBBox, bb) {
+    function _renderAllteredUnison(halign, vdir, w, nhScaledBBox, bb) {
       ctx.save();
       ctx.strokeStyle = '#aaaaaa';
       ctx.fillStyle = '#aaaaaa';
 
-
       const angd = _getGlyphData('accidentalNatural');
       const anm = _measureGlyph(angd, 0, 0,nhScaledBBox.sbl);
 
-      const asgd = _getGlyphData('accidentalSharp');
-      const asm = _measureGlyph(asgd, 0, 0,nhScaledBBox.sbl);
+      const afgd = _getGlyphData('accidentalFlat');
+      const afm = _measureGlyph(afgd, 0, 0,nhScaledBBox.sbl);
 
       const paddingX =  (nhScaledBBox.sbl * 0.4);
       const accidentalPaddingX =  (nhScaledBBox.sbl * 0.15);
@@ -1104,11 +1105,11 @@ class SMuFLFontViewer {
       let nh1X = nhScaledBBox.x;
 
       if (halign === 'R') {
-        // n p [nh1 p # p] nh0
-        nh1X -= (asm.scaledBBox.w + nhScaledBBox.w + (paddingX + accidentalPaddingX));
+        // n ap [nh1 p b ap] nh0
+        nh1X -= (afm.scaledBBox.w + nhScaledBBox.w + (paddingX + accidentalPaddingX));
       }
       else {
-        // # p [nh0 p n p nh1]
+        // b ap [nh0 p n ap nh1]
         nh1X += (nhScaledBBox.w + anm.scaledBBox.w + (paddingX + accidentalPaddingX));
       }
 
@@ -1118,41 +1119,39 @@ class SMuFLFontViewer {
       _renderGlyph(angd, m.scaledBBox.x - anm.scaledBBox.w - accidentalPaddingX,
         m.scaledBBox.y, bb.fontSizeInfo.fontSize);
 
-      _renderGlyph(asgd, nhScaledBBox.x - asm.scaledBBox.w - accidentalPaddingX,
+      _renderGlyph(afgd, nhScaledBBox.x - afm.scaledBBox.w - accidentalPaddingX,
         nhScaledBBox.y, bb.fontSizeInfo.fontSize);
 
-      console.log(vdir, halign, w);
+      // console.log(vdir, halign, w);
       const stemAnchorName = stemAnchorNamesByHV[`${halign}_${vdir}`];
-      _renderStemEx(m.scaledBBox, Math.abs(w),
-        m.scaledBBox.y - (m.scaledBBox.sbl * 4 * (vdir === 'BTT' ? 1 : -1)),
-        bb, stemAnchorName);
+      const stemLen = (m.scaledBBox.sbl * 4 * (vdir === 'BTT' ? 1 : -1));
+      const stemEndY = m.scaledBBox.y - stemLen;
+      const stemX = _renderStemEx(m.scaledBBox, Math.abs(w), stemEndY, bb, stemAnchorName);
       ctx.restore();
+
+      return {
+        nhMetrics: m,
+        stemAttachmentY: stemEndY + (stemLen / 4),
+        stemAttachmentX: stemX
+      };
     }
 
     function _renderStem(x, y, h, halign, vdir, sbl, engravingDefaults, isSplitStem, nhScaledBBox, akey, bb) {
       let w = anchorCsToScreenCsX(engravingDefaults.stemThickness, sbl);
       let rad = 0;
 
-      const nhWInAnchorCS = nhScaledBBox.w / nhScaledBBox.sbl;
-      const sdx = ((halign === 'L' && vdir === 'BTT') || (halign === 'R' && vdir === 'TTB')) ?
-        nhWInAnchorCS + 1 : nhWInAnchorCS;
-      const sdy = 1;
       if (isSplitStem) {
+        const auInfo = _renderAllteredUnison(halign, vdir, w, nhScaledBBox, bb);
         // https://steinberg.help/dorico/v2/en/_shared_picts/picts/dorico/notation_reference/accidentals_altered_unison_tree.png
         // https://www.steinberg.net/forums/download/file.php?id=16781
-        // FIXME: draw sample stem and noteheads(altered unison)...
-        rad = Math.atan2(sdx, sdy);
-      }
-
-      if (halign === 'R') {
-        w *= -1;
-        rad *= -1;
-      }
-      if (vdir === 'BTT') {
-        h *= -1;
-      }
-      else {
-        rad *= -1;
+        const dw = auInfo.stemAttachmentX - x - ((w * 0.5) * (halign === 'L' ? 1 : -1));
+        const dh = auInfo.stemAttachmentY - y;
+        rad = Math.atan2(dw, dh) * -1;
+        h = Math.sqrt((dw * dw) + (dh * dh));
+        if ((vdir === 'BTT' && halign === 'L') ||
+          (vdir === 'TTB' && halign === 'R')) {
+          w *= -1;
+        }
       }
 
       ctx.save();
@@ -1165,10 +1164,6 @@ class SMuFLFontViewer {
       ctx.fill();
       const cm = ctx.getTransform();
       ctx.restore();
-      if (isSplitStem) {
-        const tpos = new DOMPoint(x + (w*0.5), y + h);
-        _renderAllteredUnison(halign, vdir, tpos.matrixTransform(cm), w, h, nhScaledBBox, bb);
-      }
     }
 
     function _renderGraceNoteSlash(bbs, engravingDefaults, sbl) {
