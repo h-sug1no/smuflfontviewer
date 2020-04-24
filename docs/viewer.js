@@ -1012,7 +1012,7 @@ class SMuFLFontViewer {
           if ((akey.startsWith('splitStem') || akey.startsWith('stem'))) {
             _renderStem(x, y,
               Math.max(scaledBBox.h, anchorCsToScreenCsX(3.5, sbl)),
-              halign, vdir, sbl, engravingDefaults, akey.startsWith('splitStem'));
+              halign, vdir, sbl, engravingDefaults, akey.startsWith('splitStem'), scaledBBox, akey, bbs[akey]);
           }
           else if (akey.startsWith('numeral')) {
             _renderNumeral(x, y, sbl, bbs[akey]);
@@ -1064,27 +1064,94 @@ class SMuFLFontViewer {
       $valSibling.parent().find('.val').text(text);
     }
 
-    function _renderStem(x, y, h, halign, vdir, sbl, engravingDefaults, isSplitStem) {
-      let w = anchorCsToScreenCsX(engravingDefaults.stemThickness, sbl);
-      let rad = 0;
-      if (isSplitStem) {
-        // https://steinberg.help/dorico/v2/en/_shared_picts/picts/dorico/notation_reference/accidentals_altered_unison_tree.png
-        // https://www.steinberg.net/forums/download/file.php?id=16781
-        // FIXME: draw sample stem and noteheads(altered unison)...
-        const sdx = 1.2;
-        const sdy = 1;
-        rad = Math.atan2(sdx, sdy);
-      }
+    function _renderStemEx(nhScaledBBox, w, endY, bb, stemAnchorName) {
+      const stemAnchor = bb.glyphData.anchor[stemAnchorName];
+      const stemAttachmentPos = _anchorCsToScreenCs(nhScaledBBox, stemAnchor, nhScaledBBox.sbl);
+
+      const x = stemAttachmentPos.x - (w * 0.5 * (stemAnchorName.endsWith('NW') ? -1 : 1));
+      const y = stemAttachmentPos.y;
+      ctx.save();
+      ctx.lineWidth = Math.abs(w);
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x, endY);
+      ctx.stroke();
+      ctx.restore();
+
+      return x;
+    }
+
+    const stemAnchorNamesByHV = {
+      R_BTT: 'stemUpSE',
+      R_TTB: 'stemDownNW',
+      L_BTT: 'stemUpSE',
+      L_TTB: 'stemDownNW'
+    };
+
+    function _renderAllteredUnison(halign, vdir, w, nhScaledBBox, bb) {
+      ctx.save();
+      ctx.strokeStyle = '#aaaaaa';
+      ctx.fillStyle = '#aaaaaa';
+
+      const angd = _getGlyphData('accidentalNatural');
+      const anm = _measureGlyph(angd, 0, 0,nhScaledBBox.sbl);
+
+      const afgd = _getGlyphData('accidentalFlat');
+      const afm = _measureGlyph(afgd, 0, 0,nhScaledBBox.sbl);
+
+      const paddingX =  (nhScaledBBox.sbl * 0.4);
+      const accidentalPaddingX =  (nhScaledBBox.sbl * 0.15);
+
+      let nh1X = nhScaledBBox.x;
 
       if (halign === 'R') {
-        w *= -1;
-        rad *= -1;
-      }
-      if (vdir === 'BTT') {
-        h *= -1;
+        // n ap [nh1 p b ap] nh0
+        nh1X -= (afm.scaledBBox.w + nhScaledBBox.w + (paddingX + accidentalPaddingX));
       }
       else {
-        rad *= -1;
+        // b ap [nh0 p n ap nh1]
+        nh1X += (nhScaledBBox.w + anm.scaledBBox.w + (paddingX + accidentalPaddingX));
+      }
+
+      _renderGlyph(bb.glyphData, nh1X, nhScaledBBox.y, bb.fontSizeInfo.fontSize);
+      const m = _measureGlyph(bb.glyphData, nh1X, nhScaledBBox.y, nhScaledBBox.sbl);
+
+      _renderGlyph(angd, m.scaledBBox.x - anm.scaledBBox.w - accidentalPaddingX,
+        m.scaledBBox.y, bb.fontSizeInfo.fontSize);
+
+      _renderGlyph(afgd, nhScaledBBox.x - afm.scaledBBox.w - accidentalPaddingX,
+        nhScaledBBox.y, bb.fontSizeInfo.fontSize);
+
+      // console.log(vdir, halign, w);
+      const stemAnchorName = stemAnchorNamesByHV[`${halign}_${vdir}`];
+      const stemLen = (m.scaledBBox.sbl * 4 * (vdir === 'BTT' ? 1 : -1));
+      const stemEndY = m.scaledBBox.y - stemLen;
+      const stemX = _renderStemEx(m.scaledBBox, Math.abs(w), stemEndY, bb, stemAnchorName);
+      ctx.restore();
+
+      return {
+        nhMetrics: m,
+        stemAttachmentY: stemEndY + (stemLen / 4),
+        stemAttachmentX: stemX
+      };
+    }
+
+    function _renderStem(x, y, h, halign, vdir, sbl, engravingDefaults, isSplitStem, nhScaledBBox, akey, bb) {
+      let w = anchorCsToScreenCsX(engravingDefaults.stemThickness, sbl);
+      let rad = 0;
+
+      if (isSplitStem) {
+        const auInfo = _renderAllteredUnison(halign, vdir, w, nhScaledBBox, bb);
+        // https://steinberg.help/dorico/v2/en/_shared_picts/picts/dorico/notation_reference/accidentals_altered_unison_tree.png
+        // https://www.steinberg.net/forums/download/file.php?id=16781
+        const dw = auInfo.stemAttachmentX - x - ((w * 0.5) * (halign === 'L' ? 1 : -1));
+        const dh = auInfo.stemAttachmentY - y;
+        rad = Math.atan2(dw, dh) * -1;
+        h = Math.sqrt((dw * dw) + (dh * dh));
+        if ((vdir === 'BTT' && halign === 'L') ||
+          (vdir === 'TTB' && halign === 'R')) {
+          w *= -1;
+        }
       }
 
       ctx.save();
@@ -1095,6 +1162,7 @@ class SMuFLFontViewer {
       ctx.beginPath();
       ctx.rect(x, y, w, h);
       ctx.fill();
+      const cm = ctx.getTransform();
       ctx.restore();
     }
 
@@ -1341,7 +1409,8 @@ class SMuFLFontViewer {
             isIndeterminate: isIndeterminate,
             anchor: anchor,
             anchorDef: anchorDef,
-            fontSizeInfo: fontSizeInfo
+            fontSizeInfo: fontSizeInfo,
+            glyphData: glyphData
           };
           renderAnchor(akey, anchor[akey], anchorDef, scaledBBox, engravingDefaults, isIndeterminate, bbs);
         }
