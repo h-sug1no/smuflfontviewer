@@ -1091,20 +1091,33 @@ class SMuFLFontViewer {
       ctx.strokeStyle = '#aaaaaa';
       ctx.fillStyle = '#aaaaaa';
 
-      const nhX = stemEndPos.x - (vdir === 'BTT' ? nhScaledBBox.w : 0) -
-        (Math.abs(w) * 0.5 * (vdir === 'BTT' ? -1 : 1));
-
-      _renderGlyph(bb.glyphData, nhX, nhScaledBBox.y, bb.fontSizeInfo.fontSize);
-      const m = _measureGlyph(bb.glyphData, nhX, nhScaledBBox.y, nhScaledBBox.sbl);
 
       const angd = _getGlyphData('accidentalNatural');
       const anm = _measureGlyph(angd, 0, 0,nhScaledBBox.sbl);
-      _renderGlyph(angd, m.scaledBBox.x - anm.scaledBBox.w - (m.scaledBBox.sbl * 0.15),
-        m.scaledBBox.y, bb.fontSizeInfo.fontSize);
 
       const asgd = _getGlyphData('accidentalSharp');
       const asm = _measureGlyph(asgd, 0, 0,nhScaledBBox.sbl);
-      _renderGlyph(asgd, nhScaledBBox.x - asm.scaledBBox.w - (m.scaledBBox.sbl * 0.15),
+
+      const paddingX =  (nhScaledBBox.sbl * 0.15);
+
+      let nh1X = nhScaledBBox.x;
+
+      if (halign === 'R') {
+        // n p [nh1 p # p] nh0
+        nh1X -= (asm.scaledBBox.w + nhScaledBBox.w + (paddingX * 2));
+      }
+      else {
+        // # p [nh0 p n p nh1]
+        nh1X += (nhScaledBBox.w + anm.scaledBBox.w + (paddingX * 2));
+      }
+
+      _renderGlyph(bb.glyphData, nh1X, nhScaledBBox.y, bb.fontSizeInfo.fontSize);
+      const m = _measureGlyph(bb.glyphData, nh1X, nhScaledBBox.y, nhScaledBBox.sbl);
+
+      _renderGlyph(angd, m.scaledBBox.x - anm.scaledBBox.w - paddingX,
+        m.scaledBBox.y, bb.fontSizeInfo.fontSize);
+
+      _renderGlyph(asgd, nhScaledBBox.x - asm.scaledBBox.w - paddingX,
         nhScaledBBox.y, bb.fontSizeInfo.fontSize);
 
       console.log(vdir, halign, w);
