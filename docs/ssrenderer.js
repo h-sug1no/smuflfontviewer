@@ -528,12 +528,97 @@ class SSRenderer {
       ctx.restore();
     }
 
+    /*
+    https://w3c.github.io/smufl/gitbook/specification/scoring-metrics-glyph-registration.html
+    ---------------------------------------------------------------------
+    Digits for time signatures should be scaled such that each digits
+    is two staff spaces tall, i.e. 0.5 em, and vertically centered on the baseline.
+
+    Although some glyphs in the time signatures range
+    (such as the large + sign, common and cut time glyphs, etc.)
+    apply to the whole staff, these should likewise be vertically centered on the baseline.
+    Time signature digits should also have non-zero side bearings to achieve good default
+    spacing when set in a single run.
+    ---------------------------------------------------------------------
+
+    But, Petaluma 1.04: timeSig4 height is sbl*4 (also height of other timeSig*
+    glyphs are more that sbl*3), so its too large...;-p
+
+    */
+    function drawTimeSig(dCtx, system) {
+      const gdTimeSigN = util._getGlyphData('timeSig2');
+      const gdTimeSigD = util._getGlyphData('timeSig4');
+      const timeSigDMetrics = util._measureGlyph(gdTimeSigD, 0, 0, dCtx.sbl);
+      const timeSigNMetrics = util._measureGlyph(gdTimeSigN, 0, 0, dCtx.sbl);
+
+      const block = {
+        N: timeSigNMetrics.scaledBBox.N,
+        S: timeSigNMetrics.scaledBBox.h + timeSigDMetrics.scaledBBox.S,
+        E: Math.max(timeSigDMetrics.scaledBBox.E, timeSigNMetrics.scaledBBox.E),
+        W: Math.min(timeSigDMetrics.scaledBBox.W, timeSigNMetrics.scaledBBox.W)
+      };
+      block.w = block.E - block.W;
+      block.h = block.S - block.N;
+      block.offsetX = block.w * 0.5;
+      block.onY = -timeSigNMetrics.scaledBBox.S;
+      block.odY = -timeSigDMetrics.scaledBBox.N;
+
+      const paddingW = dCtx.sbl * 0.25;
+      const sbl4 = (dCtx.sbl * 4);
+      const lineY = system.y + (dCtx.sbl * 2);
+
+      ctx.save();
+
+      ctx.textAlign = 'center';
+
+      // 1) scale d/n glyhps to fit to N line staff height.
+      // in this case, application must considere the glyph type and it's complicated. ;-p
+      const fontScale = sbl4 / block.h;
+      let fontSize = (fontScale * sbl4);
+
+      const scaledVals = {
+       offsetX: block.offsetX * fontScale,
+       onY: block.onY * fontScale,
+       odY: block.odY * fontScale,
+       w: block.w * fontScale
+      };
+
+      util._renderGlyph(gdTimeSigN, system.x + scaledVals.offsetX, lineY + scaledVals.onY, fontSize, ctx);
+      util._renderGlyph(gdTimeSigD, system.x + scaledVals.offsetX, lineY + scaledVals.odY, fontSize, ctx);
+
+      // 2) fontSize=sbl*4 like other glpyhs (e.g. noteheads). And centering vertically in N line staff.
+      system.x += scaledVals.w + paddingW;
+      fontSize = sbl4;
+
+      util._renderGlyph(gdTimeSigN, system.x + block.offsetX, lineY + block.onY, fontSize, ctx);
+      util._renderGlyph(gdTimeSigD, system.x + block.offsetX, lineY + block.odY, fontSize, ctx);
+
+      ctx.textAlign = 'start';
+      system.x += block.w + paddingW;
+
+      const gd1 = util._getGlyphData('timeSigCutCommon');
+      util._renderGlyph(gd1, system.x, lineY, sbl4, ctx);
+
+      system.x += util._measureGlyph(gd1, 0, 0, dCtx.sbl).scaledBBox.w + paddingW;
+      util._renderGlyph(util._getGlyphData('timeSigCommon'), system.x, lineY, sbl4, ctx);
+
+      ctx.restore();
+    }
+
     function drawNotes(dCtx, system, sbbox) {
       const ctx = dCtx.ctx;
+      system = {
+        x: system.x + 10,
+        y: system.y
+      };
+
+      drawTimeSig(dCtx, system);
+
       const gdNoteheadBlack = util._getGlyphData('noteheadBlack');
       const stemHeight = 3 * dCtx.sbl;
       const fontSize = dCtx.fontSize;
-      let x = system.x + 20;
+
+      let x = system.x + 40;
       let y = system.y - sbl * 2;
 
       const gdNoteheadWhole = util._getGlyphData('noteheadWhole');
@@ -560,7 +645,7 @@ class SSRenderer {
       // beamed notes.
 
       // hairpin
-      drawHairpin(dCtx, system.x + 10, system.y - sbl * 3.2, system.x + 100, sbl * 1.2);
+      drawHairpin(dCtx, system.x + 30, system.y - sbl * 3.2, system.x + 120, sbl * 1.2);
 
       x += 60;
       y = system.y + sbl;
@@ -614,7 +699,7 @@ class SSRenderer {
       }
 
       // curves
-      x = system.x + 60;
+      x = system.x + 80;
       y = system.y + sbl * 3;
 
       const npos = [{
@@ -719,7 +804,7 @@ class SSRenderer {
         {
           x: 50,
           y: 50 + sbl * 10,
-          w: 200,
+          w: 300,
           h: sbl * 4,
           draw: drawNotes,
         }
