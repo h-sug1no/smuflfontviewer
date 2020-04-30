@@ -1311,13 +1311,14 @@ class SMuFLFontViewer {
       const slIndeterminate = $smuflRenderGlyphOptionsSl.prop('indeterminate');
       if (slChecked || slIndeterminate) {
         ctx.save();
-        ctx.strokeStyle = '#cccccc';
         ctx.lineWidth = anchorCsToScreenCsX(engravingDefaults.staffLineThickness, sbl);
         const slY = y + (slChecked ? sbl * 0.5 : 0);
-        for (let yi = -7; yi < 8; yi++) {
+        for (let yi = -10; yi < 11; yi++) {
           ctx.beginPath();
           ctx.moveTo(0, slY + (sbl * yi));
           ctx.lineTo(c.width, slY + (sbl * yi));
+
+          ctx.strokeStyle = (((yi + 2) % 4) === 0) ? '#aaaaaa' : '#cccccc';
           ctx.stroke();
         }
         ctx.restore();
