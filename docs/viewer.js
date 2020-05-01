@@ -1153,6 +1153,14 @@ class SMuFLFontViewer {
           w *= -1;
         }
       }
+      else {
+        if (vdir === 'BTT') {
+          h *= -1;
+        }
+        if (halign === 'R') {
+          w *= -1;
+        }
+      }
 
       ctx.save();
       ctx.translate(x, y);
