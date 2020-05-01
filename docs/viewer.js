@@ -1318,7 +1318,7 @@ class SMuFLFontViewer {
           ctx.moveTo(0, slY + (sbl * yi));
           ctx.lineTo(c.width, slY + (sbl * yi));
 
-          ctx.strokeStyle = (((yi + 2) % 4) === 0) ? '#aaaaaa' : '#cccccc';
+          ctx.strokeStyle = ((yi % 4) === 0) ? '#aaaaaa' : '#cccccc';
           ctx.stroke();
         }
         ctx.restore();
