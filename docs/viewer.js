@@ -150,6 +150,7 @@ class SMuFLFontViewer {
     }
 
     function input_make3State(inputElm, isIndeterminate, isUnchecked) {
+      inputElm.parentElement.classList.add('tri-state');
       inputElm._on3StateChange = function() {
         inputElm._3state++;
         if (inputElm._3state > 2) {inputElm._3state = 0;}
