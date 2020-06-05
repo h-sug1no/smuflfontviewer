@@ -44,6 +44,16 @@
           </div>
         </div>
         <hr>
+        <div id="settings">settings:
+          <div class="item">
+            <label title="cutOut anchor points are relative to the:
+    unchecked: glyph origin.
+    checked: bottom left-hand corner of the glyph bounding box(old spec).
+            "><input
+                type="checkbox" />cutOutOrigin_BBL<span class="val"></span></label>
+          </div>
+          </div>
+        <hr>
         <button id="openBtn">open</button>
     </div>
 
@@ -59,11 +69,12 @@
           openBtnElm.disabled = true;
         }
 
-
         const _itemInputMap = {};
         containerElm.querySelectorAll('div.item').forEach(function(divItemElm) {
           const itemDataElm = divItemElm.querySelector('label');
-          _itemInputMap[itemDataElm.textContent] = divItemElm.querySelector('input');
+          const prefix = divItemElm.parentElement.id;
+          _itemInputMap[(prefix === 'settings' ? (prefix + '.') : '') +
+            itemDataElm.textContent] = divItemElm.querySelector('input');
         });
 
         containerElm.addEventListener('change', function(ev) {
@@ -83,8 +94,18 @@
 
         function updateOptions(options) {
           Object.keys(options).forEach(function(key) {
-            _itemInputMap[key].value = options[key];
+            if (key !== 'settings') {
+              _itemInputMap[key].value = options[key];
+            }
           });
+          const settings = options.settings || {
+            cutOutOrigin_BBL: false
+          };
+
+          Object.keys(settings).forEach(function(key) {
+            _itemInputMap['settings.' + key].checked = settings[key];
+          });
+
         }
 
         function createUrl() {
@@ -102,15 +123,20 @@
           demolistElm.appendChild(optionElm);
         }
 
-        function _createDemolistOptions(lFontBasePath, lMetadataBasePath, optFontPath, optFontMetadataPath) {
+        function _createDemolistOptions(lFontBasePath, lMetadataBasePath, optFontPath, optFontMetadataPath, settings) {
             return {
-              fontUrl: lFontBasePath + (optFontPath || '/woff/Bravura.woff2'),
-              fontMetadataUrl: lFontBasePath + (optFontMetadataPath || '/bravura_metadata.json'),
+              fontUrl: lFontBasePath + optFontPath,
+              fontMetadataUrl: lFontBasePath + optFontMetadataPath,
               glyphnamesUrl: lMetadataBasePath + '/glyphnames.json',
               classesUrl: lMetadataBasePath + '/classes.json',
-              rangesUrl: lMetadataBasePath + '/ranges.json'
+              rangesUrl: lMetadataBasePath + '/ranges.json',
+              settings: settings
             };
         }
+
+        const oldFontSettings = {
+          cutOutOrigin_BBL: true
+        };
 
         if (urlObject.searchParams.get('dev') !== null) {
           // mkdir ./packages
@@ -121,24 +147,28 @@
           //
           addDemolistItem('local Bravura(debug)', _createDemolistOptions(
             './packages/bravura/redist',
-            './packages/smufl/metadata'
+            './packages/smufl/metadata',
+            '/woff/Bravura.woff2', '/bravura_metadata.json'
           ));
           addDemolistItem('local Petaluma(debug)', _createDemolistOptions(
             './packages/petaluma/redist',
             './packages/smufl/metadata',
-            '/woff/Petaluma.woff2', '/petaluma_metadata.json'
+            '/woff/Petaluma.woff2', '/petaluma_metadata.json',
+            oldFontSettings
           ));
         }
 
         addDemolistItem('steinbergmedia/bravura/master + w3c/smufl', _createDemolistOptions(
           'https://raw.githubusercontent.com/steinbergmedia/bravura/master/redist',
-          'https://raw.githubusercontent.com/w3c/smufl/gh-pages/metadata'
+          'https://raw.githubusercontent.com/w3c/smufl/gh-pages/metadata',
+          '/woff/Bravura.woff2', '/bravura_metadata.json'
         ));
 
         addDemolistItem('steinbergmedia/petaluma/master + w3c/smufl', _createDemolistOptions(
           'https://raw.githubusercontent.com/steinbergmedia/petaluma/master/redist',
           'https://raw.githubusercontent.com/w3c/smufl/gh-pages/metadata',
-          '/woff/Petaluma.woff2', '/petaluma_metadata.json'
+          '/woff/Petaluma.woff2', '/petaluma_metadata.json',
+          oldFontSettings
         ));
 
         var evt = new Event("change", {"bubbles":true, "cancelable":true});
