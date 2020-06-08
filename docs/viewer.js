@@ -1713,6 +1713,9 @@ class SMuFLFontViewer {
       });
       $rangeSelect_selectize = $rangeSelect[0].selectize;
 
+      const settings_cutOutOrigin_BBL = params.get('settings.cutOutOrigin_BBL') === 'true';
+      $smuflGlyphHints_cutOutOrigin_BBL.prop('checked', settings_cutOutOrigin_BBL);
+
       let glyph = params.get('glyph') || 'E0A3';
       if (glyph) {
         var gd = _getGlyphData(glyph);

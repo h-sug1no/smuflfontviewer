@@ -72,9 +72,16 @@
         const _itemInputMap = {};
         containerElm.querySelectorAll('div.item').forEach(function(divItemElm) {
           const itemDataElm = divItemElm.querySelector('label');
-          const prefix = divItemElm.parentElement.id;
-          _itemInputMap[(prefix === 'settings' ? (prefix + '.') : '') +
-            itemDataElm.textContent] = divItemElm.querySelector('input');
+          let prefix = divItemElm.parentElement.id;
+          const inputElm = divItemElm.querySelector('input');
+          if (prefix === 'settings') {
+            prefix += '.';
+            inputElm._appIsSettingsItem = true;
+          }
+          else {
+            prefix = '';
+          }
+          _itemInputMap[prefix + itemDataElm.textContent] = inputElm;
         });
 
         containerElm.addEventListener('change', function(ev) {
@@ -111,7 +118,15 @@
         function createUrl() {
           const url = new URL('./app.html', location);
           for (let key in _itemInputMap) {
-            url.searchParams.set(key, _itemInputMap[key].value);
+            const inputElm = _itemInputMap[key];
+            if (inputElm._appIsSettingsItem) {
+              if (inputElm.checked) {
+                url.searchParams.set(key, true);
+              }
+            }
+            else {
+              url.searchParams.set(key, inputElm.value);
+            }
           }
           return url;
         }
