@@ -914,6 +914,13 @@ class SMuFLFontViewer {
         t.searchParams.set(key, value);
       });
 
+      if ($smuflGlyphHints_cutOutOrigin_BBL.prop('checked')) {
+        t.searchParams.set('settings.cutOutOrigin_BBL', true);
+      }
+      else {
+        t.searchParams.delete('settings.cutOutOrigin_BBL');
+      }
+
       const $dom = _$infoDialog_contentDoms[key];
       $dom.$urlText.text(t.href);
       $dom.$urlText.select();
