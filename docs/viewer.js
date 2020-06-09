@@ -914,6 +914,13 @@ class SMuFLFontViewer {
         t.searchParams.set(key, value);
       });
 
+      if ($smuflGlyphHints_cutOutOrigin_BBL.prop('checked')) {
+        t.searchParams.set('settings.cutOutOrigin_BBL', true);
+      }
+      else {
+        t.searchParams.delete('settings.cutOutOrigin_BBL');
+      }
+
       const $dom = _$infoDialog_contentDoms[key];
       $dom.$urlText.text(t.href);
       $dom.$urlText.select();
@@ -1712,6 +1719,9 @@ class SMuFLFontViewer {
         }
       });
       $rangeSelect_selectize = $rangeSelect[0].selectize;
+
+      const settings_cutOutOrigin_BBL = params.get('settings.cutOutOrigin_BBL') === 'true';
+      $smuflGlyphHints_cutOutOrigin_BBL.prop('checked', settings_cutOutOrigin_BBL);
 
       let glyph = params.get('glyph') || 'E0A3';
       if (glyph) {
