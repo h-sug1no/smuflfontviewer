@@ -78,36 +78,36 @@ class SMuFLMetadata {
         });
       }
 
-      const alternateForsByUCodepoint = fontInfo.alternateForsByUCodepoint = {};
+      const alternateFors = fontInfo.alternateFors = {};
       const glyphsWithAlternates = fontMetadata.glyphsWithAlternates;
       if (glyphsWithAlternates) {
         Object.keys(glyphsWithAlternates).forEach(function(key) {
           const tAlternates = glyphsWithAlternates[key].alternates;
           tAlternates.forEach(function(v) {
-            const tAlternateFors = alternateForsByUCodepoint[v.codepoint] =
-              alternateForsByUCodepoint[v.codepoint] || [];
+            const tAlternateFors = alternateFors[v.name] =
+              alternateFors[v.name] || [];
             tAlternateFors.push(key);
           });
         });
       }
 
       const glyphsByUCodepoint = fontInfo.glyphsByUCodepoint = {};
-
       [{names: that.data.glyphnames, isOptionalGlyph: false},
-       {names: fontMetadata.optionalGlyphs, isOptionalGlyph: false}].forEach(function(namesDef) {
-        const names = namesDef.names;
-        Object.keys(namesDef.names).forEach(function(key) {
-          const name = names[key];
-          const cp = name.codepoint;
-          if (glyphsByUCodepoint[cp]) {
-            console.error(`duplicate codepoint: ${cp}: ${key}, ${glyphsByUCodepoint[cp].glyphname}`);
-          }
-          glyphsByUCodepoint[cp] = {
-            glyphname: key,
-            isOptionalGlyph: namesDef.isOptionalGlyph
-          };
-        });
-       });
+        {names: fontMetadata.optionalGlyphs, isOptionalGlyph: false}].forEach(function(namesDef) {
+          const names = namesDef.names;
+          Object.keys(namesDef.names).forEach(function(key) {
+            const name = names[key];
+            const cp = name.codepoint;
+            if (glyphsByUCodepoint[cp]) {
+              console.error(`duplicate codepoint: ${cp}: ${key}, ${glyphsByUCodepoint[cp].glyphname}`);
+            }
+            glyphsByUCodepoint[cp] = {
+              glyphname: key,
+              isOptionalGlyph: namesDef.isOptionalGlyph
+            };
+          });
+        }
+      );
     }
 
     return new Promise(function(resolve) {

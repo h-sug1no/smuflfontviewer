@@ -1551,9 +1551,12 @@ class SMuFLFontViewer {
       if (option1.isOptionalGlyph) {
         const fontInfo = sMuFLMetadata.getFontInfo();
         if (fontInfo) {
-          const alternateForsByUCodepoint = fontInfo.alternateForsByUCodepoint;
-          if (alternateForsByUCodepoint[uCodepoint]) {
-            baseGlyphnames = alternateForsByUCodepoint[uCodepoint];
+          const glyph = fontInfo.glyphsByUCodepoint[uCodepoint];
+          if (glyph || fontInfo.glyphsWithAlternates) {
+            const alternateFors = fontInfo.alternateFors[glyph.glyphname];
+            if (alternateFors) {
+              baseGlyphnames = alternateFors;
+            }
           }
         }
       }
