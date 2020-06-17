@@ -1477,7 +1477,7 @@ class SMuFLFontViewer {
 
       $codepointSelect.val(formatCodepointNumber(codepoint));
       const uCodepoint = sMuFLMetadata.ensureUCodepoint(getCodepoint());
-      const option1 = { searchOptional: true, searchAlternateCodepoint: true };
+      const option1 = { searchOptional: true };
       const glyphname = sMuFLMetadata.uCodepoint2Glyphname(uCodepoint, option1);
 
       $smuflGlyphInfoText.empty();

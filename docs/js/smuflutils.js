@@ -93,7 +93,7 @@ class SMuFLMetadata {
 
       const glyphsByUCodepoint = fontInfo.glyphsByUCodepoint = {};
       [{names: that.data.glyphnames, isOptionalGlyph: false},
-        {names: fontMetadata.optionalGlyphs, isOptionalGlyph: false}].forEach(function(namesDef) {
+        {names: fontMetadata.optionalGlyphs, isOptionalGlyph: true}].forEach(function(namesDef) {
           const names = namesDef.names;
           Object.keys(namesDef.names).forEach(function(key) {
             const name = names[key];
@@ -101,10 +101,11 @@ class SMuFLMetadata {
             if (glyphsByUCodepoint[cp]) {
               console.error(`duplicate codepoint: ${cp}: ${key}, ${glyphsByUCodepoint[cp].glyphname}`);
             }
-            glyphsByUCodepoint[cp] = {
+            const glyphItem = {
               glyphname: key,
               isOptionalGlyph: namesDef.isOptionalGlyph
             };
+            glyphsByUCodepoint[cp] = glyphItem;
           });
         }
       );
@@ -150,28 +151,23 @@ class SMuFLMetadata {
   }
 
   uCodepoint2Glyphname(uCodepoint, options = {}) {
-    const glyphnames = this.data.glyphnames;
+    const fontInfo = this.getFontInfo(options.fontName);
+    let ret;
+    if (!fontInfo) {
+      return ret;
+    }
     uCodepoint = this.ensureUCodepoint(uCodepoint);
-    for (const key in glyphnames) {
-      if (glyphnames[key].codepoint === uCodepoint) {
-        return key;
+    let glyph = fontInfo.glyphsByUCodepoint[uCodepoint];
+    if (glyph) {
+      ret = glyph.glyphname;
+      if (glyph.isOptionalGlyph && !options.searchOptional) {
+        ret = undefined;
       }
-      if (options.searchAlternateCodepoint) {
-        if (glyphnames[key].alternateCodepoint === uCodepoint) {
-          return key;
-        }
-      }
-    }
-    if (options.searchOptional) {
-      const optionalGlyphs = this.fontMetadata().optionalGlyphs;
-      for (const key in optionalGlyphs) {
-        if (optionalGlyphs[key].codepoint === uCodepoint) {
-          options.isOptionalGlyph = true;
-          return key;
-        }
+      if (ret && glyph.isOptionalGlyph) {
+        options.isOptionalGlyph = true;
       }
     }
-    return undefined;
+    return ret;
   }
 
   uCodepoint2Codepoint(uCodepoint) {
