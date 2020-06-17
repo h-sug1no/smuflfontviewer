@@ -91,6 +91,7 @@ class SMuFLMetadata {
         });
       }
 
+      const alternateCodepointFors = fontInfo.alternateCodepointFors = {};
       const glyphsByUCodepoint = fontInfo.glyphsByUCodepoint = {};
       [{names: that.data.glyphnames, isOptionalGlyph: false},
         {names: fontMetadata.optionalGlyphs, isOptionalGlyph: true}].forEach(function(namesDef) {
@@ -106,6 +107,12 @@ class SMuFLMetadata {
               isOptionalGlyph: namesDef.isOptionalGlyph
             };
             glyphsByUCodepoint[cp] = glyphItem;
+
+            // alternateCodepoint: ...the Unicode Musical Symbols range code point
+            // (if applicable) provided as the value for the "alternateCodepoint" key.
+            const glyphs = alternateCodepointFors[name.alternateCodepoint] =
+              alternateCodepointFors[name.alternateCodepoint] || [];
+            glyphs.push(glyphItem);
           });
         }
       );

@@ -356,6 +356,36 @@ class SMuFLFontViewer {
       }
     }
 
+    function appendAlternateCodepointFors($c, uCodepointStr) {
+      const fontInfo = sMuFLMetadata.getFontInfo();
+      if (!fontInfo) {
+        return;
+      }
+
+      const alternateCodepointFors = fontInfo.alternateCodepointFors;
+      if (!alternateCodepointFors) {
+        return;
+      }
+
+      const glyphs = alternateCodepointFors[uCodepointStr];
+      if (!glyphs || !glyphs.length) {
+        return;
+      }
+
+      $c.append(' is alternateCodepoint for:');
+
+
+      glyphs.forEach(function (glyph) {
+        $c.append('\n  codepoint: ');
+        const option = { searchOptional: true };
+        const tUCodepoint = sMuFLMetadata.glyphname2uCodepoint(glyph.glyphname, option);
+        appendCodepoint($c, tUCodepoint);
+        $c.append(`, name: `);
+        appendGlyphname($c, glyph.glyphname);
+      });
+
+    }
+
     function appendGlyphname($c, glyphname, currentGlyphName, uCodepoint) {
       const option = { searchOptional: true };
       let tUCodepoint = sMuFLMetadata.glyphname2uCodepoint(glyphname, option);
@@ -1483,17 +1513,24 @@ class SMuFLFontViewer {
       $smuflGlyphInfoText.empty();
       appendGlyphname($smuflGlyphInfoText, glyphname, glyphname, uCodepoint);
       $smuflGlyphInfoText.append('\n');
-      const glyphnameData = sMuFLMetadata.data.glyphnames[glyphname];
+      let glyphnameData = sMuFLMetadata.data.glyphnames[glyphname];
+      const optionalGlyphs = sMuFLMetadata.fontMetadata().optionalGlyphs;
+      glyphnameData = glyphnameData || (optionalGlyphs ? optionalGlyphs[glyphname] : undefined);
+
       if (!glyphnameData) {
         $smuflGlyphInfoText.append('codepoint: ');
         appendCodepointOrText($smuflGlyphInfoText, uCodepoint);
+        appendAlternateCodepointFors($smuflGlyphInfoText, uCodepoint);
       }
       else {
         for (const key in glyphnameData) {
-          $smuflGlyphInfoText.append(
-            key + ': ');
-          appendCodepointOrText($smuflGlyphInfoText, glyphnameData[key]);
-          $smuflGlyphInfoText.append('\n');
+          // FIXME: support classes for optionalGlyphs.
+          if (key !== 'classes') {
+            $smuflGlyphInfoText.append(
+              key + ': ');
+            appendCodepointOrText($smuflGlyphInfoText, glyphnameData[key]);
+            $smuflGlyphInfoText.append('\n');
+          }
         }
       }
 
