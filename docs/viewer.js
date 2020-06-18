@@ -569,6 +569,9 @@ class SMuFLFontViewer {
       $contentContainer.append(`${ginfo.codepoint}: `);
       appendGlyphname($contentContainer, glyphname); // here, no current glyph.
       $contentContainer.append(`, ${ginfo.description||''}: `);
+      if (ginfo.alternateCodepoint) {
+        $contentContainer.append(`, alternateCodepoint: ${ginfo.alternateCodepoint}: `);
+      }
       $contentContainer.append($('<br>'));
     }
 
