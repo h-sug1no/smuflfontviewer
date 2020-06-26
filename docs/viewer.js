@@ -1609,25 +1609,20 @@ class SMuFLFontViewer {
         addAlternatesInfo($alternatesInfo, tAalternates, baseGlyphname, glyphname);
       });
 
-      const computedClasses = sMuFLMetadata.getFontInfo().computedClasses;
-      const classes = computedClasses.classes;
-      const optClasses = computedClasses.optClasses;
-      const classNames = [...new Set(Object.keys(classes).
-        concat(Object.keys(optClasses)))];
+      const classes = sMuFLMetadata.getFontInfo().computedClasses.classes;
 
       const tClasses = [];
       $classesInfo.empty();
 
-      classNames.forEach(function(key) {
-        const c = classes[key] || [];
-        const optC = optClasses[key] || [];
-        if (c.indexOf(glyphname) !== -1 || optC.indexOf(glyphname) !== -1) {
+      for (var key in classes) {
+        const c = classes[key];
+        if (c.indexOf(glyphname) !== -1) {
           tClasses.push({
             key: key,
-            class: c.concat(optC)
+            class: c
           });
         }
-      });
+      }
 
       if (tClasses.length) {
         $classesInfo.append('classes: ' + '\n');

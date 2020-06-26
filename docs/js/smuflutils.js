@@ -133,9 +133,17 @@ class SMuFLMetadata {
 
       // resolve optionalGlyphs classes.
       const computedClasses = fontInfo.computedClasses = {
-        classes: that.data.classes,
+        smuflClasses: that.data.classes,
         optClasses: optClasses,
+        classes: {}
       };
+      Object.keys(computedClasses.classes).
+        concat(Object.keys(computedClasses.optClasses)).forEach(function(className) {
+          if (!computedClasses.classes[className]) {
+            computedClasses.classes[className] = (computedClasses.smuflClasses[className] || []).
+              concat(computedClasses.optClasses[className] || []);
+          }
+        });
     }
 
     return new Promise(function(resolve) {
