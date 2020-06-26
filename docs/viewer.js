@@ -854,7 +854,7 @@ class SMuFLFontViewer {
       _$infoDialog_showModal('classes', function($contentContainer) {
 
         _createAnyListPage($contentContainer, 'class',
-          sMuFLMetadata.data.classes,
+          sMuFLMetadata.getFontInfo().computedClasses.classes,
           //addItemFunc
           ($itemContainer, item) => {
           },
@@ -1609,19 +1609,25 @@ class SMuFLFontViewer {
         addAlternatesInfo($alternatesInfo, tAalternates, baseGlyphname, glyphname);
       });
 
-      const classes = sMuFLMetadata.data.classes;
+      const computedClasses = sMuFLMetadata.getFontInfo().computedClasses;
+      const classes = computedClasses.classes;
+      const optClasses = computedClasses.optClasses;
+      const classNames = [...new Set(Object.keys(classes).
+        concat(Object.keys(optClasses)))];
+
       const tClasses = [];
       $classesInfo.empty();
 
-      for (var key in classes) {
-        const c = classes[key];
-        if (c.indexOf(glyphname) !== -1) {
+      classNames.forEach(function(key) {
+        const c = classes[key] || [];
+        const optC = optClasses[key] || [];
+        if (c.indexOf(glyphname) !== -1 || optC.indexOf(glyphname) !== -1) {
           tClasses.push({
             key: key,
-            class: c
+            class: c.concat(optC)
           });
         }
-      }
+      });
 
       if (tClasses.length) {
         $classesInfo.append('classes: ' + '\n');

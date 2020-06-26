@@ -93,6 +93,9 @@ class SMuFLMetadata {
 
       const alternateCodepointFors = fontInfo.alternateCodepointFors = {};
       const glyphsByUCodepoint = fontInfo.glyphsByUCodepoint = {};
+
+      const optClasses = fontInfo.optClasses = {};
+
       [{names: that.data.glyphnames, isOptionalGlyph: false},
         {names: fontMetadata.optionalGlyphs, isOptionalGlyph: true}].forEach(function(namesDef) {
           const names = namesDef.names;
@@ -113,9 +116,26 @@ class SMuFLMetadata {
             const glyphs = alternateCodepointFors[name.alternateCodepoint] =
               alternateCodepointFors[name.alternateCodepoint] || [];
             glyphs.push(glyphItem);
+
+            if (!namesDef.isOptionalGlyph) {
+              return;
+            }
+
+            if (name.classes) {
+              name.classes.forEach(function(clazz) {
+                optClasses[clazz] = optClasses[clazz] || [];
+                optClasses[clazz].push(key);
+              });
+            }
           });
         }
       );
+
+      // resolve optionalGlyphs classes.
+      const computedClasses = fontInfo.computedClasses = {
+        classes: that.data.classes,
+        optClasses: optClasses,
+      };
     }
 
     return new Promise(function(resolve) {
