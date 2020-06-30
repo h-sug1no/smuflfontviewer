@@ -52,7 +52,8 @@ class SMuFLMetadata {
       const fontMetadata = that.data.fontMetadata;
       delete that.data.fontMetadata;
 
-      const fontInfo = that.fontInfos[`${fontMetadata.fontName}/${fontMetadata.fontVersion}`] = {
+      const fontInfoKey = `${fontMetadata.fontName}/${fontMetadata.fontVersion}`;
+      const fontInfo = that.fontInfos[fontInfoKey] = {
         fontMetadata: fontMetadata
       };
       const setsByAlternateFor = fontInfo.setsByAlternateFor = {};
@@ -95,6 +96,13 @@ class SMuFLMetadata {
       const glyphsByUCodepoint = fontInfo.glyphsByUCodepoint = {};
 
       const optClasses = fontInfo.optClasses = {};
+      const optRange = fontInfo.optRange = {
+        description: `optionalGlyphs: ${fontInfoKey}`,
+        nEnd: -Infinity,
+        nStart: Infinity,
+        range_end: undefined,
+        range_start: undefined
+      };
 
       [{names: that.data.glyphnames, isOptionalGlyph: false},
         {names: fontMetadata.optionalGlyphs, isOptionalGlyph: true}].forEach(function(namesDef) {
@@ -121,11 +129,22 @@ class SMuFLMetadata {
               return;
             }
 
+            // compute some data from optionalGlyphs.
             if (name.classes) {
               name.classes.forEach(function(clazz) {
                 optClasses[clazz] = optClasses[clazz] || [];
                 optClasses[clazz].push(key);
               });
+            }
+
+            const nCp = that.uCodepoint2Codepoint(cp);
+            if (nCp < optRange.nStart) {
+              optRange.nStart = nCp;
+              optRange.range_start = cp;
+            }
+            if (nCp > optRange.nEnd) {
+              optRange.nEnd = nCp;
+              optRange.range_end = cp;
             }
           });
         }

@@ -1734,6 +1734,21 @@ class SMuFLFontViewer {
       const rangeItems = [];
       const rangeItemDic = {};
 
+      let dictItem = rangeItemDic.unicode = {
+        value: 'unicode',
+        name: 'unicode',
+        codepoint: 0x21
+      };
+      rangeItems.push(dictItem);
+
+      const optRange = sMuFLMetadata.getFontInfo().optRange;
+      dictItem = rangeItemDic[optRange.description] = {
+        value: optRange.description,
+        name: optRange.description,
+        codepoint: sMuFLMetadata.uCodepoint2Codepoint(optRange.range_start)
+      };
+      rangeItems.push(dictItem);
+
       for (const rk in ranges) {
         const range = ranges[rk];
         rangeItemDic[rk] = {
