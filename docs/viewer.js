@@ -1497,6 +1497,11 @@ class SMuFLFontViewer {
     }
 
     function _draw() {
+      const fontInfo = sMuFLMetadata.getFontInfo();
+      if (!fontInfo) {
+        return;
+      }
+
       var codepoint = getCodepointNumber();
       if (isNaN(codepoint)) {
         const cval = getCodepoint();
@@ -1555,6 +1560,25 @@ class SMuFLFontViewer {
         }
       }
 
+      if (!tRange) {
+        const tGlyph = smuFLFontViewer.sMuFLMetadata.getFontInfo().glyphsByUCodepoint[uCodepoint];
+        if (tGlyph && tGlyph.isOptionalGlyph) {
+          tRange = {
+            key: fontInfo.optRange.description,
+            r: fontInfo.optRange
+          };
+        }
+      }
+
+      if (!tRange) {
+        tRange = {
+            key: 'unicode',
+            r: {
+              description: 'unicode'
+            }
+          };
+      }
+
       if (tRange) {
         $rangeInfo.append('range: ');
         $rangeInfo.append(tRange.key);
@@ -1589,7 +1613,6 @@ class SMuFLFontViewer {
       let alternates = sMuFLMetadata.fontMetadata().glyphsWithAlternates;
       let baseGlyphnames = [];
       if (option1.isOptionalGlyph) {
-        const fontInfo = sMuFLMetadata.getFontInfo();
         if (fontInfo) {
           const glyph = fontInfo.glyphsByUCodepoint[uCodepoint];
           if (glyph || fontInfo.glyphsWithAlternates) {
@@ -1645,7 +1668,6 @@ class SMuFLFontViewer {
       addLigatureInfo($ligaturesInfo, `ligatures: `, ligature, glyphname);
 
       $setsInfo.empty();
-      const fontInfo = sMuFLMetadata.getFontInfo();
       if (fontInfo) {
         const setsByAlternateForItem = fontInfo.setsByAlternateFor[glyphname];
         const setsByNameItem = fontInfo.setsByName[glyphname];
