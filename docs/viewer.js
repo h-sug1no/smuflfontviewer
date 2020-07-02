@@ -356,6 +356,36 @@ class SMuFLFontViewer {
       }
     }
 
+    function appendAlternateCodepointFors($c, uCodepointStr) {
+      const fontInfo = sMuFLMetadata.getFontInfo();
+      if (!fontInfo) {
+        return;
+      }
+
+      const alternateCodepointFors = fontInfo.alternateCodepointFors;
+      if (!alternateCodepointFors) {
+        return;
+      }
+
+      const glyphs = alternateCodepointFors[uCodepointStr];
+      if (!glyphs || !glyphs.length) {
+        return;
+      }
+
+      $c.append(' is alternateCodepoint for:');
+
+
+      glyphs.forEach(function (glyph) {
+        $c.append('\n  codepoint: ');
+        const option = { searchOptional: true };
+        const tUCodepoint = sMuFLMetadata.glyphname2uCodepoint(glyph.glyphname, option);
+        appendCodepoint($c, tUCodepoint);
+        $c.append(`, name: `);
+        appendGlyphname($c, glyph.glyphname);
+      });
+
+    }
+
     function appendGlyphname($c, glyphname, currentGlyphName, uCodepoint) {
       const option = { searchOptional: true };
       let tUCodepoint = sMuFLMetadata.glyphname2uCodepoint(glyphname, option);
@@ -539,6 +569,9 @@ class SMuFLFontViewer {
       $contentContainer.append(`${ginfo.codepoint}: `);
       appendGlyphname($contentContainer, glyphname); // here, no current glyph.
       $contentContainer.append(`, ${ginfo.description||''}: `);
+      if (ginfo.alternateCodepoint) {
+        $contentContainer.append(`, alternateCodepoint: ${ginfo.alternateCodepoint}: `);
+      }
       $contentContainer.append($('<br>'));
     }
 
@@ -821,7 +854,7 @@ class SMuFLFontViewer {
       _$infoDialog_showModal('classes', function($contentContainer) {
 
         _createAnyListPage($contentContainer, 'class',
-          sMuFLMetadata.data.classes,
+          sMuFLMetadata.getFontInfo().computedClasses.classes,
           //addItemFunc
           ($itemContainer, item) => {
           },
@@ -1464,6 +1497,11 @@ class SMuFLFontViewer {
     }
 
     function _draw() {
+      const fontInfo = sMuFLMetadata.getFontInfo();
+      if (!fontInfo) {
+        return;
+      }
+
       var codepoint = getCodepointNumber();
       if (isNaN(codepoint)) {
         const cval = getCodepoint();
@@ -1477,23 +1515,30 @@ class SMuFLFontViewer {
 
       $codepointSelect.val(formatCodepointNumber(codepoint));
       const uCodepoint = sMuFLMetadata.ensureUCodepoint(getCodepoint());
-      const option1 = { searchOptional: true, searchAlternateCodepoint: true };
+      const option1 = { searchOptional: true };
       const glyphname = sMuFLMetadata.uCodepoint2Glyphname(uCodepoint, option1);
 
       $smuflGlyphInfoText.empty();
       appendGlyphname($smuflGlyphInfoText, glyphname, glyphname, uCodepoint);
       $smuflGlyphInfoText.append('\n');
-      const glyphnameData = sMuFLMetadata.data.glyphnames[glyphname];
+      let glyphnameData = sMuFLMetadata.data.glyphnames[glyphname];
+      const optionalGlyphs = sMuFLMetadata.fontMetadata().optionalGlyphs;
+      glyphnameData = glyphnameData || (optionalGlyphs ? optionalGlyphs[glyphname] : undefined);
+
       if (!glyphnameData) {
         $smuflGlyphInfoText.append('codepoint: ');
         appendCodepointOrText($smuflGlyphInfoText, uCodepoint);
+        appendAlternateCodepointFors($smuflGlyphInfoText, uCodepoint);
       }
       else {
         for (const key in glyphnameData) {
-          $smuflGlyphInfoText.append(
-            key + ': ');
-          appendCodepointOrText($smuflGlyphInfoText, glyphnameData[key]);
-          $smuflGlyphInfoText.append('\n');
+          // FIXME: support classes for optionalGlyphs.
+          if (key !== 'classes') {
+            $smuflGlyphInfoText.append(
+              key + ': ');
+            appendCodepointOrText($smuflGlyphInfoText, glyphnameData[key]);
+            $smuflGlyphInfoText.append('\n');
+          }
         }
       }
 
@@ -1513,6 +1558,25 @@ class SMuFLFontViewer {
           };
           break;
         }
+      }
+
+      if (!tRange) {
+        const tGlyph = smuFLFontViewer.sMuFLMetadata.getFontInfo().glyphsByUCodepoint[uCodepoint];
+        if (tGlyph && tGlyph.isOptionalGlyph) {
+          tRange = {
+            key: fontInfo.optRange.description,
+            r: fontInfo.optRange
+          };
+        }
+      }
+
+      if (!tRange) {
+        tRange = {
+            key: 'unicode',
+            r: {
+              description: 'unicode'
+            }
+          };
       }
 
       if (tRange) {
@@ -1549,11 +1613,13 @@ class SMuFLFontViewer {
       let alternates = sMuFLMetadata.fontMetadata().glyphsWithAlternates;
       let baseGlyphnames = [];
       if (option1.isOptionalGlyph) {
-        const fontInfo = sMuFLMetadata.getFontInfo();
         if (fontInfo) {
-          const alternateForsByUCodepoint = fontInfo.alternateForsByUCodepoint;
-          if (alternateForsByUCodepoint[uCodepoint]) {
-            baseGlyphnames = alternateForsByUCodepoint[uCodepoint];
+          const glyph = fontInfo.glyphsByUCodepoint[uCodepoint];
+          if (glyph || fontInfo.glyphsWithAlternates) {
+            const alternateFors = fontInfo.alternateFors[glyph.glyphname];
+            if (alternateFors) {
+              baseGlyphnames = alternateFors;
+            }
           }
         }
       }
@@ -1566,7 +1632,8 @@ class SMuFLFontViewer {
         addAlternatesInfo($alternatesInfo, tAalternates, baseGlyphname, glyphname);
       });
 
-      const classes = sMuFLMetadata.data.classes;
+      const classes = sMuFLMetadata.getFontInfo().computedClasses.classes;
+
       const tClasses = [];
       $classesInfo.empty();
 
@@ -1601,7 +1668,6 @@ class SMuFLFontViewer {
       addLigatureInfo($ligaturesInfo, `ligatures: `, ligature, glyphname);
 
       $setsInfo.empty();
-      const fontInfo = sMuFLMetadata.getFontInfo();
       if (fontInfo) {
         const setsByAlternateForItem = fontInfo.setsByAlternateFor[glyphname];
         const setsByNameItem = fontInfo.setsByName[glyphname];
@@ -1689,6 +1755,21 @@ class SMuFLFontViewer {
       const ranges = sMuFLMetadata.data.ranges;
       const rangeItems = [];
       const rangeItemDic = {};
+
+      let dictItem = rangeItemDic.unicode = {
+        value: 'unicode',
+        name: 'unicode',
+        codepoint: 0x21
+      };
+      rangeItems.push(dictItem);
+
+      const optRange = sMuFLMetadata.getFontInfo().optRange;
+      dictItem = rangeItemDic[optRange.description] = {
+        value: optRange.description,
+        name: optRange.description,
+        codepoint: sMuFLMetadata.uCodepoint2Codepoint(optRange.range_start)
+      };
+      rangeItems.push(dictItem);
 
       for (const rk in ranges) {
         const range = ranges[rk];
