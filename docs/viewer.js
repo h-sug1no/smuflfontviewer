@@ -32,7 +32,7 @@ class SMuFLFontViewer {
     }
 
     function _initFontFace() {
-      const fontFace = {
+      const fontFace = that.fontFace = {
         fontUrl: undefined
       };
 
@@ -646,6 +646,24 @@ class SMuFLFontViewer {
             setsKeys.length ? setsKeys.join(', ') : 'none'
           }`);
         }
+
+        const urls = sMuFLMetadata.urls;
+        const $urlsContainer = $('<div class="fontMetadataUrlsContainer"></div>');
+
+        function _addUrl(key, val) {
+          const $d = $(`<div>${key}: <a></a></div>`);
+          const $a = $d.children('a');
+          $a.prop('href', val);
+          $a.text(val);
+          $urlsContainer.append($d);
+          _$c_appendText($urlsContainer, `\n`);
+        }
+
+        _addUrl('fontUrl', that.fontFace.fontUrl);
+        for (const key in urls) {
+          _addUrl(key, urls[key]);
+        }
+        $contentContainer.append($urlsContainer);
 
         const fontMetadata = sMuFLMetadata.fontMetadata();
         for (const key in fontMetadata) {
