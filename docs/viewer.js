@@ -27,6 +27,10 @@ class SMuFLFontViewer {
       };
     }
 
+    function _$c_appendText($c, text) {
+      $c.append(document.createTextNode(text));
+    }
+
     function _initFontFace() {
       const fontFace = {
         fontUrl: undefined
@@ -352,7 +356,7 @@ class SMuFLFontViewer {
         appendCodepoint($c, uCodepointStr);
       }
       else {
-        $c.append(uCodepointStr);
+        _$c_appendText($c, uCodepointStr);
       }
     }
 
@@ -372,15 +376,15 @@ class SMuFLFontViewer {
         return;
       }
 
-      $c.append(' is alternateCodepoint for:');
+      _$c_appendText($c, ' is alternateCodepoint for:');
 
 
       glyphs.forEach(function (glyph) {
-        $c.append('\n  codepoint: ');
+        _$c_appendText($c, '\n  codepoint: ');
         const option = { searchOptional: true };
         const tUCodepoint = sMuFLMetadata.glyphname2uCodepoint(glyph.glyphname, option);
         appendCodepoint($c, tUCodepoint);
-        $c.append(`, name: `);
+        _$c_appendText($c, `, name: `);
         appendGlyphname($c, glyph.glyphname);
       });
 
@@ -566,11 +570,11 @@ class SMuFLFontViewer {
     });
 
     function addGlyphnameInfo($contentContainer, ginfo, glyphname) {
-      $contentContainer.append(`${ginfo.codepoint}: `);
+      _$c_appendText($contentContainer, `${ginfo.codepoint}: `);
       appendGlyphname($contentContainer, glyphname); // here, no current glyph.
-      $contentContainer.append(`, ${ginfo.description||''}: `);
+      _$c_appendText($contentContainer, `, ${ginfo.description||''}: `);
       if (ginfo.alternateCodepoint) {
-        $contentContainer.append(`, alternateCodepoint: ${ginfo.alternateCodepoint}: `);
+        _$c_appendText($contentContainer, `, alternateCodepoint: ${ginfo.alternateCodepoint}: `);
       }
       $contentContainer.append($('<br>'));
     }
@@ -627,10 +631,10 @@ class SMuFLFontViewer {
     $('#BFontMetadata').on('click', function () {
       _$infoDialog_showModal('font metadata', function($contentContainer) {
         function add_engravingDefaults(name, engravingDefaults) {
-          $contentContainer.append(`${name}: `);
+          _$c_appendText($contentContainer, `${name}: `);
           const $tdContaienr = $('<div class="engravingDefaultsContainer"></div>');
           for (const key in engravingDefaults) {
-            $tdContaienr.append(`${key}: ${engravingDefaults[key]}, `);
+            _$c_appendText($tdContaienr, `${key}: ${engravingDefaults[key]}, `);
           }
           $contentContainer.append($tdContaienr);
         }
@@ -638,7 +642,7 @@ class SMuFLFontViewer {
         // eslint-disable-next-line no-unused-vars
         function add_sets(name, sets) {
           const setsKeys = Object.keys(sMuFLMetadata.fontMetadata().sets);
-          $contentContainer.append(`${name}: ${
+          _$c_appendText($contentContainer, `${name}: ${
             setsKeys.length ? setsKeys.join(', ') : 'none'
           }`);
         }
@@ -649,7 +653,7 @@ class SMuFLFontViewer {
           switch (key) {
           case 'fontName':
           case 'fontVersion':
-            $contentContainer.append(`${key}: ${fontMetadata[key]}`);
+            _$c_appendText($contentContainer, `${key}: ${fontMetadata[key]}`);
             break;
           case 'engravingDefaults':
             add_engravingDefaults(key, fontMetadata[key]);
@@ -660,7 +664,7 @@ class SMuFLFontViewer {
           case 'glyphsWithAnchors':
           case 'ligatures':
           case 'optionalGlyphs':
-            $contentContainer.append(`${key}: ...`);
+            _$c_appendText($contentContainer, `${key}: ...`);
             break;
           case 'sets':
             add_sets(key, fontMetadata[key]);
@@ -727,18 +731,18 @@ class SMuFLFontViewer {
     function addLigatureInfo($ligaturesInfo, label, ligature, glyphname) {
       if (ligature) {
         if (label) {
-          $ligaturesInfo.append(label);
+          _$c_appendText($ligaturesInfo, label);
         }
         appendGlyphname($ligaturesInfo, glyphname);
-        $ligaturesInfo.append('\ndescription: ');
-        $ligaturesInfo.append((ligature.description || '') + '\n');
+        _$c_appendText($ligaturesInfo, '\ndescription: ');
+       _$c_appendText($ligaturesInfo, (ligature.description || '') + '\n');
         if (ligature.componentGlyphs) {
-          $ligaturesInfo.append('componentGlyphs:\n');
+          _$c_appendText($ligaturesInfo, 'componentGlyphs:\n');
           const $glyphsContainer = $('<div class="glyphsContainer"></div>');
           $ligaturesInfo.append($glyphsContainer);
           ligature.componentGlyphs.forEach(function (tGlyphname) {
             appendGlyphname($glyphsContainer, tGlyphname, glyphname);
-            $glyphsContainer.append(', ');
+            _$c_appendText($glyphsContainer, ', ');
           });
         }
       }
@@ -771,17 +775,17 @@ class SMuFLFontViewer {
           hrefName = '....';
         }
         if (disabled) {
-          $c.append(`<span>${hrefName}</span> `);
+          $c.append($(`<span>${hrefName}</span> `));
         }
         else {
-          $c.append(`<a href="#${_hrefId(hrefName)}">${hrefName}</a> `);
+          $c.append($(`<a href="#${_hrefId(hrefName)}">${hrefName}</a> `));
         }
       }
 
       try {
         const dictKeys = Object.keys(dict);
         if (!dictKeys.length) {
-          $contentContainer.append(`no ${listName} items`);
+          _$c_appendText($contentContainer, `no ${listName} items`);
           return;
         }
         dictKeys.forEach(function(itemName, idx, items) {
@@ -789,10 +793,10 @@ class SMuFLFontViewer {
           const id = _hrefId(itemName);
           const $itemContainer = $(`<div class="${listName}Container" id="${id}"></div>`);
           $contentContainer.append($itemContainer);
-          $itemContainer.append(`${itemName}: `);
+          _$c_appendText($itemContainer, `${itemName}: `);
           _addLink($itemContainer, items[idx - 1]);
           _addLink($itemContainer, items[idx + 1]);
-          $itemContainer.append(`\n`);
+          _$c_appendText($itemContainer, `\n`);
           addItemFunc($itemContainer, item);
           const glyphs = getGlyphsFunc(item);
           glyphs.forEach(function(glyph) {
@@ -812,8 +816,8 @@ class SMuFLFontViewer {
           sMuFLMetadata.getFontInfo().fontMetadata.sets,
           //addItemFunc
           ($itemContainer, item) => {
-            $itemContainer.append(`description: ${item.description}: \n`);
-            $itemContainer.append(`type: ${item.type}: \n`);
+            _$c_appendText($itemContainer, `description: ${item.description}: \n`);
+            _$c_appendText($itemContainer, `type: ${item.type}: \n`);
           },
           // getGlyphsFunc
           (item) => {
@@ -821,11 +825,11 @@ class SMuFLFontViewer {
           },
           // addGlyphFunc
           ($glyphContainer, glyph) => {
-            $glyphContainer.append(`description: ${glyph.description}\n`);
+            _$c_appendText($glyphContainer, `description: ${glyph.description}\n`);
             appendCodepointOrText($glyphContainer, glyph.codepoint);
-            $glyphContainer.append(', ');
+            _$c_appendText($glyphContainer, ', ');
             appendGlyphname($glyphContainer, glyph.name);
-            $glyphContainer.append(', alternateFor: ');
+            _$c_appendText($glyphContainer, ', alternateFor: ');
             appendGlyphname($glyphContainer, glyph.alternateFor);
           });
       });
@@ -837,7 +841,7 @@ class SMuFLFontViewer {
           sMuFLMetadata.data.ranges,
           //addItemFunc
           ($itemContainer, item) => {
-            $itemContainer.append(`description: ${item.description}: \n`);
+            _$c_appendText($itemContainer, `description: ${item.description}: \n`);
           },
           // getGlyphsFunc
           (item) => {
@@ -872,15 +876,15 @@ class SMuFLFontViewer {
 
     function addAlternatesInfo($alternatesInfo, alternates, baseGlyphname, glyphname) {
       if (alternates && alternates.alternates) {
-        $alternatesInfo.append('alternates: ');
+        _$c_appendText($alternatesInfo, 'alternates: ');
         appendGlyphname($alternatesInfo, baseGlyphname, glyphname);
-        $alternatesInfo.append('\n');
+        _$c_appendText($alternatesInfo, '\n');
         alternates.alternates.forEach(function (v) {
-          $alternatesInfo.append('codepoint: ');
+          _$c_appendText($alternatesInfo, 'codepoint: ');
           appendCodepoint($alternatesInfo, v.codepoint);
-          $alternatesInfo.append(`, name: `);
+          _$c_appendText($alternatesInfo, `, name: `);
           appendGlyphname($alternatesInfo, v.name, glyphname);
-          $alternatesInfo.append(`\n`);
+          _$c_appendText($alternatesInfo, `\n`);
         });
       }
     }
@@ -911,7 +915,9 @@ class SMuFLFontViewer {
             $contentContainer.append($gwaContainer);
             const $glyphContainer = $('<div class="glyphContainer"></div>');
             appendGlyphname($glyphContainer, glyphname);
-            $glyphContainer.append('&nbsp;' + Object.keys(glyph).join(', '));
+            const $nbsp = '&nbsp;';
+            $glyphContainer.append($nbsp);
+            _$c_appendText($glyphContainer, Object.keys(glyph).join(', '));
             $gwaContainer.append($glyphContainer);
           });
         } catch(e) {
@@ -1520,13 +1526,13 @@ class SMuFLFontViewer {
 
       $smuflGlyphInfoText.empty();
       appendGlyphname($smuflGlyphInfoText, glyphname, glyphname, uCodepoint);
-      $smuflGlyphInfoText.append('\n');
+      _$c_appendText($smuflGlyphInfoText, '\n');
       let glyphnameData = sMuFLMetadata.data.glyphnames[glyphname];
       const optionalGlyphs = sMuFLMetadata.fontMetadata().optionalGlyphs;
       glyphnameData = glyphnameData || (optionalGlyphs ? optionalGlyphs[glyphname] : undefined);
 
       if (!glyphnameData) {
-        $smuflGlyphInfoText.append('codepoint: ');
+        _$c_appendText($smuflGlyphInfoText, 'codepoint: ');
         appendCodepointOrText($smuflGlyphInfoText, uCodepoint);
         appendAlternateCodepointFors($smuflGlyphInfoText, uCodepoint);
       }
@@ -1534,10 +1540,10 @@ class SMuFLFontViewer {
         for (const key in glyphnameData) {
           // FIXME: support classes for optionalGlyphs.
           if (key !== 'classes') {
-            $smuflGlyphInfoText.append(
+            _$c_appendText($smuflGlyphInfoText,
               key + ': ');
             appendCodepointOrText($smuflGlyphInfoText, glyphnameData[key]);
-            $smuflGlyphInfoText.append('\n');
+            _$c_appendText($smuflGlyphInfoText, '\n');
           }
         }
       }
@@ -1580,32 +1586,32 @@ class SMuFLFontViewer {
       }
 
       if (tRange) {
-        $rangeInfo.append('range: ');
-        $rangeInfo.append(tRange.key);
+        _$c_appendText($rangeInfo, 'range: ');
+        _$c_appendText($rangeInfo, tRange.key);
 
         $rangeSelect_selectize.setValue(tRange.key, true);
         $rangeSelect_selectize.currentValue_ = tRange.key;
 
-        $rangeInfo.append('\n');
+        _$c_appendText($rangeInfo, '\n');
         tRange = tRange.r;
 
         Object.keys(tRange).forEach(function(key) {
           if (key === 'nStart' || key === 'nEnd') {
             return;
           }
-          $rangeInfo.append(key + ': ');
+          _$c_appendText($rangeInfo, key + ': ');
           if (key === 'glyphs') {
             const $glyphsContainer = $('<div class="glyphsContainer"></div>');
             $rangeInfo.append($glyphsContainer);
             tRange[key].forEach(function (v) {
               appendGlyphname($glyphsContainer, v, glyphname);
-              $glyphsContainer.append(', ');
+              _$c_appendText($glyphsContainer, ', ');
             });
           }
           else {
             appendCodepointOrText($rangeInfo, tRange[key]);
           }
-          $rangeInfo.append('\n');
+          _$c_appendText($rangeInfo, '\n');
         });
       }
 
@@ -1648,7 +1654,7 @@ class SMuFLFontViewer {
       }
 
       if (tClasses.length) {
-        $classesInfo.append('classes: ' + '\n');
+        _$c_appendText($classesInfo, 'classes: ' + '\n');
         tClasses.forEach(function (kc) {
           const $classInfo = $(`<div class="classInfo">${kc.key}: </div>`);
           $classesInfo.append($classInfo);
@@ -1656,7 +1662,7 @@ class SMuFLFontViewer {
           $classInfo.append($glyphsContainer);
           kc.class.forEach(function (tGglyphname) {
             appendGlyphname($glyphsContainer, tGglyphname, glyphname);
-            $glyphsContainer.append(', ');
+            _$c_appendText($glyphsContainer, ', ');
           });
         });
       }
@@ -1674,7 +1680,7 @@ class SMuFLFontViewer {
         let $setInfosContainer;
         let $setNames;
         if (setsByAlternateForItem || setsByNameItem) {
-          $setsInfo.append('sets: ');
+          _$c_appendText($setsInfo, 'sets: ');
           $setNames = $('<span class="setNames"></span>');
           $setsInfo.append($setNames);
           $setInfosContainer = $('<div class="setInfosContainer"></div>');
@@ -1690,13 +1696,13 @@ class SMuFLFontViewer {
             $setInfosContainer.append(`${item.setName}: `);
             $setNames.append(`${item.setName}, `);
             const $setInfo = $('<div class="setInfo"></div>');
-            $setInfo.append(`description: ${item.set.description}, type: ${item.set.type}`);
-            $setInfo.append(`, alternateFor: `);
+            _$c_appendText($setInfo, `description: ${item.set.description}, type: ${item.set.type}`);
+            _$c_appendText($setInfo, `, alternateFor: `);
             appendGlyphname($setInfo, item.glyph.alternateFor, glyphname);
-            $setInfo.append(`, codepoint: `);
+            _$c_appendText($setInfo, `, codepoint: `);
             appendCodepointOrText($setInfo, item.glyph.codepoint);
-            $setInfo.append(`, description: ${item.glyph.description}`);
-            $setInfo.append(`, name: `);
+            _$c_appendText($setInfo, `, description: ${item.glyph.description}`);
+            _$c_appendText($setInfo, `, name: `);
             appendGlyphname($setInfo, item.glyph.name, glyphname);
             $setInfoContainer.append($setInfo);
             $setInfosContainer.append($setInfoContainer);
