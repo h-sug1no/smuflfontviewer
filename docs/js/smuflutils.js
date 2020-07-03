@@ -12,27 +12,27 @@ class SMuFLMetadata {
   }
 
   init(options) {
-    let uris = {
+    let urls = this.urls = {
       fontMetadata: undefined,
       glyphnames: undefined,
       classes: undefined,
       ranges: undefined
     };
 
-    Object.keys(uris).forEach(function(key) {
+    Object.keys(urls).forEach(function(key) {
       const tKey = key + 'Url';
-      uris[key] = options.get(tKey);
+      urls[key] = options.get(tKey);
     });
 
     const that = this;
     that.initErrors = [];
-    Object.keys(uris).forEach(function(key) {
-      fetch(uris[key])
+    Object.keys(urls).forEach(function(key) {
+      fetch(urls[key])
         .then(function(response) {
           if (response.status !== 200) {
             that.initErrors.push(
               'Looks like there was a problem. Status Code: ' +
-              response.status + ': ' + uris[key]);
+              response.status + ': ' + urls[key]);
             return;
           }
 
