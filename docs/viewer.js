@@ -219,6 +219,36 @@ class SMuFLFontViewer {
       renderGlyph(currentGlyphData);
     });
 
+    const $scratchpadDialog = $('#scratchpadDialog');
+    $('#BShowScratchpad').on('click', function() {
+      $scratchpadDialog.toggleClass('hidden');
+    });
+
+    const $scratchpadDialogTextarea = $('#scratchpadDialog textarea');
+    const $scrachpadGlyphSizeSlider = $('#scrachpadGlyphSizeSlider');
+
+    $scrachpadGlyphSizeSlider.on('input', function() {
+      this.nextElementSibling.textContent = this.value;
+      const nPx = Number(this.value);
+      $scratchpadDialogTextarea.css('font-size', nPx + 'px');
+
+      // FIXME: too large clientRect by Petaluma and Bravura, limit textarea size
+      $scratchpadDialogTextarea.css('height', (nPx * 3) + 'px');
+      $scratchpadDialogTextarea.css('width', (nPx * 5) + 'px');
+    });
+
+    $scrachpadGlyphSizeSlider.trigger('input');
+
+    const $scratchpadDialogInsertButton = $('#scratchpadDialog .controls input[type="button"]');
+    $scratchpadDialogInsertButton.on('click', function() {
+      const elm = $scratchpadDialogTextarea[0];
+      const value = $scratchpadDialogTextarea.val();
+      const head = value.slice(0,elm.selectionStart);
+      const tail = value.slice(elm.selectionEnd);
+      const newValue = head + String.fromCodePoint(currentGlyphData.codepoint) + tail;
+      $scratchpadDialogTextarea.val(newValue);
+    });
+
     $('#smuflRenderGlyphOptions input').on('change', function(ev) {
       if (ev.target._on3StateChange) {
         ev.target._on3StateChange();
