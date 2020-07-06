@@ -232,6 +232,23 @@
       background-color: #f2f2f2;
     }
 
+    #scratchpadDialog {
+      position: absolute;
+      z-index: 100;
+      display: inline-block;
+      text-align: start;
+      background-color: white;
+      border: 1px solid black;
+      padding: 1em;
+    }
+
+    #scratchpadDialog.hidden {
+      display: none;
+    }
+
+    #scratchpadDialog textarea {
+      margin-top: 0.5em;
+    }
   </style>
 
   <style type="text/css" media="print">
@@ -287,6 +304,15 @@
         <input id="BPrevGlyph" type="button" value="&#x2191;" title="show prev codepoint with glyph(k)">
         <input id="BNext" type="button" value="&#x2192;" title="show next codepoint(l)">
         <input id="BShowPrev" type="button" title="show (p)rev glyph" value="Show Prev">
+        <input id="BShowScratchpad" type="button" title="toggle Scratchpad" value="Scratchpad">
+        <div id="scratchpadDialog" class="hidden">
+          <div class="controls">
+            <input type="button" value="insert" title="insert current glyph"></input>
+            <label id="scrachpadGlyphSizeSliderContainer"><input id="scrachpadGlyphSizeSlider"
+            type="range" min="10" max="200" value="100"><span><span></label>
+          </div>
+          <textarea class="smufl"></textarea>
+        </div>
         <select id="rangeSelect" title="(r)anges"></select>
       </div>
       <div id="smuflGlyphCanvasContainer">
