@@ -242,11 +242,16 @@ class SMuFLFontViewer {
     const $scratchpadDialogInsertButton = $('#scratchpadDialog .controls input[type="button"]');
     $scratchpadDialogInsertButton.on('click', function() {
       const elm = $scratchpadDialogTextarea[0];
+      elm.focus();
       const value = $scratchpadDialogTextarea.val();
-      const head = value.slice(0,elm.selectionStart);
+      const prevSelectionStart = elm.selectionStart;
+      const head = value.slice(0, elm.selectionStart);
       const tail = value.slice(elm.selectionEnd);
-      const newValue = head + String.fromCodePoint(currentGlyphData.codepoint) + tail;
+      const str = String.fromCodePoint(currentGlyphData.codepoint);
+      const newValue = head + str + tail;
       $scratchpadDialogTextarea.val(newValue);
+      elm.selectionStart = (prevSelectionStart + str.length);
+      elm.selectionEnd = elm.selectionStart;
     });
 
     $('#smuflRenderGlyphOptions input').on('change', function(ev) {
