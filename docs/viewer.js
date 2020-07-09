@@ -207,6 +207,10 @@ class SMuFLFontViewer {
     const $smuflRenderGlyphOptionsBbox = $('#smuflRenderGlyphOptionsBbox');
 
     const $smuflRenderGlyphOptionsGlyphSize = $('#smuflRenderGlyphOptionsGlyphSize');
+
+    const $smuflRenderGlyphOptionsResetScrollPosition = $('#smuflRenderGlyphOptionsResetScrollPosition');
+    const $smuflRenderGlyphOptionsHideAll = $('#smuflRenderGlyphOptionsHideAll');
+
     const $smuflRenderGlyphOptionsSl = $('#smuflRenderGlyphOptionsSl');
     input_make3State($smuflRenderGlyphOptionsSl.get(0), false, true);
 
@@ -217,6 +221,10 @@ class SMuFLFontViewer {
 
     $smuflRenderGlyphOptionsGlyphSize.on('input', function() {
       renderGlyph(currentGlyphData);
+    });
+
+    $smuflRenderGlyphOptionsResetScrollPosition.on('click', function() {
+      _resetScPosition();
     });
 
     const $scratchpadDialog = $('#scratchpadDialog');
@@ -269,6 +277,16 @@ class SMuFLFontViewer {
       });
     });
 
+    function _resetScPosition() {
+      $('#smuflGlyphCanvasContainer').scrollTop(
+        ($('#smuflGlyphCanvasContainer').prop('scrollHeight') * 0.5) -
+        ($('#smuflGlyphCanvasContainer').innerHeight() * 0.5));
+
+      $('#smuflGlyphCanvasContainer').scrollLeft(
+        ($('#smuflGlyphCanvasContainer').prop('scrollWidth') * 0.5) -
+        ($('#smuflGlyphCanvasContainer').width() * 0.5));
+    }
+
     function _initMouseHandlers() {
       const $smuflGlyphCanvasContainer = $('#smuflGlyphCanvasContainer');
 
@@ -310,13 +328,7 @@ class SMuFLFontViewer {
         _setIsActive(false);
       });
 
-      $('#smuflGlyphCanvasContainer').scrollTop(
-        ($('#smuflGlyphCanvasContainer').prop('scrollHeight') * 0.5) -
-        ($('#smuflGlyphCanvasContainer').innerHeight() * 0.5));
-
-      $('#smuflGlyphCanvasContainer').scrollLeft(
-        ($('#smuflGlyphCanvasContainer').prop('scrollWidth') * 0.5) -
-        ($('#smuflGlyphCanvasContainer').width() * 0.5));
+      _resetScPosition();
     }
 
     _initMouseHandlers();
