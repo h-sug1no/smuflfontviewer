@@ -493,6 +493,10 @@ class SMuFLFontViewer {
       renderGlyph(currentGlyphData);
     });
 
+    $smuflRenderGlyphOptionsHideAll.on('change', function() {
+      renderGlyph(currentGlyphData);;
+    })
+
     $('body').keyup(function(ev) {
       if (ev.target.nodeName === 'INPUT') {
         if (ev.target.type === 'text') {
@@ -1412,6 +1416,10 @@ class SMuFLFontViewer {
       };
     }
 
+    function _shouldDrawProp(v) {
+      return v && !$smuflRenderGlyphOptionsHideAll.prop('checked');
+    }
+
     function renderGlyph(glyphData) {
       const codepoint = glyphData.codepoint;
       const glyphname = glyphData.glyphname;
@@ -1429,7 +1437,7 @@ class SMuFLFontViewer {
 
       const slChecked = $smuflRenderGlyphOptionsSl.prop('checked');
       const slIndeterminate = $smuflRenderGlyphOptionsSl.prop('indeterminate');
-      if (slChecked || slIndeterminate) {
+      if (_shouldDrawProp(slChecked || slIndeterminate)) {
         ctx.save();
         ctx.lineWidth = anchorCsToScreenCsX(engravingDefaults.staffLineThickness, sbl);
         const slY = y + (slChecked ? sbl * 0.5 : 0);
@@ -1451,7 +1459,7 @@ class SMuFLFontViewer {
       ctx.fillStyle = '#444444cc';
       _renderGlyph(glyphData, x, y, fontSize);
 
-      if ($smuflGlyphHints_repatOffset3StateBox.prop('checked')) {
+      if (_shouldDrawProp($smuflGlyphHints_repatOffset3StateBox.prop('checked'))) {
         ctx.save();
         if (repeatOffset) {
           ctx.fillStyle = '#44444477';
@@ -1463,7 +1471,7 @@ class SMuFLFontViewer {
 
       ctx.save();
 
-      if ($smuflRenderGlyphOptionsOrigin.prop('checked')) {
+      if (_shouldDrawProp($smuflRenderGlyphOptionsOrigin.prop('checked'))) {
         ctx.fillStyle = 'orange';
         ctx.fillRect(x - 6, y - 0.5, 12, 1);
         ctx.fillRect(x - 0.5, y - 6, 1, 12);
@@ -1472,7 +1480,7 @@ class SMuFLFontViewer {
       if (bbox) {
         ctx.strokeStyle = 'green';
         if (bbox.bBoxNE && bbox.bBoxSW) {
-          if ($smuflRenderGlyphOptionsBbox.prop('checked')) {
+          if (_shouldDrawProp($smuflRenderGlyphOptionsBbox.prop('checked'))) {
             ctx.strokeRect(scaledBBox.W, scaledBBox.N,
               scaledBBox.w, scaledBBox.h);
           }
@@ -1488,7 +1496,8 @@ class SMuFLFontViewer {
           _setValValue($anchorCheckbox, anchor[akey]);
           const isIndeterminate = $anchorCheckbox.prop('indeterminate');
           if ((!$anchorCheckbox.prop('checked') && !isIndeterminate) ||
-            $anchorCheckbox.parent().is(':hidden')) {
+            $anchorCheckbox.parent().is(':hidden') ||
+            !_shouldDrawProp(true)) {
             continue;
           }
 
