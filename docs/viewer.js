@@ -155,11 +155,16 @@ class SMuFLFontViewer {
 
     function input_make3State(inputElm, isIndeterminate, isUnchecked) {
       inputElm.parentElement.classList.add('tri-state');
-      inputElm._on3StateChange = function() {
-        inputElm._3state++;
+      inputElm._on3StateChange = function(keep_autoToggleValue) {
+        if (!keep_autoToggleValue) {
+          inputElm._3state++;
+        }
         if (inputElm._3state > 2) {inputElm._3state = 0;}
         inputElm.checked = inputElm._3state & 2;
         inputElm.indeterminate = inputElm._3state & 1;
+        if (!keep_autoToggleValue) {
+          inputElm._autoToggleValue = undefined;
+        }
       };
       if (isIndeterminate) {
         inputElm._3state = 0;
@@ -210,6 +215,28 @@ class SMuFLFontViewer {
 
     const $smuflRenderGlyphOptionsResetScrollPosition = $('#smuflRenderGlyphOptionsResetScrollPosition');
     const $smuflRenderGlyphOptionsHideAll = $('#smuflRenderGlyphOptionsHideAll');
+    const $smuflRenderGlyphOptionsToggleAll = $('#smuflRenderGlyphOptionsToggleAll');
+
+    $smuflRenderGlyphOptionsToggleAll.on('click', function() {
+      const $checkBoxElms = $('#smuflGlyphHints input[type="checkbox"]');
+      $checkBoxElms.each(function(idx) {
+        const $elm = $(this);
+        if ($elm.hasClass('manualToggle')) {
+          return;
+        }
+
+        if (this._on3StateChange) {
+          if (isNaN(this._autoToggleValue)) {
+            this._autoToggleValue = this._3state;
+            this._3state = this._3state ? 0 : 1;
+          }
+          else {
+            this._3state = this._3state ? 0 : this._autoToggleValue;
+          }
+          this._on3StateChange(true);
+        }
+      });
+    });
 
     const $smuflRenderGlyphOptionsSl = $('#smuflRenderGlyphOptionsSl');
     input_make3State($smuflRenderGlyphOptionsSl.get(0), false, true);

@@ -320,14 +320,17 @@
         </canvas>
       </div>
       <div id="smuflRenderGlyphOptions">
+        <div class="generalUI">
+          <label id="smuflRenderGlyphOptionsGlyphSizeContainer">glyph size: <input id="smuflRenderGlyphOptionsGlyphSize"
+              type="range" min="30" max="1000" value="200"><span><span></label>
+          <button id="smuflRenderGlyphOptionsResetScrollPosition" type="button" title="reset scroll position">reset</button>
+          <label title="hide all properties"><input class="manualToggle" id="smuflRenderGlyphOptionsHideAll" type="checkbox" />hide</label>
+          <button id="smuflRenderGlyphOptionsToggleAll" title="tollge all properties" type="checkbox">toggle</button>
+        </div>
         <label title="glyph origin"><input id="smuflRenderGlyphOptionsOrigin" type="checkbox" checked />origin</label>
         <label title="staff lines: All glyphs should be drawn at a scale consistent with the key measurement that one staff space = 0.25 em"><input id="smuflRenderGlyphOptionsSl" type="checkbox" checked />sl</label>
         <label title="glyph bounding box"><input id="smuflRenderGlyphOptionsBbox" type="checkbox" checked />bbox<span
             class="val"></span></label>
-        <label id="smuflRenderGlyphOptionsGlyphSizeContainer">glyph size: <input id="smuflRenderGlyphOptionsGlyphSize"
-            type="range" min="30" max="1000" value="200"><span><span></label>
-        <button id="smuflRenderGlyphOptionsResetScrollPosition" type="button" title="reset scroll position">reset</button>
-        <label title="hide all properties"><input id="smuflRenderGlyphOptionsHideAll" type="checkbox" />hide</label>
       </div>
       <div id="smuflGlyphHints">
         <label title="The exact position at which the bottom left-hand (south-west) corner of an angled upward-pointing stem connecting the left-hand side of a notehead to a vertical stem to its right should start, relative to the glyph origin, expressed as Cartesian coordinates in staff spaces."><input
@@ -363,7 +366,7 @@
         <label title="cutOut anchor points are relative to the:
         unchecked: glyph origin.
         checked: bottom left-hand corner of the glyph bounding box(old spec).
-        "><input
+        "><input class="propOption" class="manualToggle"
             type="checkbox" />cutOutOrigin_BBL<span class="val"></span></label>
         <label title="The Cartesian coordinates in staff spaces of the position at which the glyph graceNoteSlashStemUp should be positioned relative to the stem-up flag of an unbeamed grace note; alternatively, the bottom left corner of a diagonal line drawn instead of using the above glyph."><input
             type="checkbox" />graceNoteSlashSW<span class="val"></span></label>
@@ -379,6 +382,8 @@
             type="checkbox" />noteheadOrigin<span class="val"></span></label>
         <label title="The Cartesian coordinates in staff spaces of the optical center of the glyph, to assist in the correct horizontal alignment of the glyph relative to a notehead or stem. Currently recommended for use with glyphs in the Dynamics range."><input
             type="checkbox" />opticalCenter<span class="val"></span></label>
+      </div>
+      <div id="smuflGlyphHintsOptions">
       </div>
     </div>
     <div id="smuflGlyphInfo">
