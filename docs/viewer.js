@@ -237,6 +237,46 @@ class SMuFLFontViewer {
       $scratchpadDialogTextarea.css('width', (nPx * 5) + 'px');
     });
 
+    const $uCodeSpan = $('#uCodeSpan');
+    const prevTASelection = {
+      start: undefined,
+      end: undefined
+    };
+
+    function updateCurrentUCharInfo() {
+      const docSelection = document.getSelection();
+      // console.log(e, docSelection);
+      const elm = $scratchpadDialogTextarea[0];
+      const value = $scratchpadDialogTextarea.val();
+      if (prevTASelection.start === elm.selectionStart &&
+        prevTASelection.end === elm.selectionEnd) {
+          return;
+      }
+      prevTASelection.start = elm.selectionStart;
+      prevTASelection.end = elm.selectionEnd;
+
+      const strToEnd = value.slice(0, elm.selectionEnd);
+      let text = '?';
+      if (strToEnd.length) {
+        const c = strToEnd[strToEnd.length - 1];
+        text = '[' + c + ']: U+' +
+          c.codePointAt(0).toString(16)
+            .toUpperCase().padStart(4, '0');
+      }
+      // console.log(text);
+      $uCodeSpan.text(text);
+    }
+
+    $scratchpadDialogTextarea.on('input', (e) => {
+      updateCurrentUCharInfo();
+    });
+
+    $(document).on('selectionchange', (e) => {
+      updateCurrentUCharInfo();
+    });
+
+    updateCurrentUCharInfo();
+
     $scrachpadGlyphSizeSlider.trigger('input');
 
     const $scratchpadDialogInsertButton = $('#scratchpadDialog .controls input[type="button"]');
@@ -482,12 +522,16 @@ class SMuFLFontViewer {
     });
 
     $('body').keyup(function(ev) {
+      if (ev.ctrlKey || ev.altKey) {
+        return;
+      }
       if (ev.target.nodeName === 'INPUT') {
         if (ev.target.type === 'text') {
           return;
         }
       }
-      if (ev.target.nodeName === 'SELECT') {
+      if (ev.target.nodeName === 'SELECT' ||
+        ev.target.nodeName === 'TEXTAREA') {
         return;
       }
       switch (ev.key) {
