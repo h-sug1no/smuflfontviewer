@@ -240,7 +240,8 @@ class SMuFLFontViewer {
     const $uCodeSpan = $('#uCodeSpan');
     const prevTASelection = {
       start: undefined,
-      end: undefined
+      end: undefined,
+      value: undefined
     };
 
     function updateCurrentUCharInfo() {
@@ -249,19 +250,23 @@ class SMuFLFontViewer {
       const elm = $scratchpadDialogTextarea[0];
       const value = $scratchpadDialogTextarea.val();
       if (prevTASelection.start === elm.selectionStart &&
-        prevTASelection.end === elm.selectionEnd) {
+        prevTASelection.end === elm.selectionEnd &&
+        prevTASelection.value === value) {
           return;
       }
       prevTASelection.start = elm.selectionStart;
       prevTASelection.end = elm.selectionEnd;
+      prevTASelection.value = value;
 
-      const strToEnd = value.slice(0, elm.selectionEnd);
-      let text = '?';
-      if (strToEnd.length) {
-        const c = strToEnd[strToEnd.length - 1];
-        text = '[' + c + ']: U+' +
+      let text = 'EOF';
+      const selectedStr = value.slice(elm.selectionStart,
+        elm.selectionStart === elm.selectionEnd ? elm.selectionStart  +  1 : elm.selectionEnd);
+      if (selectedStr.length) {
+        text =  Array.prototype.map.call(selectedStr, c => {
+        return ('[' + c + ']: U+' +
           c.codePointAt(0).toString(16)
-            .toUpperCase().padStart(4, '0');
+            .toUpperCase().padStart(4, '0'));
+        }).join(', ');
       }
       // console.log(text);
       $uCodeSpan.text(text);
