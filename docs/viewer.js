@@ -522,7 +522,11 @@ class SMuFLFontViewer {
     });
 
     $('body').keyup(function(ev) {
-      if (ev.ctrlKey || ev.altKey) {
+      // console.log(ev);
+      // On the osx platform(safar, chrome, FX) 'command + key'
+      // keyup events are not fired.
+      // check metaKey for 'windows key'.
+      if (ev.ctrlKey || ev.altKey || ev.metaKey) {
         return;
       }
       if (ev.target.nodeName === 'INPUT') {
