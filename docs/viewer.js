@@ -522,6 +522,9 @@ class SMuFLFontViewer {
     });
 
     $('body').keyup(function(ev) {
+      if (ev.ctrlKey || ev.altKey) {
+        return;
+      }
       if (ev.target.nodeName === 'INPUT') {
         if (ev.target.type === 'text') {
           return;
