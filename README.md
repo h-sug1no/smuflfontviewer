@@ -40,3 +40,4 @@ This demo shows SMuFL Metadata for a given character, plus some useful extended 
 Live demo: <https://h-sug1no.github.io/smuflfontviewer>
 
 <img src="docs/images/demo.png">
+<img src="docs/images/demo1.png">
