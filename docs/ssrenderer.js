@@ -306,7 +306,7 @@ class SSRenderer {
           when scaled down as a grace note
       */
       const llThickness = dCtx.toScreenCSX(that.engravingDefaults.legerLineThickness);
-      const llExt =  that.engravingDefaults.legerLineExtension * noteheadMetrics.scaledBBox.w;
+      const llExt = that.engravingDefaults.legerLineExtension * noteheadMetrics.scaledBBox.w;
       const ctx = dCtx.ctx;
 
       ctx.save();
@@ -320,11 +320,11 @@ class SSRenderer {
 
     function drawStem(dCtx, anchorPos, h, hAlign) {
       const stemThickness = dCtx.toScreenCSX(that.engravingDefaults.stemThickness);
-      const x = anchorPos.x - (hAlign == 'R' ? stemThickness : 0) ;
+      const x = anchorPos.x - (hAlign == 'R' ? stemThickness : 0);
       const y = anchorPos.y;
       ctx.save();
       ctx.beginPath();
-      ctx.moveTo(x , y);
+      ctx.moveTo(x, y);
       ctx.lineTo(x + stemThickness, y);
       ctx.lineTo(x + stemThickness, y + h);
       ctx.lineTo(x, y + h);
@@ -461,8 +461,8 @@ class SSRenderer {
         }
         if (def.lineEnd) {
           if (lines.length) {
-            lines[lines.length -1].x2 = def.x;
-            lines[lines.length -1].y2 = def.y;
+            lines[lines.length - 1].x2 = def.x;
+            lines[lines.length - 1].y2 = def.y;
           }
         }
         if (def.lineStart) {
@@ -577,10 +577,10 @@ class SSRenderer {
       let fontSize = (fontScale * sbl4);
 
       const scaledVals = {
-       offsetX: block.offsetX * fontScale,
-       onY: block.onY * fontScale,
-       odY: block.odY * fontScale,
-       w: block.w * fontScale
+        offsetX: block.offsetX * fontScale,
+        onY: block.onY * fontScale,
+        odY: block.odY * fontScale,
+        w: block.w * fontScale
       };
 
       util._renderGlyph(gdTimeSigN, system.x + scaledVals.offsetX, lineY + scaledVals.onY, fontSize, ctx);
@@ -657,20 +657,20 @@ class SSRenderer {
       const lyricLineY = system.y + (sbl * 10.5);
       const lyricDefs = [
         {
-            x: 0,
-            y: lyricLineY,
-            text: 'lyric'
+          x: 0,
+          y: lyricLineY,
+          text: 'lyric'
         },
         {
-            x: 0,
-            y: lyricLineY,
-            text: 'line',
-            lineStart: true
+          x: 0,
+          y: lyricLineY,
+          text: 'line',
+          lineStart: true
         },
         {
-            x: 0,
-            y: lyricLineY,
-            lineEnd: true
+          x: 0,
+          y: lyricLineY,
+          lineEnd: true
         }
       ];
 
@@ -747,10 +747,10 @@ class SSRenderer {
         y2: npos[2].y - 7,
       };
       const tcps = {
-          x1: tpos.x1 + 8,
-          y1: tpos.y1 - 9,
-          x2: tpos.x2 - 8,
-          y2: tpos.y2 - 9
+        x1: tpos.x1 + 8,
+        y1: tpos.y1 - 9,
+        x2: tpos.x2 - 8,
+        y2: tpos.y2 - 9
       };
       drawCurve(dCtx, tpos, tcps, 'tie');
 
@@ -761,20 +761,20 @@ class SSRenderer {
         y2: npos[1].y + 2 * sbl,
       };
       const scps = {
-          x1: spos.x1 + 2,
-          y1: spos.y1 + 4,
-          x2: spos.x2 - 16,
-          y2: spos.y2 + 6
+        x1: spos.x1 + 2,
+        y1: spos.y1 + 4,
+        x2: spos.x2 - 16,
+        y2: spos.y2 + 6
       };
       drawCurve(dCtx, spos, scps, 'slur');
 
       // FIXME: how to resolve hook length?
       drawTuplet(dCtx, {
-          x1: npos[0].x,
-          y1: npos[0].y + 4.5 * sbl,
-          x2: npos[2].x + m1.scaledBBox.w,
-          y2: npos[2].y + 4.5 * sbl,
-        },
+        x1: npos[0].x,
+        y1: npos[0].y + 4.5 * sbl,
+        x2: npos[2].x + m1.scaledBBox.w,
+        y2: npos[2].y + 4.5 * sbl,
+      },
         3, 'below');
 
       lyricDefs[0].x = npos[0].x + (m1.scaledBBox.w * 0.5);
@@ -810,7 +810,7 @@ class SSRenderer {
         }
       ],
       sbl: sbl,
-      toScreenCSX: function(engravingDefaultsVal) {
+      toScreenCSX: function (engravingDefaultsVal) {
         return this.sbl * engravingDefaultsVal;
       },
     };
@@ -832,7 +832,7 @@ class SSRenderer {
 
     ctx.lineWidth = slt;
     ctx.strokeStyle = 'black';
-    systems.forEach(function(system) {
+    systems.forEach(function (system) {
       for (let i = 0; i < nStaffLines; i++) {
         const y = system.y + (dCtx.sbl * i);
         ctx.beginPath();
