@@ -378,7 +378,13 @@ class SMuFLFontViewer {
       $rootContainer.addClass('fakeDialog');
       infoDialogElm.showModal = function (title, description = _$infoDialog_defaultDescription) {
         $body.addClass('fakeDialogVisible');
-        $dialogTitle.text(title);
+        $dialogTitle.empty();
+        if (title.keyText) {
+          $dialogTitle.append($(title));
+        }
+        else {
+          $dialogTitle.text(title);
+        }
         $contentContainer.prop('title', description);
         $body.scrollTop($contentContainer.$contentDom.prevScrollTop || 0);
       };
@@ -649,7 +655,6 @@ class SMuFLFontViewer {
       seekToCodepoint(getCodepointNumber(), 1, false);
     });
 
-
     $('#BPrevGlyph').on('click', function () {
       seekToCodepoint(getCodepointNumber(), -1, true);
     });
@@ -668,7 +673,8 @@ class SMuFLFontViewer {
     }
 
     const _$infoDialog_contentDoms = {};
-    function _$infoDialog_showModal(key, func) {
+    function _$infoDialog_showModal(keyIn, func) {
+      const key = keyIn.keyText || keyIn;
       let $contentDom = _$infoDialog_contentDoms[key];
       if (!$contentDom) {
         $contentDom = _$infoDialog_contentDoms[key] = $('<div class="infoDialogContents"></div>');
@@ -682,7 +688,7 @@ class SMuFLFontViewer {
         $contentDom.onAttachedToDom();
       }
 
-      $infoDialog.get(0).showModal(key);
+      $infoDialog.get(0).showModal(keyIn);
 
       if (contentDomElm.dlRepaint) {
         window.setTimeout(function () {
@@ -691,8 +697,38 @@ class SMuFLFontViewer {
       }
     }
 
+    function mkSpecLinkDom(doms, text, filenames) {
+      filenames = filenames || [text];
+      const ret = document.createElement('div');
+      const textDom = document.createElement('div');
+      textDom.textContent = text;
+      ret.appendChild(textDom);
+      filenames.forEach(function(filename) {
+        const aDom = document.createElement('a');
+        aDom.classList.add('specLink');
+        aDom.href = `https://w3c.github.io/smufl/gitbook/specification/${filename}.html`;
+        aDom.text = filename;
+        aDom.target = `_smuflfontvierer_${filename}_`;
+        ret.appendChild(aDom);
+      });
+      ret.keyText = text;
+      doms[ret.keyText] = ret;
+      return ret;
+    }
+
+    const specLinkDoms = {};
+    mkSpecLinkDom(specLinkDoms, 'glyphnames'),
+    mkSpecLinkDom(specLinkDoms, 'font metadata optionalGlyphs',['optionalglyphs']),
+    mkSpecLinkDom(specLinkDoms, 'font metadata', ['font-specific-metadata', 'engravingdefaults']),
+    mkSpecLinkDom(specLinkDoms, 'font metadata ligatures', ['ligatures']),
+    mkSpecLinkDom(specLinkDoms, 'font metadata sets', ['sets']),
+    mkSpecLinkDom(specLinkDoms, 'ranges'),
+    mkSpecLinkDom(specLinkDoms, 'classes'),
+    mkSpecLinkDom(specLinkDoms, 'font metadata glyphsWithAlternates', ['glyphswithalternates']),
+    mkSpecLinkDom(specLinkDoms, 'font metadata glyphsWithAnchors', ['glyphswithanchors']),
+
     $('#BGlyphnames').on('click', function () {
-      _$infoDialog_showModal('glyphames', function ($contentContainer) {
+      _$infoDialog_showModal(specLinkDoms.glyphnames, function($contentContainer) {
         const glyphnames = sMuFLMetadata.data.glyphnames;
         try {
           for (const key in glyphnames) {
@@ -705,7 +741,8 @@ class SMuFLFontViewer {
       });
     });
     $('#BOptionalGlyphs').on('click', function () {
-      _$infoDialog_showModal('font metadata optionalGlyphs', function ($contentContainer) {
+      _$infoDialog_showModal(specLinkDoms['font metadata optionalGlyphs'],
+      function ($contentContainer) {
         const optionalGlyphs = sMuFLMetadata.fontMetadata().optionalGlyphs;
         if (!optionalGlyphs) {
           return;
@@ -717,7 +754,7 @@ class SMuFLFontViewer {
     });
 
     $('#BFontMetadata').on('click', function () {
-      _$infoDialog_showModal('font metadata', function ($contentContainer) {
+      _$infoDialog_showModal(specLinkDoms['font metadata'], function($contentContainer) {
         function add_engravingDefaults(name, engravingDefaults) {
           _$c_appendText($contentContainer, `${name}: `);
           const $tdContaienr = $('<div class="engravingDefaultsContainer"></div>');
@@ -854,7 +891,7 @@ class SMuFLFontViewer {
     }
 
     $('#BFontMetadataLigatures').on('click', function () {
-      _$infoDialog_showModal('font metadata ligatures', function ($contentContainer) {
+      _$infoDialog_showModal(specLinkDoms['font metadata ligatures'], function ($contentContainer) {
         try {
           const ligatures = sMuFLMetadata.getFontInfo().fontMetadata.ligatures;
           Object.keys(ligatures).forEach(function (glyphname) {
@@ -916,7 +953,7 @@ class SMuFLFontViewer {
     }
 
     $('#BFontMetadataSets').on('click', function () {
-      _$infoDialog_showModal('font metadata sets', function ($contentContainer) {
+      _$infoDialog_showModal(specLinkDoms['font metadata sets'], function ($contentContainer) {
         _createAnyListPage($contentContainer, 'set',
           sMuFLMetadata.getFontInfo().fontMetadata.sets,
           //addItemFunc
@@ -941,7 +978,7 @@ class SMuFLFontViewer {
     });
 
     $('#BRanges').on('click', function () {
-      _$infoDialog_showModal('ranges', function ($contentContainer) {
+      _$infoDialog_showModal(specLinkDoms.ranges, function ($contentContainer) {
         _createAnyListPage($contentContainer, 'range',
           sMuFLMetadata.data.ranges,
           //addItemFunc
@@ -960,7 +997,7 @@ class SMuFLFontViewer {
     });
 
     $('#BClasses').on('click', function () {
-      _$infoDialog_showModal('classes', function ($contentContainer) {
+      _$infoDialog_showModal(specLinkDoms.classes, function ($contentContainer) {
 
         _createAnyListPage($contentContainer, 'class',
           sMuFLMetadata.getFontInfo().computedClasses.classes,
@@ -995,7 +1032,7 @@ class SMuFLFontViewer {
     }
 
     $('#BFontMetadataGlyphsWithAlternates').on('click', function () {
-      _$infoDialog_showModal('font metadata glyphsWithAlternates', function ($contentContainer) {
+      _$infoDialog_showModal(specLinkDoms['font metadata glyphsWithAlternates'], function ($contentContainer) {
         try {
           const gwAlternates = sMuFLMetadata.fontMetadata().glyphsWithAlternates;
           for (const akey in gwAlternates) {
@@ -1011,7 +1048,7 @@ class SMuFLFontViewer {
     });
 
     $('#BFontMetadataGlyphsWithAnchors').on('click', function () {
-      _$infoDialog_showModal('font metadata glyphsWithAnchors', function ($contentContainer) {
+      _$infoDialog_showModal(specLinkDoms['font metadata glyphsWithAnchors'], function ($contentContainer) {
         try {
           const glyphsWithAnchors = sMuFLMetadata.getFontInfo().fontMetadata.glyphsWithAnchors;
           Object.keys(glyphsWithAnchors).forEach(function (glyphname) {
