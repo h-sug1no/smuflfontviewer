@@ -1645,6 +1645,31 @@ class SMuFLFontViewer {
       window.setTimeout(_draw);
     }
 
+    const _toRaneSpecFilename = (() => {
+      const table = {
+        gouldArrowQuartertoneAccidentals24Edo: 'gould-arrow-quartertone-accidentals-24-edo',
+        kodályHandSigns: 'kodaly-hand-signs',
+        organGerman: 'german-organ-tablature',
+        simsAccidentals72Edo: 'sims-accidentals-72-edo',
+        standardAccidentals12Edo: 'standard-accidentals-12-edo',
+        steinZimmermannAccidentals24Edo: 'stein-zimmermann-accidentals-24-edo',
+        stockhausenAccidentals: 'stockhausen-accidentals-24-edo',
+        timeSignaturesReversed: 'reversed-time-signatures',
+        timeSignaturesTurned: 'turned-time-signatures',
+        trojanSagittalExtension12EdoRelativeAccidentals: 'trojan-sagittal-extension-12-edo-relative-accidentals',
+        wyschnegradskyAccidentals72Edo: 'wyschnegradsky-accidentals-72-edo'
+      };
+
+      const rangeSpecFilenames = {};
+      return (rangeName) => {
+        rangeSpecFilenames[rangeName] = table[rangeName] || rangeSpecFilenames[rangeName] ||
+        rangeName.replace(/[A-Z]/g, function(s) {
+          return '-' + s.charAt(0).toLowerCase();
+        });
+        return rangeSpecFilenames[rangeName];
+      };
+    })();
+
     function _draw() {
       const fontInfo = sMuFLMetadata.getFontInfo();
       if (!fontInfo) {
@@ -1723,14 +1748,25 @@ class SMuFLFontViewer {
         tRange = {
           key: 'unicode',
           r: {
-            description: 'unicode'
+            description: 'unicode',
+            noSpecLink: true
           }
         };
       }
 
       if (tRange) {
         _$c_appendText($rangeInfo, 'range: ');
-        _$c_appendText($rangeInfo, tRange.key);
+
+        const filename = _toRaneSpecFilename(tRange.key);
+
+        if (tRange.r.noSpecLink) {
+          _$c_appendText($rangeInfo, tRange.key);
+        }
+        else {
+          const $aDom = $(`<a href="https://w3c.github.io/smufl/gitbook/tables/${filename}.html"
+  target="_smuflfontvierer_rangeItem_" title="${tRange.key} range spec">${tRange.key}</a>`);
+          $rangeInfo.append($aDom);
+        }
 
         $rangeSelect_selectize.setValue(tRange.key, true);
         $rangeSelect_selectize.currentValue_ = tRange.key;
