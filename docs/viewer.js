@@ -913,16 +913,16 @@ class SMuFLFontViewer {
         return listName + 'Container_' + hrefName;
       }
 
-      function _addLink($c, hrefName, items) {
+      function _addLink($c, hrefName, clazz) {
         const disabled = hrefName ? false : true;
         if (disabled) {
           hrefName = '....';
         }
         if (disabled) {
-          $c.append($(`<span>${hrefName}</span> `));
+          $c.append($(`<span class=${clazz}>${hrefName}</span> `));
         }
         else {
-          $c.append($(`<a href="#${_hrefId(hrefName)}">${hrefName}</a> `));
+          $c.append($(`<a class=${clazz} href="#${_hrefId(hrefName)}">${hrefName}</a> `));
         }
       }
 
@@ -938,8 +938,8 @@ class SMuFLFontViewer {
           const $itemContainer = $(`<div class="${listName}Container" id="${id}"></div>`);
           $contentContainer.append($itemContainer);
           _$c_appendText($itemContainer, `${itemName}: `);
-          _addLink($itemContainer, items[idx - 1]);
-          _addLink($itemContainer, items[idx + 1]);
+          _addLink($itemContainer, items[idx - 1], 'linkToPrev');
+          _addLink($itemContainer, items[idx + 1], 'linkToNext');
           _$c_appendText($itemContainer, `\n`);
           addItemFunc($itemContainer, item);
           const glyphs = getGlyphsFunc(item);
