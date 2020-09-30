@@ -709,6 +709,7 @@ class SMuFLFontViewer {
         aDom.href = `https://w3c.github.io/smufl/gitbook/specification/${filename}.html`;
         aDom.text = filename;
         aDom.target = `_smuflfontvierer_${filename}_`;
+        aDom.title = `${filename} spec`;
         ret.appendChild(aDom);
       });
       ret.keyText = text;
