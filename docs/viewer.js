@@ -717,15 +717,15 @@ class SMuFLFontViewer {
     }
 
     const specLinkDoms = {};
-    mkSpecLinkDom(specLinkDoms, 'glyphnames'),
-    mkSpecLinkDom(specLinkDoms, 'font metadata optionalGlyphs',['optionalglyphs']),
-    mkSpecLinkDom(specLinkDoms, 'font metadata', ['font-specific-metadata', 'engravingdefaults']),
-    mkSpecLinkDom(specLinkDoms, 'font metadata ligatures', ['ligatures']),
-    mkSpecLinkDom(specLinkDoms, 'font metadata sets', ['sets']),
-    mkSpecLinkDom(specLinkDoms, 'ranges'),
-    mkSpecLinkDom(specLinkDoms, 'classes'),
-    mkSpecLinkDom(specLinkDoms, 'font metadata glyphsWithAlternates', ['glyphswithalternates']),
-    mkSpecLinkDom(specLinkDoms, 'font metadata glyphsWithAnchors', ['glyphswithanchors']),
+    mkSpecLinkDom(specLinkDoms, 'glyphnames');
+    mkSpecLinkDom(specLinkDoms, 'font metadata optionalGlyphs',['optionalglyphs']);
+    mkSpecLinkDom(specLinkDoms, 'font metadata', ['font-specific-metadata', 'engravingdefaults']);
+    mkSpecLinkDom(specLinkDoms, 'font metadata ligatures', ['ligatures']);
+    mkSpecLinkDom(specLinkDoms, 'font metadata sets', ['sets']);
+    mkSpecLinkDom(specLinkDoms, 'ranges');
+    mkSpecLinkDom(specLinkDoms, 'classes');
+    mkSpecLinkDom(specLinkDoms, 'font metadata glyphsWithAlternates', ['glyphswithalternates']);
+    mkSpecLinkDom(specLinkDoms, 'font metadata glyphsWithAnchors', ['glyphswithanchors']);
 
     $('#BGlyphnames').on('click', function () {
       _$infoDialog_showModal(specLinkDoms.glyphnames, function($contentContainer) {
@@ -740,6 +740,7 @@ class SMuFLFontViewer {
         return $contentContainer;
       });
     });
+
     $('#BOptionalGlyphs').on('click', function () {
       _$infoDialog_showModal(specLinkDoms['font metadata optionalGlyphs'],
       function ($contentContainer) {
