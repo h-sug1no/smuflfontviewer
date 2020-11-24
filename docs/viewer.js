@@ -209,7 +209,7 @@ class SMuFLFontViewer {
     const $smuflRenderGlyphOptionsGlyphSize = $('#smuflRenderGlyphOptionsGlyphSize');
 
     const $smuflRenderGlyphOptionsResetScrollPosition = $('#smuflRenderGlyphOptionsResetScrollPosition');
-    const $smuflRenderGlyphOptionsHideAll = $('#smuflRenderGlyphOptionsHideAll');
+    const $smuflRenderGlyphOptionsResetGlyphSize = $('#smuflRenderGlyphOptionsResetGlyphSize');
 
     const $smuflRenderGlyphOptionsSl = $('#smuflRenderGlyphOptionsSl');
     input_make3State($smuflRenderGlyphOptionsSl.get(0), false, true);
@@ -225,6 +225,11 @@ class SMuFLFontViewer {
 
     $smuflRenderGlyphOptionsResetScrollPosition.on('click', function() {
       _resetScPosition();
+    });
+
+    const initialGlyphSize = $smuflRenderGlyphOptionsGlyphSize.val();
+    $smuflRenderGlyphOptionsResetGlyphSize.on('click', function() {
+      $smuflRenderGlyphOptionsGlyphSize.val(initialGlyphSize).trigger('input');
     });
 
     const $scratchpadDialog = $('#scratchpadDialog');
