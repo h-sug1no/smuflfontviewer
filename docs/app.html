@@ -175,6 +175,14 @@
       background-color: white;
     }
 
+    a.specLink {
+      display: block;
+    }
+
+    .infoDialogContents .linkToPrev {
+      margin-right: 0.5em;
+    }
+
     body.fakeDialogVisible #rootContainer.fakeDialog div#infoDialog {
       display: inline-block;
     }
@@ -186,8 +194,14 @@
       background-color: #cccccc88;
     }
 
+    #infoDialog #dialogUi * {
+      vertical-align: middle;
+    }
+
+
     #infoDialog #dialogTitle {
       margin: 0 1em;
+      display: inline-block;
     }
 
     #infoDialog #contentContainer {
@@ -279,7 +293,7 @@
 
     <div id="infoDialog">
       <div id="dialogUi">
-        <input type="button" class="closeButton" title="close(w)" value="close"><span id="dialogTitle"></span>
+        <input type="button" class="closeButton" title="close(w)" value="close"><div id="dialogTitle"></div>
       </div>
       <div id="contentContainer"></div>
     </div>
@@ -312,6 +326,9 @@
             type="range" min="10" max="200" value="100"><span><span></label>
           </div>
           <textarea class="smufl"></textarea>
+          <div>
+            <span id="uCodeSpan" class="smufl"></span>
+          </div>
         </div>
         <select id="rangeSelect" title="(r)anges"></select>
       </div>

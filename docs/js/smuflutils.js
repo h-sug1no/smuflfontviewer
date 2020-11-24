@@ -98,6 +98,7 @@ class SMuFLMetadata {
       const optClasses = fontInfo.optClasses = {};
       const optRange = fontInfo.optRange = {
         description: `optionalGlyphs: ${fontInfoKey}`,
+        noSpecLink: true,
         nEnd: -Infinity,
         nStart: Infinity,
         range_end: undefined,
