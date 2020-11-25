@@ -1791,7 +1791,7 @@ class SMuFLFontViewer {
         }
         else {
           const $aDom = $(`<a href="https://w3c.github.io/smufl/gitbook/tables/${filename}.html"
-  target="_smuflfontvierer_rangeItem_" title="${tRange.key} range spec">${tRange.key}</a>`);
+ title="${tRange.key} range spec">${tRange.key}</a>`);
           $rangeInfo.append($aDom);
         }
 
