@@ -386,6 +386,7 @@ class SMuFLFontViewer {
     const $body = $('body');
     const $rootContainer = $('#rootContainer');
     const $infoDialog = $('#infoDialog');
+    const $infoDialog_closeButton = $infoDialog.find('input.closeButton');
     const infoDialogElm = $infoDialog.get(0);
     const $contentContainer = $('#contentContainer');
     const _$infoDialog_defaultDescription = 'use browser\'s search to find glyphname, smufl properties, codepoint, etc...';
@@ -570,7 +571,7 @@ class SMuFLFontViewer {
         case 'w':
           //case 'Escape':
           if ($body.hasClass('fakeDialogVisible')) {
-            $infoDialog.find('input').click();
+            $infoDialog_closeButton.click();
           }
           break;
         case 'g':
@@ -688,6 +689,8 @@ class SMuFLFontViewer {
       }
       $contentContainer.append($('<br>'));
     }
+
+    const $aStatickLink = $('#AStaticLink');
 
     const _$infoDialog_contentDoms = {};
     function _$infoDialog_showModal(keyIn, func) {
@@ -1087,14 +1090,14 @@ class SMuFLFontViewer {
       });
     });
 
-    $('#BStaticLink').on('click', function () {
+    $('#BCCStaticLink').on('click', function () {
       const key = 'static link';
       _$infoDialog_showModal(key, function ($contentContainer) {
         try {
           const $stlinkContainer = $(`<div class="stlinkContainer"></div>`);
           $contentContainer.append($stlinkContainer);
 
-          const $urlText = $(`<textarea class="urlText" readonly></textarea>`);
+          const $urlText = $(`<textarea class="urlText" readonly title=""></textarea>`);
           $stlinkContainer.append($urlText);
           $contentContainer.$urlText = $urlText;
 
@@ -1105,6 +1108,20 @@ class SMuFLFontViewer {
         }
       });
 
+      const $dom = _$infoDialog_contentDoms[key];
+      $dom.$urlText.text($aStatickLink.prop('href'));
+      $dom.$urlText.select();
+      document.execCommand('copy');
+    });
+
+    $infoDialog_closeButton.on('click', function () {
+      $infoDialog.get(0).close();
+      $contentContainer.empty();
+    });
+
+    let aStaticLinkTitle;
+    function updateStatickLink() {
+      aStaticLinkTitle = aStaticLinkTitle || $aStatickLink.prop('title');
       const params = new URLSearchParams(window.location.search);
       params.set('glyph', $codepointSelect.val());
       params.delete('showFontMetadata');
@@ -1120,17 +1137,9 @@ class SMuFLFontViewer {
       else {
         t.searchParams.delete('settings.cutOutOrigin_BBL');
       }
-
-      const $dom = _$infoDialog_contentDoms[key];
-      $dom.$urlText.text(t.href);
-      $dom.$urlText.select();
-      document.execCommand('copy');
-    });
-
-    $infoDialog.find('input').on('click', function () {
-      $infoDialog.get(0).close();
-      $contentContainer.empty();
-    });
+      $aStatickLink.prop('href', t.href);
+      $aStatickLink.prop('title', `${aStaticLinkTitle}: glyph=${params.get('glyph')}`);
+    }
 
     function anchorCsToScreenCsY(val, sbl) {
       return val * sbl * -1;
@@ -1938,6 +1947,8 @@ class SMuFLFontViewer {
       window.setTimeout(function () {
         document.firstElementChild.scrollIntoView(true);
       });
+
+      updateStatickLink();
     }
 
     const resources = {

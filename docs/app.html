@@ -263,6 +263,13 @@
     #scratchpadDialog textarea {
       margin-top: 0.5em;
     }
+
+    #staticLinkContainer {
+      border: solid 1px gray;
+      padding: 0.1em;
+      border-radius: 0.2em;
+      display: inline-block;
+    }
   </style>
 
   <style type="text/css" media="print">
@@ -308,7 +315,10 @@
       <input id="BFontMetadataGlyphsWithAlternates" type="button" title="Show font metadata glyphsWithAlternates"
         value="glyphsWithAlternates">
       <input id="BFontMetadataGlyphsWithAnchors" type="button" title="Show font metadata glyphsWithAnchors" value="glyphsWithAnchors">
-      <input id="BStaticLink" type="button" title="copy static link url to clipboard" value="static link">
+      <div id="staticLinkContainer">
+        <a id="AStaticLink" href="#" title="static link to the current glyph">static link</a>
+        <input id="BCCStaticLink" type="button" title="Copy the URL of the static link to the clipboard" value="cc">
+      </div>
     </div>
     <div id="smuflGlyphContainer">
       <div id="glyphContainer">
