@@ -111,7 +111,8 @@ class SMuFLFontViewer {
             str = str.toUpperCase();
             if (str.match(/^[A-F0-9]+$/)) {
               try {
-                String.fromCodePoint(parseInt(str, 16));
+                const cpNumber = parseInt(str, 16);
+                str = formatCodepointNumber(cpNumber);
                 $codepointSelect_selectize.addCodePointItem(str);
                 $codepointSelect_selectize.refreshOptions(true);
               } catch (e) { }
@@ -437,10 +438,7 @@ class SMuFLFontViewer {
       }
 
       str = codepointNumber.toString(16).toUpperCase();
-      if (str.len < 4) {
-        str = ('000' + str).slice(-3);
-      }
-      return str;
+      return str.padStart(4, '0');
     }
 
     function getCodepointNumber() {
