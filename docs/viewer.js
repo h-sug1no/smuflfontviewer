@@ -1063,7 +1063,7 @@ class SMuFLFontViewer {
     function addAlternatesInfo($alternatesInfo, alternates, baseGlyphname, glyphname) {
       if (alternates && alternates.alternates) {
         _$c_appendText($alternatesInfo, 'alternates: ');
-        appendGlyphname($alternatesInfo, baseGlyphname, glyphname);
+        appendGlyphname($alternatesInfo, baseGlyphname, glyphname, undefined, true);
         _$c_appendText($alternatesInfo, '\n');
         alternates.alternates.forEach(function (v) {
           _$c_appendText($alternatesInfo, 'codepoint: ');
