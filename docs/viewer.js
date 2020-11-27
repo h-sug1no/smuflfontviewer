@@ -108,26 +108,7 @@ class SMuFLFontViewer {
           create: false,
           onType: function (str) {
             // console.log(str);
-            str = str.toUpperCase();
-            if (str.match(/^[A-F0-9]+$/)) {
-              let cpNumber = NaN;
-              try {
-                cpNumber = parseInt(str, 16);
-                // check cpNumber is valid unicode codepoint.
-                String.fromCodePoint(cpNumber);
-              } catch (e) {
-                // RangeError: xxxxxxx is not a valid code point
-                // console.log(e);
-                return;
-              }
-              if (isNaN(cpNumber)) {
-                return;
-              }
-
-              str = formatCodepointNumber(cpNumber);
-              $codepointSelect_selectize.addCodePointItem(str);
-              $codepointSelect_selectize.refreshOptions(true);
-            }
+            $codepointSelect_selectize.onType(str);
           },
           onChange: function (value) {
             if (value.length) {
@@ -144,14 +125,38 @@ class SMuFLFontViewer {
         });
 
         $codepointSelect_selectize = $codepointSelect[0].selectize;
+        $codepointSelect_selectize.onType = function(str, keepOptions) {
+          str = str.toUpperCase();
+          if (str.match(/^[A-F0-9]+$/)) {
+            let cpNumber = NaN;
+            try {
+              cpNumber = parseInt(str, 16);
+              // check cpNumber is valid unicode codepoint.
+              String.fromCodePoint(cpNumber);
+            } catch (e) {
+              // RangeError: xxxxxxx is not a valid code point
+              // console.log(e);
+              return;
+            }
+            if (isNaN(cpNumber)) {
+              return;
+            }
+
+            str = formatCodepointNumber(cpNumber);
+            const cpData = $codepointSelect_selectize.addCodePointItem(str);
+            $codepointSelect_selectize.refreshOptions(!keepOptions);
+            return str;
+          }
+        };
         $codepointSelect_selectize.addCodePointItem = function (cp) {
           cp = cp.toUpperCase();
-          $codepointSelect_selectize.addOption({
+          const cpData = {
             series: 'codepoint',
             value: cp,
             name: cp
-          });
-          return cp;
+          }
+          $codepointSelect_selectize.addOption(cpData);
+          return cpData;
         };
         that._handle_onResourceReady('smuflMetadata');
       }
@@ -643,7 +648,7 @@ class SMuFLFontViewer {
     });
 
     function selectCodepointByString(cp) {
-      cp = $codepointSelect_selectize.addCodePointItem(cp);
+      cp = $codepointSelect_selectize.addCodePointItem(cp).value;
       $codepointSelect_selectize.setValue(cp);
     }
 
@@ -659,7 +664,7 @@ class SMuFLFontViewer {
       }
 
       let codepointStr;
-      while ((cpNumber += d) && cpNumber > 0 && cpNumber < 0x10FFFF & !codepointStr) {
+      while ((cpNumber += d) >= 0 && cpNumber < 0x10FFFF & !codepointStr) {
         const tCodepointStr = formatCodepointNumber(cpNumber);
         if (checkHasGlyph && glyphsByUCodepoint) {
           if (glyphsByUCodepoint[sMuFLMetadata.ensureUCodepoint(tCodepointStr)]) {
@@ -2027,17 +2032,17 @@ class SMuFLFontViewer {
       const settings_cutOutOrigin_BBL = params.get('settings.cutOutOrigin_BBL') === 'true';
       $smuflGlyphHints_cutOutOrigin_BBL.prop('checked', settings_cutOutOrigin_BBL);
 
-      let glyph = params.get('glyph') || 'E0A3';
+      let glyph = params.get('glyph');
       if (glyph) {
         var gd = _getGlyphData(glyph);
         if (!isNaN(gd.codepoint)) {
           glyph = formatCodepointNumber(gd.codepoint);
         }
         else {
-          glyph = glyph.toUpperCase();
+          glyph = $codepointSelect_selectize.onType(glyph, true);
         }
-        $codepointSelect_selectize.setValue(glyph);
       }
+      $codepointSelect_selectize.setValue(glyph || 'E0A3');
 
       _postDraw();
       if (options.has('showFontMetadata')) {
