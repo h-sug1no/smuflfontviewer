@@ -110,12 +110,23 @@ class SMuFLFontViewer {
             // console.log(str);
             str = str.toUpperCase();
             if (str.match(/^[A-F0-9]+$/)) {
+              let cpNumber = NaN;
               try {
-                const cpNumber = parseInt(str, 16);
-                str = formatCodepointNumber(cpNumber);
-                $codepointSelect_selectize.addCodePointItem(str);
-                $codepointSelect_selectize.refreshOptions(true);
-              } catch (e) { }
+                cpNumber = parseInt(str, 16);
+                // check cpNumber is valid unicode codepoint.
+                String.fromCodePoint(cpNumber);
+              } catch (e) {
+                // RangeError: xxxxxxx is not a valid code point
+                // console.log(e);
+                return;
+              }
+              if (isNaN(cpNumber)) {
+                return;
+              }
+
+              str = formatCodepointNumber(cpNumber);
+              $codepointSelect_selectize.addCodePointItem(str);
+              $codepointSelect_selectize.refreshOptions(true);
             }
           },
           onChange: function (value) {
