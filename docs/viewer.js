@@ -917,7 +917,7 @@ class SMuFLFontViewer {
         if (label) {
           _$c_appendText($ligaturesInfo, label);
         }
-        appendGlyphname($ligaturesInfo, glyphname);
+        appendGlyphname($ligaturesInfo, glyphname, undefined, undefined, true);
         _$c_appendText($ligaturesInfo, '\ndescription: ');
         _$c_appendText($ligaturesInfo, (ligature.description || '') + '\n');
         if (ligature.componentGlyphs) {
@@ -925,7 +925,7 @@ class SMuFLFontViewer {
           const $glyphsContainer = $('<div class="glyphsContainer"></div>');
           $ligaturesInfo.append($glyphsContainer);
           ligature.componentGlyphs.forEach(function (tGlyphname) {
-            appendGlyphname($glyphsContainer, tGlyphname, glyphname);
+            appendGlyphname($glyphsContainer, tGlyphname, glyphname, undefined, true);
             _$c_appendText($glyphsContainer, ', ');
           });
         }
