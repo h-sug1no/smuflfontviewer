@@ -508,7 +508,7 @@ class SMuFLFontViewer {
 
     }
 
-    function appendGlyphname($c, glyphname, currentGlyphName, uCodepoint) {
+    function appendGlyphname($c, glyphname, currentGlyphName, uCodepoint, showUCodepoint) {
       const option = { searchOptional: true };
       let tUCodepoint = sMuFLMetadata.glyphname2uCodepoint(glyphname, option);
       if ((uCodepoint || tUCodepoint) !== tUCodepoint) {
@@ -523,7 +523,9 @@ class SMuFLFontViewer {
         charStr = sMuFLMetadata.uCodepoint2CharString(uCodepoint);
       }
 
-      const $t = $(`<span class="smuflGlyphname">${glyphname || '?'}:<span class="smufl">${charStr}</span></span>`);
+      const $uCodepoint = showUCodepoint ?
+        `<span class="uCodepoint">(${uCodepoint})</span> `: '';
+      const $t = $(`${$uCodepoint}<span class="smuflGlyphname">${glyphname || '?'}:<span class="smufl">${charStr}</span></span>`);
       if (option.isOptionalGlyph) {
         $t.addClass('optionalGlyph');
       }
@@ -533,6 +535,10 @@ class SMuFLFontViewer {
 
       $t.prop('uCodepoint', uCodepoint);
       $c.append($t);
+
+      return {
+        uCodepoint: uCodepoint
+      };
     }
 
     const history = {
@@ -1019,6 +1025,8 @@ class SMuFLFontViewer {
           sMuFLMetadata.data.ranges,
           //addItemFunc
           ($itemContainer, item) => {
+            _$c_appendText($itemContainer, `range_start: ${item.range_start}, `);
+            _$c_appendText($itemContainer, `range_end: ${item.range_end}: \n`);
             _$c_appendText($itemContainer, `description: ${item.description}: \n`);
           },
           // getGlyphsFunc
@@ -1027,7 +1035,7 @@ class SMuFLFontViewer {
           },
           // addGlyphFunc
           ($glyphContainer, glyphName) => {
-            appendGlyphname($glyphContainer, glyphName);
+            appendGlyphname($glyphContainer, glyphName, undefined, undefined, true);
           });
       });
     });
@@ -1046,7 +1054,7 @@ class SMuFLFontViewer {
           },
           // addGlyphFunc
           ($glyphContainer, glyphName) => {
-            appendGlyphname($glyphContainer, glyphName);
+            appendGlyphname($glyphContainer, glyphName, undefined, undefined, true);
           });
       });
     });
