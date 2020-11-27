@@ -1100,7 +1100,7 @@ class SMuFLFontViewer {
             const $gwaContainer = $(`<div class="gwanchorsContainer"></div>`);
             $contentContainer.append($gwaContainer);
             const $glyphContainer = $('<div class="glyphContainer"></div>');
-            appendGlyphname($glyphContainer, glyphname);
+            appendGlyphname($glyphContainer, glyphname, undefined, undefined, true);
             const $nbsp = '&nbsp;';
             $glyphContainer.append($nbsp);
             _$c_appendText($glyphContainer, Object.keys(glyph).join(', '));
