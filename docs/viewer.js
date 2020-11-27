@@ -1014,7 +1014,7 @@ class SMuFLFontViewer {
             _$c_appendText($glyphContainer, ', ');
             appendGlyphname($glyphContainer, glyph.name);
             _$c_appendText($glyphContainer, ', alternateFor: ');
-            appendGlyphname($glyphContainer, glyph.alternateFor);
+            appendGlyphname($glyphContainer, glyph.alternateFor, undefined, undefined, true);
           });
       });
     });
