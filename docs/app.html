@@ -264,7 +264,7 @@
       margin-top: 0.5em;
     }
 
-    #staticLinkContainer {
+    .aLinkContainer {
       border: solid 1px gray;
       padding: 0.1em;
       border-radius: 0.2em;
@@ -315,9 +315,12 @@
       <input id="BFontMetadataGlyphsWithAlternates" type="button" title="Show font metadata glyphsWithAlternates"
         value="glyphsWithAlternates">
       <input id="BFontMetadataGlyphsWithAnchors" type="button" title="Show font metadata glyphsWithAnchors" value="glyphsWithAnchors">
-      <div id="staticLinkContainer">
+      <div id="staticLinkContainer" class="aLinkContainer">
         <a id="AStaticLink" href="#" title="static link to the current glyph">static link</a>
         <input id="BCCStaticLink" type="button" title="Copy the URL of the static link to the clipboard" value="cc">
+      </div>
+      <div id="UULinkContainer" class="aLinkContainer">
+        <a id="AUULink" href="#" title="link to the current glyph in util.unicode.org: Character Properties">Unicode Character Properties</a>
       </div>
     </div>
     <div id="smuflGlyphContainer">
