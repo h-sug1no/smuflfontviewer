@@ -711,6 +711,7 @@ class SMuFLFontViewer {
     }
 
     const $aStatickLink = $('#AStaticLink');
+    const $aUULink = $('#AUULink');
 
     const _$infoDialog_contentDoms = {};
     function _$infoDialog_showModal(keyIn, func) {
@@ -1160,7 +1161,22 @@ class SMuFLFontViewer {
         t.searchParams.delete('settings.cutOutOrigin_BBL');
       }
       $aStatickLink.prop('href', t.href);
-      $aStatickLink.prop('title', `${aStaticLinkTitle}: glyph=${params.get('glyph')}`);
+      $aStatickLink.prop('title', `${aStaticLinkTitle}: ${params.get('glyph')}`);
+    }
+
+    let aUULinkTitle;
+    function updateUUkLink() {
+      aUULinkTitle = aUULinkTitle || $aUULink.prop('title');
+      const params = new URLSearchParams();
+      params.set('a', $codepointSelect.val());
+
+      var t = new URL('https://util.unicode.org/UnicodeJsps/character.jsp');
+      params.forEach((value, key) => {
+        t.searchParams.set(key, value);
+      });
+
+      $aUULink.prop('href', t.href);
+      $aUULink.prop('title', `${aUULinkTitle}: ${params.get('a')}`);
     }
 
     function anchorCsToScreenCsY(val, sbl) {
@@ -1971,6 +1987,7 @@ class SMuFLFontViewer {
       });
 
       updateStatickLink();
+      updateUUkLink();
     }
 
     const resources = {
