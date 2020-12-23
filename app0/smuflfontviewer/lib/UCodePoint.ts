@@ -16,7 +16,7 @@
 
   public toUString(addPrefix :boolean = true): string {
     const str = this.codepoint_.toString(16).toUpperCase();
-    return str.padStart(4, '0');
+    return (addPrefix ? 'U+' : '') + str.padStart(4, '0');
   }
 
   public toCharString(): string {
