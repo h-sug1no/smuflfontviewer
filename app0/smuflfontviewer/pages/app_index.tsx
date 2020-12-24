@@ -1,42 +1,76 @@
 import Head from 'next/head'
 import styles from '../styles/Home.module.css'
-import { NextRouter, useRouter } from 'next/router'
+import { NextRouter, Router, useRouter } from 'next/router'
 import { route } from 'next/dist/next-server/server/router';
 
 import Container from '@material-ui/core/Container';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
-import { Select, MenuItem, CircularProgress } from '@material-ui/core';
-import { useState, useRef, useEffect, MutableRefObject } from 'react';
+import { Select, MenuItem, Divider, TextField, FormControlLabel, Checkbox, Tooltip } from '@material-ui/core';
+import React, { useState, useEffect } from 'react';
 /*
 import ProTip from '../src/ProTip';
 import Link from '../src/Link';
 import Copyright from '../src/Copyright';
 */
 
-function _createDemolistOptions(name: string, value: number,
-  lFontBasePath: string, lMetadataBasePath: string,
-  optFontPath: string, optFontMetadataPath: string, settings?: object) {
-  return {
-    name: name,
-    value: value,
-    fontUrl: lFontBasePath + optFontPath,
-    fontMetadataUrl: lFontBasePath + optFontMetadataPath,
-    glyphnamesUrl: lMetadataBasePath + '/glyphnames.json',
-    classesUrl: lMetadataBasePath + '/classes.json',
-    rangesUrl: lMetadataBasePath + '/ranges.json',
-    settings: settings
+class Settings {
+  cutOutOrigin_BBL: boolean;
+  constructor(cutOutOrigin_BBL: boolean = false) {
+    this.cutOutOrigin_BBL = cutOutOrigin_BBL;
+  }
+};
+
+class Preset {
+  name: string;
+  value: number;
+  fontUrl: string;
+  fontMetadataUrl: string;
+  glyphnamesUrl: string;
+  classesUrl: string;
+  rangesUrl: string;
+  settings: Settings;
+
+  constructor(name: string,
+    value: number,
+    fontUrl: string,
+    fontMetadataUrl: string,
+    glyphnamesUrl: string,
+    classesUrl: string,
+    rangesUrl: string,
+    settings: Settings) {
+    this.name = name;
+    this.value = value;
+    this.fontUrl = fontUrl;
+    this.fontMetadataUrl = fontMetadataUrl;
+    this.glyphnamesUrl = glyphnamesUrl;
+    this.classesUrl = classesUrl;
+    this.rangesUrl = rangesUrl;
+    this.settings = settings;
   };
 }
 
-const oldFontSettings = {
-  cutOutOrigin_BBL: true
-};
+function _createDemolistOptions(name: string, value: number,
+  lFontBasePath: string, lMetadataBasePath: string,
+  optFontPath: string, optFontMetadataPath: string, settings: Settings = new Settings()) {
+  return new Preset(
+    name,
+    value,
+    lFontBasePath + optFontPath,
+    lFontBasePath + optFontMetadataPath,
+    lMetadataBasePath + '/glyphnames.json',
+    lMetadataBasePath + '/classes.json',
+    lMetadataBasePath + '/ranges.json',
+    settings
+  );
+}
+
+const oldFontSettings = new Settings(true);
 
 const devPresetValue = 1000;
 
-const presets = [
+const presets: Array<Preset> = [
   _createDemolistOptions('local Bravura(debug)', devPresetValue + 0,
     '/packages/bravura/redist',
     './packages/smufl/metadata',
@@ -59,6 +93,10 @@ const presets = [
     oldFontSettings
     ),
 ];
+const presetMap: {[key: number]: Preset} = {};
+presets.forEach((v) => {
+  presetMap[v.value] = v;
+});
 
 const createOptions = (isDevMode: boolean) => {
   const ret: Array<object> = [];
@@ -74,10 +112,29 @@ const createOptions = (isDevMode: boolean) => {
 export default function AppIndex() {
 
   const [presetValue, setPresetValue] = useState<number>(0);
-  const [isDevMode, setIsDevMode] = useState<boolean>(false);;
+  const [isDevMode, setIsDevMode] = useState<boolean>(false);
+
+  const [fontUrl, setFontUrl] = useState<string>('');
+  const [fontMetadataUrl, setFontMetadataUrl] = useState<string>('');
+  const [glyphnamesUrl, setGlyphnamesUrl] = useState<string>('');
+  const [classesUrl, setClassesUrl] = useState<string>('');
+  const [rangesUrl, setRangesUrl] = useState<string>('');
+  const [glyph, setGlyph] = useState<string>('');
+  const [cutOutOrigin_BBL, setCutOutOrigin_BBL] = useState<boolean>(false);
 
   const { query, asPath } = useRouter();
   const [isLoading, setIsLoading] = useState(true);
+
+  const setPreset = (val: number) => {
+    const preset: Preset = presetMap[val];
+    setFontUrl(preset.fontUrl);
+    setFontMetadataUrl(preset.fontMetadataUrl);
+    setGlyphnamesUrl(preset.glyphnamesUrl);
+    setClassesUrl(preset.classesUrl);
+    setRangesUrl(preset.rangesUrl);
+    // setGlyph();
+    setCutOutOrigin_BBL(preset.settings.cutOutOrigin_BBL);
+  }
 
   useEffect(() => {
     // console.log('isLoading:' + isLoading);
@@ -93,6 +150,7 @@ export default function AppIndex() {
         setIsDevMode(tIsDevMode);
         setPresetValue(tIsDevMode ? devPresetValue : 0);
       }
+      setPreset(presetValue);
     }
   }, [query]);
 
@@ -109,6 +167,22 @@ export default function AppIndex() {
     //
   }
 
+  const openViewer = () => {
+    const searchParams = new URLSearchParams();
+    searchParams.set('fontUrl', fontUrl);
+    searchParams.set('fontMetadataUrl', fontMetadataUrl);
+    searchParams.set('classesUrl', glyphnamesUrl);
+    searchParams.set('classesUrl', classesUrl);
+    searchParams.set('rangesUrl',rangesUrl);
+    const tGlyph = glyph.trim();
+    if (tGlyph.length) {
+      searchParams.set('glyph', tGlyph);
+    }
+    if (cutOutOrigin_BBL) {
+      searchParams.set('cutOutOrigin_BBL', 'true');
+    }
+    console.log(searchParams.toString());
+  };
   // console.log(presetValue, isDevMode);
 
   return (
@@ -117,24 +191,58 @@ export default function AppIndex() {
         <title>smuflfontviewer</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Container maxWidth="sm">
+      <Container maxWidth="xl">
         <Box my={4}>
           <Typography variant="h4" component="h1" gutterBottom>
-            Next.js example
+            Presets:
           </Typography>
           <Select id="presetSelect"
             value={presetValue}
-            onChange={(e) => {setPresetValue(Number(e.target.value))}}
+            onChange={(e) => {
+              const val: number = Number(e.target.value);
+              setPresetValue(val);
+              setPreset(val);
+            }}
           >
             {createOptions(isDevMode)}
           </Select>
-          {/*
-          <Button variant="contained" color="primary" component={Link} naked href="/">
-            Go to the main page
+          <Divider />
+          <Typography variant="h4" component="h1" gutterBottom>
+            font:
+          </Typography>
+          <TextField fullWidth id="fontUrl" label="fontUrl" value={fontUrl} onChange={(e) => {setFontUrl(e.target.value)}} />
+          <TextField fullWidth id="fontMetadataUrl" label="fontMetadataUrl" value={fontMetadataUrl} onChange={(e) => {setFontMetadataUrl(e.target.value)}} />
+          <Divider />
+          <Typography variant="h4" component="h1" gutterBottom>
+            SMuFL metadata:
+          </Typography>
+          <TextField fullWidth id="glyphnamesUrl" label="glyphnamesUrl" value={glyphnamesUrl} onChange={(e) => {setGlyphnamesUrl(e.target.value)}} />
+          <TextField fullWidth id="classesUrl" label="classesUrl" value={classesUrl} onChange={(e) => {setClassesUrl(e.target.value)}} />
+          <TextField fullWidth id="rangesUrl" label="rangesUrl" value={rangesUrl} onChange={(e) => {setRangesUrl(e.target.value)}} />
+          <Divider />
+          <TextField fullWidth id="glyph" label="glyph" value={glyph} onChange={(e) => {setGlyph(e.target.value)}}
+            placeholder="codepoint(ex..:E0A3) or glyphname(ex...:noteheadHalf)"
+          />
+          <Divider />
+          <Tooltip title="cutOut anchor points are relative to the:
+    unchecked: glyph origin.
+    checked: bottom left-hand corner of the glyph bounding box(old spec).">
+            <FormControlLabel
+              control={
+                <Checkbox checked={cutOutOrigin_BBL}
+                  onChange={(e) => {setCutOutOrigin_BBL(e.target.checked)}}
+                  name="cutOutOrigin_BBL"
+                />
+              }
+              label="cutOutOrigin_BBL"
+            />
+          </Tooltip>
+          <Divider />
+          <Button fullWidth
+            onClick={openViewer}
+          >
+            open
           </Button>
-          <ProTip />
-          <Copyright />
-          */}
         </Box>
       </Container>
     </>
