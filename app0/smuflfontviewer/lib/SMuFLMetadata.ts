@@ -1,6 +1,6 @@
 /**
-* Copyright (c) 2020 h-sug1no
-*/
+ * Copyright (c) 2020 h-sug1no
+ */
 import { UCodePoint } from './UCodePoint';
 
 type Dict<T> = { [key: string]: T };
@@ -27,8 +27,15 @@ export class FontInfo {
   alternateCodepointFors?: Dict<any>;
   glyphsByUCodepoint?: Dict<any>;
   optClasses?: Dict<Array<any>>;
-  optRange?: { description: string; noSpecLink: boolean; nEnd: number; nStart: number; range_end: any; range_start: any; };
-  computedClasses?: { smuflClasses: any; optClasses: Dict<Array<any>>; classes: Dict<Array<any>>; };
+  optRange?: {
+    description: string;
+    noSpecLink: boolean;
+    nEnd: number;
+    nStart: number;
+    range_end: any;
+    range_start: any;
+  };
+  computedClasses?: { smuflClasses: any; optClasses: Dict<Array<any>>; classes: Dict<Array<any>> };
   constructor(fontMetadata: FontMetadata) {
     this.fontMetadata_ = fontMetadata;
   }
@@ -52,16 +59,11 @@ export class Database {
     this.data_ = new Data();
   }
 
-  init(options: { get(key: string): string }) : Promise<any> {
+  init(options: { get(key: string): string }): Promise<any> {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const that = this;
-    const urlKeys: Array<string> = [
-      'fontMetadata',
-      'glyphnames',
-      'classes',
-      'ranges',
-    ];
-    const urls: Dict<string> = this.urls_ = {};
+    const urlKeys: Array<string> = ['fontMetadata', 'glyphnames', 'classes', 'ranges'];
+    const urls: Dict<string> = (this.urls_ = {});
 
     urlKeys.forEach((key) => {
       const tKey = key + 'Url';
@@ -74,8 +76,8 @@ export class Database {
         .then((response) => {
           if (response.status !== 200) {
             this.initErrors_?.push(
-              'Looks like there was a problem. Status Code: ' +
-              response.status + ': ' + urls[key]);
+              'Looks like there was a problem. Status Code: ' + response.status + ': ' + urls[key],
+            );
             return;
           }
 
@@ -83,8 +85,7 @@ export class Database {
           response.json().then((d) => {
             this.data_[key] = d;
           });
-        }
-        )
+        })
         .catch((err) => {
           this.initErrors_?.push('Fetch Error :' + err);
         });
@@ -100,7 +101,7 @@ export class Database {
       }
 
       const fontInfoKey = `${fontMetadata.fontName}/${fontMetadata.fontVersion}`;
-      const fontInfo = this.fontInfos_[fontInfoKey] = new FontInfo(fontMetadata);
+      const fontInfo = (this.fontInfos_[fontInfoKey] = new FontInfo(fontMetadata));
       fontInfo.setsByAlternateFor = {};
       const setsByAlternateFor = fontInfo.setsByAlternateFor;
       fontInfo.setsByName = {};
@@ -114,14 +115,15 @@ export class Database {
             const mapItem = {
               setName: key,
               set: set,
-              glyph: glyph
+              glyph: glyph,
             };
             const gAlternateFor: string = glyph.alternateFor;
 
-            const sbafItem = setsByAlternateFor[gAlternateFor] = setsByAlternateFor[gAlternateFor] || [];
+            const sbafItem = (setsByAlternateFor[gAlternateFor] =
+              setsByAlternateFor[gAlternateFor] || []);
             sbafItem.push(mapItem);
 
-            const sbnItem = setsByName[glyph.name] = setsByName[glyph.name] || [];
+            const sbnItem = (setsByName[glyph.name] = setsByName[glyph.name] || []);
             sbnItem.push(mapItem);
           });
         });
@@ -134,8 +136,7 @@ export class Database {
         Object.keys(glyphsWithAlternates).forEach(function (key) {
           const tAlternates = glyphsWithAlternates[key].alternates;
           tAlternates.forEach(function (v: any) {
-            const tAlternateFors = alternateFors[v.name] =
-              alternateFors[v.name] || [];
+            const tAlternateFors = (alternateFors[v.name] = alternateFors[v.name] || []);
             tAlternateFors.push(key);
           });
         });
@@ -154,29 +155,33 @@ export class Database {
         nEnd: -Infinity,
         nStart: Infinity,
         range_end: undefined,
-        range_start: undefined
+        range_start: undefined,
       };
       const optRange = fontInfo.optRange;
 
-      [{ names: this.data_.glyphnames, isOptionalGlyph: false },
-        { names: fontMetadata.optionalGlyphs, isOptionalGlyph: true }].forEach(function (namesDef) {
+      [
+        { names: this.data_.glyphnames, isOptionalGlyph: false },
+        { names: fontMetadata.optionalGlyphs, isOptionalGlyph: true },
+      ].forEach(function (namesDef) {
         const names = namesDef.names;
         Object.keys(namesDef.names).forEach(function (key) {
           const name = names[key];
           const cp: string = name.codepoint;
           if (glyphsByUCodepoint[cp]) {
-            console.error(`duplicate codepoint: ${cp}: ${key}, ${glyphsByUCodepoint[cp].glyphname}`);
+            console.error(
+              `duplicate codepoint: ${cp}: ${key}, ${glyphsByUCodepoint[cp].glyphname}`,
+            );
           }
           const glyphItem = {
             glyphname: key,
-            isOptionalGlyph: namesDef.isOptionalGlyph
+            isOptionalGlyph: namesDef.isOptionalGlyph,
           };
           glyphsByUCodepoint[cp] = glyphItem;
 
           // alternateCodepoint: ...the Unicode Musical Symbols range code point
           // (if applicable) provided as the value for the "alternateCodepoint" key.
-          const glyphs = alternateCodepointFors[name.alternateCodepoint] =
-            alternateCodepointFors[name.alternateCodepoint] || [];
+          const glyphs = (alternateCodepointFors[name.alternateCodepoint] =
+            alternateCodepointFors[name.alternateCodepoint] || []);
           glyphs.push(glyphItem);
 
           if (!namesDef.isOptionalGlyph) {
@@ -201,39 +206,40 @@ export class Database {
             optRange.range_end = cp;
           }
         });
-      }
-      );
+      });
 
       // resolve optionalGlyphs classes.
       fontInfo.computedClasses = {
         smuflClasses: this.data_.classes,
         optClasses: optClasses,
-        classes: {}
+        classes: {},
       };
       const computedClasses = fontInfo.computedClasses;
-      Object.keys(computedClasses.classes).
-        concat(Object.keys(computedClasses.optClasses)).forEach(function (className: string) {
+      Object.keys(computedClasses.classes)
+        .concat(Object.keys(computedClasses.optClasses))
+        .forEach(function (className: string) {
           const classes: Dict<Array<any>> = computedClasses.classes;
           if (!classes[className]) {
-            classes[className] = (computedClasses.smuflClasses[className] || []).
-              concat(computedClasses.optClasses[className] || []);
+            classes[className] = (computedClasses.smuflClasses[className] || []).concat(
+              computedClasses.optClasses[className] || [],
+            );
           }
         });
     };
 
     return new Promise(function (resolve) {
       function t() {
-        if (that.data_.fontMetadata_ &&
+        if (
+          that.data_.fontMetadata_ &&
           that.data_.classes &&
           that.data_.glyphnames &&
-          that.data_.ranges) {
+          that.data_.ranges
+        ) {
           resolveData();
           resolve(that);
-        }
-        else if (that.initErrors_?.length) {
+        } else if (that.initErrors_?.length) {
           resolve(that);
-        }
-        else {
+        } else {
           window.setTimeout(t, 300);
         }
       }
@@ -241,7 +247,7 @@ export class Database {
     });
   }
 
-  getFontInfo(fontName?: string): any{
+  getFontInfo(fontName?: string): any {
     const fontInfos = this.fontInfos_ || {};
     fontName = fontName || Object.keys(fontInfos)[0];
     return fontInfos[fontName];
@@ -256,7 +262,7 @@ export class Database {
     return UCodePoint.fromUString(uCodepoint).toUString();
   }
 
-  uCodepoint2Glyphname(uCodepoint: string, options: SearchOptions = {}): string | undefined{
+  uCodepoint2Glyphname(uCodepoint: string, options: SearchOptions = {}): string | undefined {
     const fontInfo = this.getFontInfo(options.fontName);
     let ret: string | undefined;
     if (!fontInfo || !fontInfo.glyphsByUCodepoint) {
@@ -285,7 +291,7 @@ export class Database {
       options.isOptionalGlyph = item !== undefined;
     }
     // fixme: type of
-    return ((item || {}).codepoint);
+    return (item || {}).codepoint;
   }
 
   glyphname2string(glyphname: string): any {
