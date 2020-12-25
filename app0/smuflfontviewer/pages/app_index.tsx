@@ -152,7 +152,7 @@ export default function AppIndex(): ReactElement {
       }
       setPreset(presetValue);
     }
-  }, [query]);
+  }, [asPath, isLoading, presetValue, query]);
 
   if (isLoading) {
     return <>Loading...</>;
