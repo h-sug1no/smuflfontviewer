@@ -1,6 +1,6 @@
 import Head from 'next/head';
 // import styles from '../styles/Home.module.css';
-import { /* NextRouter, Router, */ useRouter } from 'next/router';
+import { /* NextRouter, Router, */ Router, useRouter } from 'next/router';
 // import { route } from 'next/dist/next-server/server/router';
 
 import Container from '@material-ui/core/Container';
@@ -17,47 +17,23 @@ import {
   Tooltip,
 } from '@material-ui/core';
 import React, { useState, useEffect, ReactElement } from 'react';
+import { Options, Settings } from './viewer';
+import { route } from 'next/dist/next-server/server/router';
 /*
 import ProTip from '../src/ProTip';
 import Link from '../src/Link';
 import Copyright from '../src/Copyright';
 */
 
-class Settings {
-  cutOutOrigin_BBL: boolean;
-  constructor(cutOutOrigin_BBL = false) {
-    this.cutOutOrigin_BBL = cutOutOrigin_BBL;
-  }
-}
-
 class Preset {
   name: string;
   value: number;
-  fontUrl: string;
-  fontMetadataUrl: string;
-  glyphnamesUrl: string;
-  classesUrl: string;
-  rangesUrl: string;
-  settings: Settings;
+  options: Options;
 
-  constructor(
-    name: string,
-    value: number,
-    fontUrl: string,
-    fontMetadataUrl: string,
-    glyphnamesUrl: string,
-    classesUrl: string,
-    rangesUrl: string,
-    settings: Settings,
-  ) {
+  constructor(name: string, value: number, options: Options) {
     this.name = name;
     this.value = value;
-    this.fontUrl = fontUrl;
-    this.fontMetadataUrl = fontMetadataUrl;
-    this.glyphnamesUrl = glyphnamesUrl;
-    this.classesUrl = classesUrl;
-    this.rangesUrl = rangesUrl;
-    this.settings = settings;
+    this.options = options;
   }
 }
 
@@ -73,12 +49,14 @@ function _createDemolistOptions(
   return new Preset(
     name,
     value,
-    lFontBasePath + optFontPath,
-    lFontBasePath + optFontMetadataPath,
-    lMetadataBasePath + '/glyphnames.json',
-    lMetadataBasePath + '/classes.json',
-    lMetadataBasePath + '/ranges.json',
-    settings,
+    Options.fromValues(
+      lFontBasePath + optFontPath,
+      lFontBasePath + optFontMetadataPath,
+      lMetadataBasePath + '/glyphnames.json',
+      lMetadataBasePath + '/classes.json',
+      lMetadataBasePath + '/ranges.json',
+      settings,
+    ),
   );
 }
 
@@ -142,6 +120,8 @@ const createOptions = (isDevMode: boolean) => {
   return ret;
 };
 
+let wid = 0;
+
 export default function AppIndex(): ReactElement {
   const [presetValue, setPresetValue] = useState<number>(0);
   const [isDevMode, setIsDevMode] = useState<boolean>(false);
@@ -154,18 +134,19 @@ export default function AppIndex(): ReactElement {
   const [glyph, setGlyph] = useState<string>('');
   const [cutOutOrigin_BBL, setCutOutOrigin_BBL] = useState<boolean>(false);
 
-  const { query, asPath } = useRouter();
+  const { query, asPath, push } = useRouter();
   const [isLoading, setIsLoading] = useState(true);
 
   const setPreset = (val: number) => {
     const preset: Preset = presetMap[val];
-    setFontUrl(preset.fontUrl);
-    setFontMetadataUrl(preset.fontMetadataUrl);
-    setGlyphnamesUrl(preset.glyphnamesUrl);
-    setClassesUrl(preset.classesUrl);
-    setRangesUrl(preset.rangesUrl);
+    const params = preset.options.params;
+    setFontUrl(params.fontUrl);
+    setFontMetadataUrl(params.fontMetadataUrl);
+    setGlyphnamesUrl(params.glyphnamesUrl);
+    setClassesUrl(params.classesUrl);
+    setRangesUrl(params.rangesUrl);
     // setGlyph();
-    setCutOutOrigin_BBL(preset.settings.cutOutOrigin_BBL);
+    setCutOutOrigin_BBL(preset.options.settings.cutOutOrigin_BBL);
   };
 
   useEffect(() => {
@@ -177,12 +158,14 @@ export default function AppIndex(): ReactElement {
     }
     if (isLoading) {
       setIsLoading(false);
+      let tPresetVal = 0;
       if (query.hasOwnProperty.call(query, 'dev')) {
         const tIsDevMode = (query.dev || 'true') === 'true';
         setIsDevMode(tIsDevMode);
-        setPresetValue(tIsDevMode ? devPresetValue : 0);
+        tPresetVal = tIsDevMode ? devPresetValue : 0;
+        setPresetValue(tPresetVal);
       }
-      setPreset(presetValue);
+      setPreset(tPresetVal);
     }
   }, [asPath, isLoading, presetValue, query]);
 
@@ -200,20 +183,29 @@ export default function AppIndex(): ReactElement {
   }
 
   const openViewer = () => {
-    const searchParams = new URLSearchParams();
-    searchParams.set('fontUrl', fontUrl);
-    searchParams.set('fontMetadataUrl', fontMetadataUrl);
-    searchParams.set('classesUrl', glyphnamesUrl);
-    searchParams.set('classesUrl', classesUrl);
-    searchParams.set('rangesUrl', rangesUrl);
-    const tGlyph = glyph.trim();
-    if (tGlyph.length) {
-      searchParams.set('glyph', tGlyph);
+    let tGlyph: string | undefined = glyph.trim();
+    if (!tGlyph.length) {
+      tGlyph = undefined;
     }
-    if (cutOutOrigin_BBL) {
-      searchParams.set('cutOutOrigin_BBL', 'true');
-    }
-    console.log(searchParams.toString());
+
+    const tOptions = Options.fromValues(
+      fontUrl,
+      fontMetadataUrl,
+      glyphnamesUrl,
+      classesUrl,
+      rangesUrl,
+      new Settings(cutOutOrigin_BBL),
+      tGlyph,
+    );
+
+    const urlSearchParamsStr = tOptions.toURLSearchParams().toString();
+    // console.log(urlSearchParamsStr);
+    // push(`/viewer?${urlSearchParamsStr}`);
+    window.open(
+      `/viewer?${urlSearchParamsStr}`,
+      '_smuflfontviewer_app_' + ++wid,
+      'noopener,noreferrer',
+    );
   };
   // console.log(presetValue, isDevMode);
 
