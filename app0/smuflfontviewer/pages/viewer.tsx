@@ -17,7 +17,11 @@ import {
   Checkbox,
   Tooltip,
   StepIconClasskey,
+  CircularProgress,
+  Menu,
+  Link,
 } from '@material-ui/core';
+import MenuIcon from '@material-ui/icons/Menu';
 import React, { useState, useEffect, ReactElement } from 'react';
 /*
 import ProTip from '../src/ProTip';
@@ -95,6 +99,68 @@ export class Options {
   }
 }
 
+function HeaderMenu() {
+  const [anchorEl, setAnchorEl] = React.useState(null);
+
+  const handleClick = (event: any) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  return (
+    <div>
+      <Button aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick}>
+        <MenuIcon />
+      </Button>
+      <Menu
+        id="simple-menu"
+        anchorEl={anchorEl}
+        keepMounted
+        open={Boolean(anchorEl)}
+        onClose={handleClose}
+      >
+        <MenuItem onClick={handleClose}>glyphnames</MenuItem>
+        <MenuItem onClick={handleClose}>optionalGlyphs</MenuItem>
+        <MenuItem onClick={handleClose}>ranges</MenuItem>
+        <MenuItem onClick={handleClose}>classes</MenuItem>
+        <MenuItem onClick={handleClose}>metadata</MenuItem>
+        <MenuItem onClick={handleClose}>ligatures</MenuItem>
+        <MenuItem onClick={handleClose}>sets</MenuItem>
+
+        <MenuItem onClick={handleClose}>glyphsWithAlternates</MenuItem>
+        <MenuItem onClick={handleClose}>glyphsWithAnchors</MenuItem>
+        <MenuItem onClick={handleClose}>
+          <div id="staticLinkContainer" className="aLinkContainer">
+            <Link id="AStaticLink" href="#" title="static link to the current glyph">
+              static link
+            </Link>
+            <input
+              id="BCCStaticLink"
+              type="button"
+              title="Copy the URL of the static link to the clipboard"
+              value="cc"
+            />
+          </div>
+        </MenuItem>
+        <MenuItem onClick={handleClose}>
+          <div id="UULinkContainer" className="aLinkContainer">
+            <Link
+              id="AUULink"
+              href="#"
+              title="link to the current glyph in util.unicode.org: Character Properties"
+            >
+              Unicode Character Properties
+            </Link>
+          </div>
+        </MenuItem>
+      </Menu>
+    </div>
+  );
+}
+
 export default function Viewer(): ReactElement {
   const { query, asPath } = useRouter();
   const [isLoading, setIsLoading] = useState(true);
@@ -113,7 +179,11 @@ export default function Viewer(): ReactElement {
   }, [asPath, isLoading, query]);
 
   if (isLoading) {
-    return <>Loading...</>;
+    return (
+      <>
+        <CircularProgress />
+      </>
+    );
   }
 
   return (
@@ -124,6 +194,7 @@ export default function Viewer(): ReactElement {
       </Head>
       <Container maxWidth="xl">
         <Box my={4}>
+          <HeaderMenu />
           <Typography variant="h4" component="h1" gutterBottom></Typography>
           {/*
           <Select
