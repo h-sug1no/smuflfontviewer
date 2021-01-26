@@ -20,9 +20,15 @@ import {
   CircularProgress,
   Menu,
   Link,
+  Toolbar,
+  makeStyles,
+  IconButton,
+  Drawer,
+  AppBar,
 } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 import React, { useState, useEffect, ReactElement } from 'react';
+
 /*
 import ProTip from '../src/ProTip';
 import Link from '../src/Link';
@@ -100,65 +106,184 @@ export class Options {
 }
 
 function HeaderMenu() {
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const headersData = [
+    { label: 'glyphnames' },
+    { label: 'optionalGlyphs' },
+    { label: 'ranges' },
+    { label: 'classes' },
+    { label: 'metadata' },
+    { label: 'ligatures' },
+    { label: 'sets' },
+    { label: 'glyphsWithAlternates' },
+    { label: 'glyphsWithAnchors' },
+    {
+      label: (
+        <div id="staticLinkContainer" className="aLinkContainer">
+          <Link id="AStaticLink" href="#" title="static link to the current glyph">
+            static link
+          </Link>
+          <input
+            id="BCCStaticLink"
+            type="button"
+            title="Copy the URL of the static link to the clipboard"
+            value="cc"
+          />
+        </div>
+      ),
+    },
 
-  const handleClick = (event: any) => {
-    setAnchorEl(event.currentTarget);
-  };
+    {
+      label: (
+        <div id="UULinkContainer" className="aLinkContainer">
+          <Link
+            id="AUULink"
+            href="#"
+            title="link to the current glyph in util.unicode.org: Character Properties"
+          >
+            Unicode Character Properties
+          </Link>
+        </div>
+      ),
+    },
+  ];
 
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
+  const useStyles = makeStyles(() => ({
+    header: {
+      backgroundColor: '#400CCC',
+      paddingRight: '79px',
+      paddingLeft: '118px',
+      '@media (max-width: 900px)': {
+        paddingLeft: 0,
+      },
+    },
+    logo: {
+      fontFamily: 'Work Sans, sans-serif',
+      fontWeight: 600,
+      color: '#FFFEFE',
+      textAlign: 'left',
+    },
+    menuButton: {
+      fontFamily: 'Open Sans, sans-serif',
+      fontWeight: 700,
+      size: '18px',
+      marginLeft: '38px',
+    },
+    toolbar: {
+      display: 'flex',
+      justifyContent: 'space-between',
+    },
+    drawerContainer: {
+      padding: '20px 30px',
+    },
+  }));
 
-  return (
-    <div>
-      <Button aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick}>
-        <MenuIcon />
-      </Button>
-      <Menu
-        id="simple-menu"
-        anchorEl={anchorEl}
-        keepMounted
-        open={Boolean(anchorEl)}
-        onClose={handleClose}
-      >
-        <MenuItem onClick={handleClose}>glyphnames</MenuItem>
-        <MenuItem onClick={handleClose}>optionalGlyphs</MenuItem>
-        <MenuItem onClick={handleClose}>ranges</MenuItem>
-        <MenuItem onClick={handleClose}>classes</MenuItem>
-        <MenuItem onClick={handleClose}>metadata</MenuItem>
-        <MenuItem onClick={handleClose}>ligatures</MenuItem>
-        <MenuItem onClick={handleClose}>sets</MenuItem>
+  function Header() {
+    const { header, logo, menuButton, toolbar, drawerContainer } = useStyles();
 
-        <MenuItem onClick={handleClose}>glyphsWithAlternates</MenuItem>
-        <MenuItem onClick={handleClose}>glyphsWithAnchors</MenuItem>
-        <MenuItem onClick={handleClose}>
-          <div id="staticLinkContainer" className="aLinkContainer">
-            <Link id="AStaticLink" href="#" title="static link to the current glyph">
-              static link
-            </Link>
-            <input
-              id="BCCStaticLink"
-              type="button"
-              title="Copy the URL of the static link to the clipboard"
-              value="cc"
-            />
-          </div>
-        </MenuItem>
-        <MenuItem onClick={handleClose}>
-          <div id="UULinkContainer" className="aLinkContainer">
-            <Link
-              id="AUULink"
-              href="#"
-              title="link to the current glyph in util.unicode.org: Character Properties"
-            >
-              Unicode Character Properties
-            </Link>
-          </div>
-        </MenuItem>
-      </Menu>
-    </div>
-  );
+    const [state, setState] = useState({
+      mobileView: false,
+      drawerOpen: false,
+    });
+
+    const { mobileView, drawerOpen } = state;
+
+    useEffect(() => {
+      const setResponsiveness = () => {
+        return window.innerWidth < 900
+          ? setState((prevState) => ({ ...prevState, mobileView: true }))
+          : setState((prevState) => ({ ...prevState, mobileView: false }));
+      };
+
+      setResponsiveness();
+
+      window.addEventListener('resize', () => setResponsiveness());
+    }, []);
+
+    const displayDesktop = () => {
+      return (
+        <Toolbar className={toolbar}>
+          {appLogo}
+          <div>{getMenuButtons()}</div>
+        </Toolbar>
+      );
+    };
+
+    const displayMobile = () => {
+      const handleDrawerOpen = () => setState((prevState) => ({ ...prevState, drawerOpen: true }));
+      const handleDrawerClose = () =>
+        setState((prevState) => ({ ...prevState, drawerOpen: false }));
+
+      return (
+        <Toolbar>
+          <IconButton
+            {...{
+              edge: 'start',
+              color: 'inherit',
+              'aria-label': 'menu',
+              'aria-haspopup': 'true',
+              onClick: handleDrawerOpen,
+            }}
+          >
+            <MenuIcon />
+          </IconButton>
+
+          <Drawer
+            {...{
+              anchor: 'left',
+              open: drawerOpen,
+              onClose: handleDrawerClose,
+            }}
+          >
+            <div className={drawerContainer}>{getDrawerChoices()}</div>
+          </Drawer>
+
+          <div>{appLogo}</div>
+        </Toolbar>
+      );
+    };
+
+    const getDrawerChoices = () => {
+      return headersData.map(({ label, href }) => {
+        return (
+          <Link href={href} color={'inherit'} style={{ textDecoration: 'none' }} key={label}>
+            <MenuItem>{label}</MenuItem>
+          </Link>
+        );
+      });
+    };
+
+    const appLogo = (
+      <Typography variant="h6" component="h1" className={logo}>
+        smuflfontviewer
+      </Typography>
+    );
+
+    const getMenuButtons = () => {
+      return headersData.map(({ label, href }) => {
+        return (
+          // eslint-disable-next-line react/jsx-key
+          <Button
+            {...{
+              key: label,
+              color: 'inherit',
+              to: href,
+              component: 'a',
+              className: menuButton,
+            }}
+          >
+            {label}
+          </Button>
+        );
+      });
+    };
+
+    return (
+      <header>
+        <AppBar className={header}>{mobileView ? displayMobile() : displayDesktop()}</AppBar>
+      </header>
+    );
+  }
+  return Header();
 }
 
 export default function Viewer(): ReactElement {
