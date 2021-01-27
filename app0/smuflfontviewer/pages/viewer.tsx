@@ -107,7 +107,7 @@ export class Options {
 
 function HeaderMenu() {
   const headersData = [
-    { label: 'glyphnames' },
+    { label: 'glyphnames', href: '' },
     { label: 'optionalGlyphs' },
     { label: 'ranges' },
     { label: 'classes' },
@@ -243,9 +243,15 @@ function HeaderMenu() {
     };
 
     const getDrawerChoices = () => {
-      return headersData.map(({ label, href }) => {
+      return headersData.map(({ label, href = '' }, idx) => {
         return (
-          <Link href={href} color={'inherit'} style={{ textDecoration: 'none' }} key={label}>
+          <Link
+            href={href}
+            component="span"
+            color={'inherit'}
+            style={{ textDecoration: 'none' }}
+            key={`${idx}_href`}
+          >
             <MenuItem>{label}</MenuItem>
           </Link>
         );
@@ -259,15 +265,15 @@ function HeaderMenu() {
     );
 
     const getMenuButtons = () => {
-      return headersData.map(({ label, href }) => {
+      return headersData.map(({ label, href }, idx) => {
         return (
           // eslint-disable-next-line react/jsx-key
           <Button
             {...{
-              key: label,
+              key: `${idx}_href`,
               color: 'inherit',
               to: href,
-              component: 'a',
+              component: 'span',
               className: menuButton,
             }}
           >
