@@ -27,8 +27,8 @@ import {
   AppBar,
 } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
-import React, { useState, useEffect, ReactElement } from 'react';
-
+import React, { useState, useEffect, ReactElement, useRef } from 'react';
+import AnyListDialogRef from '../components/AnyListDialog';
 /*
 import ProTip from '../src/ProTip';
 import Link from '../src/Link';
@@ -180,6 +180,8 @@ function HeaderMenu() {
   }));
 
   function Header() {
+    const cal = useRef<any>(null);
+
     const { header, logo, menuButton, toolbar, drawerContainer } = useStyles();
 
     const [state, setState] = useState({
@@ -203,6 +205,9 @@ function HeaderMenu() {
 
     const onClick = (type: string | undefined, e: any) => {
       console.log(type, e);
+      if (cal && cal.current) {
+        cal?.current?.handleClickOpen();
+      }
     };
 
     const displayDesktop = () => {
@@ -311,6 +316,7 @@ function HeaderMenu() {
     return (
       <header>
         <AppBar className={header}>{mobileView ? displayMobile() : displayDesktop()}</AppBar>
+        <AnyListDialogRef ref={cal} />
       </header>
     );
   }
