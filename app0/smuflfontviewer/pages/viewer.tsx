@@ -130,6 +130,7 @@ function HeaderMenu() {
           />
         </div>
       ),
+      type: 'staticLink',
     },
 
     {
@@ -144,6 +145,7 @@ function HeaderMenu() {
           </Link>
         </div>
       ),
+      type: 'uuLink',
     },
   ];
 
@@ -199,6 +201,10 @@ function HeaderMenu() {
       window.addEventListener('resize', () => setResponsiveness());
     }, []);
 
+    const onClick = (type: string | undefined, e: any) => {
+      console.log(type, e);
+    };
+
     const displayDesktop = () => {
       return (
         <Toolbar className={toolbar}>
@@ -242,15 +248,34 @@ function HeaderMenu() {
       );
     };
 
+    const mapHeaderData = (
+      func: (
+        label: string | JSX.Element,
+        href: string,
+        type: string | undefined,
+        eType: string,
+        idx: number,
+      ) => JSX.Element,
+    ) => {
+      return headersData.map(({ label, href = '#', type }, idx) => {
+        let eType: string | undefined = type;
+        if (typeof label === 'string') {
+          eType = eType || label;
+        }
+        return func(label, href, type, eType || '', idx);
+      });
+    };
+
     const getDrawerChoices = () => {
-      return headersData.map(({ label, href = '' }, idx) => {
+      return mapHeaderData((label, href, type, eType, idx) => {
         return (
           <Link
-            href={href}
+            href={href || '#'}
             component="span"
             color={'inherit'}
             style={{ textDecoration: 'none' }}
             key={`${idx}_href`}
+            onClick={(e: any) => onClick(eType, e)}
           >
             <MenuItem>{label}</MenuItem>
           </Link>
@@ -265,9 +290,8 @@ function HeaderMenu() {
     );
 
     const getMenuButtons = () => {
-      return headersData.map(({ label, href }, idx) => {
+      return mapHeaderData((label, href, type, eType, idx) => {
         return (
-          // eslint-disable-next-line react/jsx-key
           <Button
             {...{
               key: `${idx}_href`,
@@ -275,6 +299,7 @@ function HeaderMenu() {
               to: href,
               component: 'span',
               className: menuButton,
+              onClick: (e: any) => onClick(eType, e),
             }}
           >
             {label}
