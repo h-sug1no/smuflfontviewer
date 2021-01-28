@@ -39,7 +39,7 @@ const AnyListDialogRef = React.forwardRef(function AnyListDialog(props, ref: any
 
   const handleClose = () => {
     setOpen(false);
-    // setChildren(null);
+    setChildren(null);
   };
 
   ref.current = { handleClickOpen };
