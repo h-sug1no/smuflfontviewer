@@ -31,12 +31,15 @@ const AnyListDialogRef = React.forwardRef(function AnyListDialog(props, ref: any
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
 
-  const handleClickOpen = () => {
+  const [children, setChildren] = React.useState(null);
+  const handleClickOpen = (children: any) => {
+    setChildren(children);
     setOpen(true);
   };
 
   const handleClose = () => {
     setOpen(false);
+    // setChildren(null);
   };
 
   ref.current = { handleClickOpen };
@@ -55,7 +58,7 @@ const AnyListDialogRef = React.forwardRef(function AnyListDialog(props, ref: any
             <Typography variant="h6" className={classes.title}></Typography>
           </Toolbar>
         </AppBar>
-        body
+        {children}
       </Dialog>
     </div>
   );
