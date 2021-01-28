@@ -30,6 +30,7 @@ import MenuIcon from '@material-ui/icons/Menu';
 import React, { useState, useEffect, ReactElement, useRef } from 'react';
 import AnyListDialogRef from '../components/AnyListDialog';
 import { Database } from '../lib/SMuFLMetadata';
+import { GlyphnamesList } from '../components/GlyphnamesList';
 /*
 import ProTip from '../src/ProTip';
 import Link from '../src/Link';
@@ -213,7 +214,18 @@ function HeaderMenu() {
     const onClick = (type: string | undefined, e: any) => {
       console.log(type, e);
       if (cal && cal.current) {
-        cal?.current?.handleClickOpen();
+        let listJsxDom;
+        switch (type) {
+          case 'glyphnames':
+            listJsxDom = GlyphnamesList({
+              glyphnames: sMuFLMetadata.data_.glyphnames,
+              sMuFLMetadata,
+            });
+            break;
+          default:
+            break;
+        }
+        cal?.current?.handleClickOpen(listJsxDom);
       }
     };
 

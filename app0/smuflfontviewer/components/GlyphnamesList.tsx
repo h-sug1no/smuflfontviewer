@@ -11,7 +11,7 @@ function appendGlyphname(
   sMuFLMetadata: Database,
   glyphname: string,
   currentGlyphName?: string,
-  uCodepoint?: UCodePoint,
+  uCodepoint?: string,
   showUCodepoint?: boolean,
 ) {
   const option: SearchOptions = { searchOptional: true };
@@ -25,7 +25,7 @@ function appendGlyphname(
   uCodepoint = tUCodepoint;
   let charStr;
   if (uCodepoint) {
-    charStr = uCodepoint.toCharString();
+    charStr = UCodePoint.fromUString(uCodepoint).toCharString();
   }
   /*
   const $uCodepoint = showUCodepoint ? (
@@ -53,7 +53,9 @@ function appendGlyphname(
         !!option.isOptionalGlyph && 'optionalGlyph',
       )}
       ref={(elm: any) => {
-        elm.uCodepoint = uCodepoint;
+        if (elm) {
+          elm.uCodepoint = uCodepoint;
+        }
       }}
     >
       {!!showUCodepoint && <span className="uCodepoint">(${uCodepoint})</span>}

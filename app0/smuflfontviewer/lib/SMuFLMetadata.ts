@@ -283,7 +283,7 @@ export class Database {
     return ret;
   }
 
-  glyphname2uCodepoint(glyphname: string, options: SearchOptions = {}): any {
+  glyphname2uCodepoint(glyphname: string, options: SearchOptions = {}): string {
     let item: any = this.data_.glyphnames[glyphname];
     const fontMetadata = this.fontMetadata();
     if (!item && options.searchOptional && fontMetadata) {
