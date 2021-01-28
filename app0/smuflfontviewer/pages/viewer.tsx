@@ -29,6 +29,7 @@ import {
 import MenuIcon from '@material-ui/icons/Menu';
 import React, { useState, useEffect, ReactElement, useRef } from 'react';
 import AnyListDialogRef from '../components/AnyListDialog';
+import { Database } from '../lib/SMuFLMetadata';
 /*
 import ProTip from '../src/ProTip';
 import Link from '../src/Link';
@@ -77,6 +78,10 @@ export class Options {
     return ret;
   }
 
+  get(key: string): string {
+    return this.params[key];
+  }
+
   static fromValues(
     fontUrl: string,
     fontMetadataUrl: string,
@@ -104,6 +109,8 @@ export class Options {
     return new Options(query, settings);
   }
 }
+
+const sMuFLMetadata: Database = new Database();
 
 function HeaderMenu() {
   const headersData = [
@@ -324,23 +331,40 @@ function HeaderMenu() {
 }
 
 export default function Viewer(): ReactElement {
+  enum DBState {
+    INITIAL,
+    LOADING,
+    ERROR,
+    READY,
+  }
   const { query, asPath } = useRouter();
-  const [isLoading, setIsLoading] = useState(true);
+  const [dbState, setDBState] = useState(DBState.INITIAL);
 
   useEffect(() => {
     // console.log('isLoading:' + isLoading);
-    const hasQueryParamsButWaitForUpdate =
-      (asPath.includes('?') && Object.keys(query).length === 0) || !isLoading;
+    const hasQueryParamsButWaitForUpdate = asPath.includes('?') && Object.keys(query).length === 0;
     if (hasQueryParamsButWaitForUpdate) {
       return;
     }
-    if (isLoading) {
-      setIsLoading(false);
-      Options.fromQuery(query);
+    if (dbState === DBState.INITIAL) {
+      setDBState(DBState.LOADING);
+      const options: Options = Options.fromQuery(query);
+      sMuFLMetadata.init(options).then((/* obj */) => {
+        if (sMuFLMetadata.initErrors_?.length) {
+          alert(
+            sMuFLMetadata.initErrors_?.map(function (str) {
+              return str + '\n';
+            }),
+          );
+          setDBState(DBState.ERROR);
+        } else {
+          setDBState(DBState.READY);
+        }
+      });
     }
-  }, [asPath, isLoading, query]);
+  }, [DBState.ERROR, DBState.INITIAL, DBState.LOADING, DBState.READY, asPath, dbState, query]);
 
-  if (isLoading) {
+  if (dbState <= DBState.LOADING) {
     return (
       <>
         <CircularProgress />

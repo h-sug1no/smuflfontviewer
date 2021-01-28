@@ -83,7 +83,8 @@ export class Database {
 
           // Examine the text in the response
           response.json().then((d) => {
-            this.data_[key] = d;
+            const dataKey = `${key}${key === 'fontMetadata' ? '_' : ''}`;
+            this.data_[dataKey] = d;
           });
         })
         .catch((err) => {
