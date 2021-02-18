@@ -14,3 +14,7 @@ a {
 * {
   box-sizing: border-box;
 }
+
+.smufl {
+  font-family: SMuFLFont, sans-serif;
+}

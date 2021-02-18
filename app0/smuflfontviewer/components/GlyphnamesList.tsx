@@ -5,6 +5,7 @@
 
 import { Database, SearchOptions } from '../lib/SMuFLMetadata';
 import { UCodePoint } from '../lib/UCodePoint';
+import { List, ListItem } from '@material-ui/core';
 import clsx from 'clsx';
 
 function appendGlyphname(
@@ -82,13 +83,13 @@ function addGlyphnameInfo(sMuFLMetadata: Database, ginfo: any, glyphname: string
   $contentContainer.append($('<br>'));
   */
   return (
-    <div key={glyphname}>
+    <ListItem key={glyphname}>
       {ginfo.codepoint}: {appendGlyphname(sMuFLMetadata, glyphname).jsxDom}
       {', '}
       {ginfo.description || ''}:{' '}
       {!!ginfo.alternateCodepoint && `, alternateCodepoint: ${ginfo.alternateCodepoint}: `}
       <br></br>
-    </div>
+    </ListItem>
   );
 }
 
@@ -98,8 +99,9 @@ type Props = {
 };
 function GlyphnamesList({ glyphnames, sMuFLMetadata }: Props) {
   const keys = Object.keys(glyphnames);
-  return keys.map((key) => {
+  const ret = keys.map((key) => {
     return addGlyphnameInfo(sMuFLMetadata, glyphnames[key], key);
   });
+  return <List>{ret}</List>;
 }
 export { GlyphnamesList };

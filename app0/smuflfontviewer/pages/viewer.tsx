@@ -342,10 +342,44 @@ function HeaderMenu() {
   return Header();
 }
 
+function _initFontFace(options: Options, handle_onResourceReady: any) {
+  const fontFace = {
+    fontUrl: options.get('fontUrl'),
+  };
+
+  const anyWin = window as any;
+  const anyDoc = document as any;
+  if (!anyWin.FontFace) {
+    alert('no window.FontFace. This browser is not supported.');
+  }
+
+  const smuflFontFace = new anyWin.FontFace('SMuFLFont', `url(${fontFace.fontUrl})`);
+
+  smuflFontFace
+    .load()
+    .then(function (loaded_face: any) {
+      // loaded_face holds the loaded FontFace
+      anyDoc.fonts.add(loaded_face);
+      let fontUrlItems = fontFace.fontUrl.split('/');
+      if (fontUrlItems.length < 1) {
+        fontUrlItems = ['?'];
+      }
+      document.title = `${fontUrlItems[fontUrlItems.length - 1]}: ${document.title}`;
+      window.setTimeout(function () {
+        handle_onResourceReady('smuflFontFace');
+      });
+    })
+    .catch(function (error: any) {
+      // error occurred
+      alert(error + ': ' + fontFace.fontUrl);
+    });
+}
+
 export default function Viewer(): ReactElement {
   enum DBState {
     INITIAL,
     LOADING,
+    FONTLOADING,
     ERROR,
     READY,
   }
@@ -370,11 +404,25 @@ export default function Viewer(): ReactElement {
           );
           setDBState(DBState.ERROR);
         } else {
-          setDBState(DBState.READY);
+          setDBState(DBState.FONTLOADING);
+          _initFontFace(options, (type: string) => {
+            if (type === 'smuflFontFace') {
+              setDBState(DBState.READY);
+            }
+          });
         }
       });
     }
-  }, [DBState.ERROR, DBState.INITIAL, DBState.LOADING, DBState.READY, asPath, dbState, query]);
+  }, [
+    DBState.ERROR,
+    DBState.FONTLOADING,
+    DBState.INITIAL,
+    DBState.LOADING,
+    DBState.READY,
+    asPath,
+    dbState,
+    query,
+  ]);
 
   if (dbState <= DBState.LOADING) {
     return (
