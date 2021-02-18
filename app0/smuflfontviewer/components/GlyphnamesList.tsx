@@ -82,13 +82,13 @@ function addGlyphnameInfo(sMuFLMetadata: Database, ginfo: any, glyphname: string
   $contentContainer.append($('<br>'));
   */
   return (
-    <>
+    <div key={glyphname}>
       {ginfo.codepoint}: {appendGlyphname(sMuFLMetadata, glyphname).jsxDom}
       {', '}
       {ginfo.description || ''}:{' '}
       {!!ginfo.alternateCodepoint && `, alternateCodepoint: ${ginfo.alternateCodepoint}: `}
       <br></br>
-    </>
+    </div>
   );
 }
 
