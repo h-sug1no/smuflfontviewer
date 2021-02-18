@@ -20,6 +20,11 @@ export default function Home(): ReactElement {
         </p>
 
         <div className={styles.grid}>
+          <a href="/app_index" className={styles.card}>
+            <h3>smuflfontviewer launcher &rarr;</h3>
+            <p>Specify resources and launch viewer.</p>
+          </a>
+
           <a href="https://nextjs.org/docs" className={styles.card}>
             <h3>Documentation &rarr;</h3>
             <p>Find in-depth information about Next.js features and API.</p>
