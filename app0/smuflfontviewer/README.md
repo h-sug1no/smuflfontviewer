@@ -5,12 +5,18 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 First, run the development server:
 
 ```bash
-npm run dev
-# or
-yarn dev
+# setup environment
+. ../tools/dot.env
+
+# if you want to do a clean build
+git clean -xdf
+npx yarn
+
+# start dev server
+npx yarn dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000/app_index?dev](http://localhost:3000/app_index?dev) with your browser to see the result.
 
 You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
 
