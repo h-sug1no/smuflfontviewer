@@ -49,6 +49,11 @@ class SMuFLFontViewer {
       smuflFontFace.load().then(function (loaded_face) {
         // loaded_face holds the loaded FontFace
         document.fonts.add(loaded_face);
+        let fontUrlItems = fontFace.fontUrl.split('/');
+        if (fontUrlItems.length < 1) {
+          fontUrlItems = ['?'];
+        }
+        document.title = `${fontUrlItems[fontUrlItems.length - 1]}: ${document.title}`;
         window.setTimeout(function () {
           that._handle_onResourceReady('smuflFontFace');
         });
