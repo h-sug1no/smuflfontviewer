@@ -225,7 +225,7 @@ function HeaderMenu() {
           default:
             break;
         }
-        cal?.current?.handleClickOpen(listJsxDom);
+        cal?.current?.handleClickOpen(<div className="infoDialogContents">{listJsxDom}</div>);
       }
     };
 
@@ -441,7 +441,9 @@ export default function Viewer(): ReactElement {
       <Container maxWidth="xl">
         <Box my={4}>
           <HeaderMenu />
-          <Typography variant="h4" component="h1" gutterBottom></Typography>
+          <Typography variant="h4" component="h1" gutterBottom>
+            text: FIXME
+          </Typography>
           {/*
           <Select
             id="presetSelect"

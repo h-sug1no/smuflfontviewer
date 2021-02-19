@@ -15,6 +15,260 @@ a {
   box-sizing: border-box;
 }
 
+/* FIXME: move to any module css... */
 .smufl {
-  font-family: SMuFLFont, sans-serif;
+  font-family: "SMuFLFont";
+}
+
+.contentContainer .smuflGlyphname .smufl {
+  font-size: 3em;
+  margin: 0 0.2em;
+}
+
+.smuflGlyphname .smufl {
+  font-size: 1.2em;
+}
+
+.contentContainer span {
+  line-height: 2em;
+}
+
+.contentContainer span.smufl {
+  display: inline-block;
+}
+
+.smufl_with_alternates {
+  fill: blue;
+}
+
+#smuflGlyphCanvas {
+  border: 1px solid black;
+  font-family: "SMuFLFont";
+  margin: 0.5em;
+}
+
+#smuflGlyphContainer {
+  float: left;
+  width: 55%;
+}
+
+#smuflGlyphContainer label {
+  display: inline-block;
+}
+
+#smuflGlyphInfo {
+  width: 40%;
+  float: left;
+  padding-left: 2em;
+}
+
+#smuflGlyphInfo > div{
+  white-space: pre-wrap;
+  margin-top: 1em;
+}
+
+.setContainer, .rangeContainer, .classContainer {
+  white-space: pre-wrap;
+  padding-top: 1em;
+}
+
+.ligatureContainer, .gwalternatesContainer {
+  white-space: pre-wrap;
+}
+
+.ligatureContainer .glyphsContainer {
+  overflow: visible;
+  height: auto;
+}
+
+.glyphsContainer {
+  height: 5em;
+  overflow: auto;
+  padding-left: 1em;
+}
+
+#glyphContainer {
+  text-align: center;
+  /* width: 40%; */
+}
+
+#rangeInfo button {
+  margin: 0 0.3em;
+}
+
+#BShowPrev {
+  margin: 0.5em;
+}
+
+span.smuflCodepoint,
+span.smuflGlyphname {
+  text-decoration: underline;
+  line-height: 1.5em;
+}
+
+span.optionalGlyph {
+  background-color: eef9ee;
+}
+
+span.currentGlyph {
+  font-weight: bold;
+}
+
+span.smuflCodepoint:hover,
+span.smuflGlyphname:hover {
+  background-color: orange;
+}
+
+#smuflGlyphInfoText span.smuflGlyphname:hover {
+  background-color: transparent;
+}
+
+#referencesContainer {
+  clear: both;
+}
+
+#smuflGlyphInfo div, .glyphContainer {
+  background-color: #eeeef0;
+  border-radius: 1em;
+  padding: 0.5em;
+}
+
+.glyphContainer {
+  margin: 0.5em auto;
+}
+
+#smuflRenderGlyphOptionsGlyphSizeContainer *,
+#ssOptionsGlyphSizeContainer * {
+  vertical-align: middle;
+}
+
+#setsInfo .setInfosContainer{
+  overflow: scroll;
+  height: 11em;
+}
+
+#setsInfo .setInfoContainer,
+#setsInfo .setInfo {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+#smuflGlyphCanvasContainer {
+  width: 100%;
+  height: 65%;
+  overflow: auto;
+}
+
+body.fakeDialogVisible #referencesContainer {
+  display: none;
+}
+
+body.fakeDialogVisible #rootContainer.fakeDialog > * {
+  display: none;
+}
+
+#rootContainer.fakeDialog div#infoDialog {
+  display: none;
+  position: absolute;
+  padding: 1em;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  background-color: white;
+}
+
+a.specLink {
+  display: block;
+}
+
+.infoDialogContents .linkToPrev {
+  margin-right: 0.5em;
+}
+
+body.fakeDialogVisible #rootContainer.fakeDialog div#infoDialog {
+  display: inline-block;
+}
+
+#infoDialog #dialogUi {
+  position: fixed;
+  top: 1em;
+  right: 1em;
+  background-color: #cccccc88;
+}
+
+#infoDialog #dialogUi * {
+  vertical-align: middle;
+}
+
+
+#infoDialog #dialogTitle {
+  margin: 0 1em;
+  display: inline-block;
+}
+
+.infoDialog #contentContainer {
+  margin-top: 3em;
+}
+
+#infoDialog .stlinkContainer .urlText {
+  width: 40em;
+  height: 10em;
+}
+
+#infoDialog .stlinkContainer .msgText {
+  margin-top: 1em;
+}
+
+#topUiContainer {
+  padding: 1em;
+}
+
+#gm_canvas {
+  width: 100%;
+  height: 1900px;
+}
+
+.fontMetadataUrlsContainer {
+  margin-bottom: 0.5em;
+}
+
+.selectize-dropdown,
+.selectize-input,
+.selectize-input input {
+  font-size: 100%;
+  line-height: 100%;
+}
+
+
+.selectize-control {
+  text-align: left;
+}
+
+.tri-state {
+  background-color: #f2f2f2;
+}
+
+#scratchpadDialog {
+  position: absolute;
+  z-index: 100;
+  display: inline-block;
+  text-align: start;
+  background-color: white;
+  border: 1px solid black;
+  padding: 1em;
+}
+
+#scratchpadDialog.hidden {
+  display: none;
+}
+
+#scratchpadDialog textarea {
+  margin-top: 0.5em;
+}
+
+.aLinkContainer {
+  border: solid 1px gray;
+  padding: 0.1em;
+  border-radius: 0.2em;
+  display: inline-block;
 }

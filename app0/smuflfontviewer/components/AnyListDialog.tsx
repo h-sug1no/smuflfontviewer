@@ -58,7 +58,7 @@ const AnyListDialogRef = React.forwardRef(function AnyListDialog(props, ref: any
             <Typography variant="h6" className={classes.title}></Typography>
           </Toolbar>
         </AppBar>
-        {children}
+        <div className="contentContainer">{children}</div>
       </Dialog>
     </div>
   );
