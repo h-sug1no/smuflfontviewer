@@ -31,6 +31,7 @@ import React, { useState, useEffect, ReactElement, useRef } from 'react';
 import AnyListDialogRef from '../components/AnyListDialog';
 import { Database, Dict } from '../lib/SMuFLMetadata';
 import { GlyphnamesList } from '../components/GlyphnamesList';
+import { OptionalGlyphsList } from '../components/OptionalGlyphsList';
 /*
 import ProTip from '../src/ProTip';
 import Link from '../src/Link';
@@ -218,10 +219,18 @@ function HeaderMenu() {
       if (cal && cal.current) {
         let listJsxDom = type ? dialogContents[type] : undefined;
         if (!listJsxDom) {
+          const fontInfo = sMuFLMetadata.getFontInfo();
+
           switch (type) {
             case 'glyphnames':
               listJsxDom = GlyphnamesList({
                 glyphnames: sMuFLMetadata.data_.glyphnames,
+                sMuFLMetadata,
+              });
+              break;
+            case 'optionalGlyphs':
+              listJsxDom = OptionalGlyphsList({
+                optionalGlyphs: fontInfo.fontMetadata_.optionalGlyphs,
                 sMuFLMetadata,
               });
               break;
