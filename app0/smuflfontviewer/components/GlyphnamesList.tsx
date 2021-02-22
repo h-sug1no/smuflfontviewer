@@ -104,4 +104,4 @@ function GlyphnamesList({ glyphnames, sMuFLMetadata }: Props) {
   });
   return <List>{ret}</List>;
 }
-export { GlyphnamesList };
+export { GlyphnamesList, addGlyphnameInfo, Props };
