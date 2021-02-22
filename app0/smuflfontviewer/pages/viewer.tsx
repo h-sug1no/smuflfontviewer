@@ -29,7 +29,7 @@ import {
 import MenuIcon from '@material-ui/icons/Menu';
 import React, { useState, useEffect, ReactElement, useRef } from 'react';
 import AnyListDialogRef from '../components/AnyListDialog';
-import { Database } from '../lib/SMuFLMetadata';
+import { Database, Dict } from '../lib/SMuFLMetadata';
 import { GlyphnamesList } from '../components/GlyphnamesList';
 /*
 import ProTip from '../src/ProTip';
@@ -112,6 +112,8 @@ export class Options {
 }
 
 const sMuFLMetadata: Database = new Database();
+
+const dialogContents: Dict<JSX.Element | undefined> = {};
 
 function HeaderMenu() {
   const headersData = [
@@ -211,19 +213,22 @@ function HeaderMenu() {
       window.addEventListener('resize', () => setResponsiveness());
     }, []);
 
-    const onClick = (type: string | undefined, e: any) => {
+    const onClick = (type: string, e: any) => {
       console.log(type, e);
       if (cal && cal.current) {
-        let listJsxDom;
-        switch (type) {
-          case 'glyphnames':
-            listJsxDom = GlyphnamesList({
-              glyphnames: sMuFLMetadata.data_.glyphnames,
-              sMuFLMetadata,
-            });
-            break;
-          default:
-            break;
+        let listJsxDom = type ? dialogContents[type] : undefined;
+        if (!listJsxDom) {
+          switch (type) {
+            case 'glyphnames':
+              listJsxDom = GlyphnamesList({
+                glyphnames: sMuFLMetadata.data_.glyphnames,
+                sMuFLMetadata,
+              });
+              break;
+            default:
+              break;
+          }
+          dialogContents[type] = listJsxDom;
         }
         cal?.current?.handleClickOpen(<div className="infoDialogContents">{listJsxDom}</div>);
       }

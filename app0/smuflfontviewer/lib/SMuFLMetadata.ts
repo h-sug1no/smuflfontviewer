@@ -3,7 +3,7 @@
  */
 import { UCodePoint } from './UCodePoint';
 
-type Dict<T> = { [key: string]: T };
+export type Dict<T> = { [key: string]: T };
 
 export interface SearchOptions {
   isOptionalGlyph?: boolean;
