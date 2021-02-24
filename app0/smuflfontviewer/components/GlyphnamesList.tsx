@@ -1,12 +1,12 @@
 /**
  * Copyright (c) 2021 h-sug1no
  */
-// import { Props } from 'react';
 
 import { Database, SearchOptions } from '../lib/SMuFLMetadata';
 import { UCodePoint } from '../lib/UCodePoint';
 import { List, ListItem } from '@material-ui/core';
 import clsx from 'clsx';
+import { NavigateBeforeSharp } from '@material-ui/icons';
 
 function appendGlyphname(
   sMuFLMetadata: Database,
@@ -59,7 +59,7 @@ function appendGlyphname(
         }
       }}
     >
-      {!!showUCodepoint && <span className="uCodepoint">(${uCodepoint})</span>}
+      {!!showUCodepoint && <span className="uCodepoint">{`(${uCodepoint}) `}</span>}
       <span className="smuflGlyphname">
         {glyphname || '?'}:<span className="smufl">{charStr}</span>
       </span>
@@ -97,6 +97,7 @@ type Props = {
   glyphnames: any;
   sMuFLMetadata: Database;
 };
+
 function GlyphnamesList({ glyphnames, sMuFLMetadata }: Props) {
   const keys = Object.keys(glyphnames);
   const ret = keys.map((key) => {
@@ -104,4 +105,4 @@ function GlyphnamesList({ glyphnames, sMuFLMetadata }: Props) {
   });
   return <List>{ret}</List>;
 }
-export { GlyphnamesList, addGlyphnameInfo, Props };
+export { GlyphnamesList, addGlyphnameInfo, appendGlyphname };

@@ -32,6 +32,8 @@ import AnyListDialogRef from '../components/AnyListDialog';
 import { Database, Dict } from '../lib/SMuFLMetadata';
 import { GlyphnamesList } from '../components/GlyphnamesList';
 import { OptionalGlyphsList } from '../components/OptionalGlyphsList';
+import { RangesList } from '../components/RangesList';
+
 /*
 import ProTip from '../src/ProTip';
 import Link from '../src/Link';
@@ -233,6 +235,9 @@ function HeaderMenu() {
                 optionalGlyphs: fontInfo.fontMetadata_.optionalGlyphs,
                 sMuFLMetadata,
               });
+              break;
+            case 'ranges':
+              listJsxDom = RangesList(sMuFLMetadata, sMuFLMetadata.data_.ranges);
               break;
             default:
               break;
