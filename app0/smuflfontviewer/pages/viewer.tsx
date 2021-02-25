@@ -33,6 +33,7 @@ import { Database, Dict } from '../lib/SMuFLMetadata';
 import { GlyphnamesList } from '../components/GlyphnamesList';
 import { OptionalGlyphsList } from '../components/OptionalGlyphsList';
 import { RangesList } from '../components/RangesList';
+import { ClassesList } from '../components/ClassesList';
 
 /*
 import ProTip from '../src/ProTip';
@@ -238,6 +239,9 @@ function HeaderMenu() {
               break;
             case 'ranges':
               listJsxDom = RangesList(sMuFLMetadata, sMuFLMetadata.data_.ranges);
+              break;
+            case 'classes':
+              listJsxDom = ClassesList(sMuFLMetadata, sMuFLMetadata.data_.classes);
               break;
             default:
               break;
