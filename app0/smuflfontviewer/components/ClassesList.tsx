@@ -1,7 +1,7 @@
 import { Link } from '@material-ui/core';
 import { SyntheticEvent } from 'react';
 import { Database, Dict } from '../lib/SMuFLMetadata';
-import { appendGlyphname } from './GlyphnamesList';
+import { createGlyphname } from '../lib/RenderUtils';
 
 type addItemFuncType = (item: any) => JSX.Element;
 type getGlyphsFuncType = (item: any) => Array<any>;
@@ -101,7 +101,7 @@ function ClassesList(sMuFLMetadata: Database, classes: any) {
     },
     // addGlyphFunc
     (glyphName: string) => {
-      return appendGlyphname(sMuFLMetadata, glyphName, undefined, undefined, true).jsxDom;
+      return createGlyphname(sMuFLMetadata, glyphName, undefined, undefined, true).jsxDom;
     },
   );
 }
