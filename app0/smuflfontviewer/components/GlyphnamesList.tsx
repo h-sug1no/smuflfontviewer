@@ -6,12 +6,7 @@ import { Database } from '../lib/SMuFLMetadata';
 import { List } from '@material-ui/core';
 import { createGlyphnameInfo } from '../lib/RenderUtils';
 
-type Props = {
-  glyphnames: any;
-  sMuFLMetadata: Database;
-};
-
-function GlyphnamesList({ glyphnames, sMuFLMetadata }: Props) {
+function GlyphnamesList(sMuFLMetadata: Database, glyphnames: any) {
   const keys = Object.keys(glyphnames);
   const ret = keys.map((key) => {
     return createGlyphnameInfo(sMuFLMetadata, glyphnames[key], key);

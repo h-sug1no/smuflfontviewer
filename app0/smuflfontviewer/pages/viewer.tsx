@@ -226,16 +226,10 @@ function HeaderMenu() {
 
           switch (type) {
             case 'glyphnames':
-              listJsxDom = GlyphnamesList({
-                glyphnames: sMuFLMetadata.data_.glyphnames,
-                sMuFLMetadata,
-              });
+              listJsxDom = GlyphnamesList(sMuFLMetadata, sMuFLMetadata.data_.glyphnames);
               break;
             case 'optionalGlyphs':
-              listJsxDom = OptionalGlyphsList({
-                optionalGlyphs: fontInfo.fontMetadata_.optionalGlyphs,
-                sMuFLMetadata,
-              });
+              listJsxDom = OptionalGlyphsList(sMuFLMetadata, fontInfo.fontMetadata_.optionalGlyphs);
               break;
             case 'ranges':
               listJsxDom = RangesList(sMuFLMetadata, sMuFLMetadata.data_.ranges);

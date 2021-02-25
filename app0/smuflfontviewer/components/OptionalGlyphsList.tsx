@@ -4,12 +4,13 @@
 // import { Props } from 'react';
 
 import { List } from '@material-ui/core';
-import { addGlyphnameInfo, Props } from './GlyphnamesList';
+import { Database } from '../lib/SMuFLMetadata';
+import { createGlyphnameInfo } from '../lib/RenderUtils';
 
-function OptionalGlyphsList({ optionalGlyphs, sMuFLMetadata }: Props) {
+function OptionalGlyphsList(sMuFLMetadata: Database, optionalGlyphs: any): JSX.Element {
   const keys = Object.keys(optionalGlyphs);
   const ret = keys.map((key) => {
-    return addGlyphnameInfo(sMuFLMetadata, optionalGlyphs[key], key);
+    return createGlyphnameInfo(sMuFLMetadata, optionalGlyphs[key], key);
   });
   return <List>{ret}</List>;
 }
