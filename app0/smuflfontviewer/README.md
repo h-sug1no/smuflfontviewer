@@ -10,10 +10,10 @@ First, run the development server:
 
 # if you want to do a clean build
 git clean -xdf
-npx yarn
+npm install
 
 # start dev server
-npx yarn dev
+npm run dev
 ```
 
 Open [http://localhost:3000/app_index?dev](http://localhost:3000/app_index?dev) with your browser to see the result.
