@@ -36,6 +36,7 @@ import { RangesList } from '../components/RangesList';
 import { ClassesList } from '../components/ClassesList';
 import { LigaturesList } from '../components/LigaturesList';
 import { SetsList } from '../components/SetsList';
+import { GlyphsWithAlternatesList } from '../components/GlyphsWithAlternatesList';
 
 /*
 import ProTip from '../src/ProTip';
@@ -244,6 +245,12 @@ function HeaderMenu() {
               break;
             case 'sets':
               listJsxDom = SetsList(sMuFLMetadata, fontInfo.fontMetadata_.sets);
+              break;
+            case 'glyphsWithAlternates':
+              listJsxDom = GlyphsWithAlternatesList(
+                sMuFLMetadata,
+                fontInfo.fontMetadata_.glyphsWithAlternates,
+              );
               break;
             default:
               break;

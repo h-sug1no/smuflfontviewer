@@ -185,4 +185,10 @@ function _createAnyListPage(
   return ret || <></>;
 }
 
-export { createGlyphname, createGlyphnameInfo, _createAnyListPage, createCodepointOrText };
+export {
+  createGlyphname,
+  createGlyphnameInfo,
+  _createAnyListPage,
+  createCodepointOrText,
+  createCodepoint,
+};
