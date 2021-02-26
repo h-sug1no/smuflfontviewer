@@ -34,6 +34,7 @@ import { GlyphnamesList } from '../components/GlyphnamesList';
 import { OptionalGlyphsList } from '../components/OptionalGlyphsList';
 import { RangesList } from '../components/RangesList';
 import { ClassesList } from '../components/ClassesList';
+import { LigaturesList } from '../components/LigaturesList';
 
 /*
 import ProTip from '../src/ProTip';
@@ -236,6 +237,9 @@ function HeaderMenu() {
               break;
             case 'classes':
               listJsxDom = ClassesList(sMuFLMetadata, sMuFLMetadata.data_.classes);
+              break;
+            case 'ligatures':
+              listJsxDom = LigaturesList(sMuFLMetadata, fontInfo.fontMetadata_.ligatures);
               break;
             default:
               break;

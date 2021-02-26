@@ -80,6 +80,9 @@ a {
   overflow: visible;
   height: auto;
 }
+li.anyListContainer {
+  display: block;
+}
 
 .glyphsContainer {
   height: 5em;
