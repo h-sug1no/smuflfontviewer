@@ -5,13 +5,24 @@ import { Database, SearchOptions, Dict } from '../lib/SMuFLMetadata';
 import { UCodePoint } from '../lib/UCodePoint';
 import clsx from 'clsx';
 
+function createCodepoint(uCodepointStr: string) {
+  return <span className="smuflCodepoint">{uCodepointStr}</span>;
+}
+
+function createCodepointOrText(uCodepointStr: string): JSX.Element {
+  if (uCodepointStr.startsWith && uCodepointStr.startsWith('U+')) {
+    return createCodepoint(uCodepointStr);
+  }
+  return <>{uCodepointStr}</>;
+}
+
 function createGlyphname(
   sMuFLMetadata: Database,
   glyphname: string,
   currentGlyphName?: string,
   uCodepoint?: string,
   showUCodepoint?: boolean,
-) {
+): any {
   const option: SearchOptions = { searchOptional: true };
   let tUCodepoint = sMuFLMetadata.glyphname2uCodepoint(glyphname, option);
   if ((uCodepoint || tUCodepoint) !== tUCodepoint) {
@@ -69,7 +80,7 @@ function createGlyphname(
   };
 }
 
-function createGlyphnameInfo(sMuFLMetadata: Database, ginfo: any, glyphname: string) {
+function createGlyphnameInfo(sMuFLMetadata: Database, ginfo: any, glyphname: string): JSX.Element {
   /*
   _$c_appendText($contentContainer, `${ginfo.codepoint}: `);
   appendGlyphname($contentContainer, glyphname); // here, no current glyph.
@@ -100,7 +111,7 @@ function _createAnyListPage(
   addItemFunc: addItemFuncType,
   getGlyphsFunc: getGlyphsFuncType,
   addGlyphFunc: addGlyphFuncType,
-) {
+): JSX.Element {
   function _hrefId(hrefName: string) {
     return listName + 'Container_' + hrefName;
   }
@@ -171,7 +182,7 @@ function _createAnyListPage(
   } catch (e) {
     console.log(e);
   }
-  return ret;
+  return ret || <></>;
 }
 
-export { createGlyphname, createGlyphnameInfo };
+export { createGlyphname, createGlyphnameInfo, _createAnyListPage, createCodepointOrText };

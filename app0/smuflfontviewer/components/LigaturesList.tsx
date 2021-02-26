@@ -1,6 +1,5 @@
 import { List, ListItem } from '@material-ui/core';
-import { SyntheticEvent } from 'react';
-import { Database, Dict } from '../lib/SMuFLMetadata';
+import { Database } from '../lib/SMuFLMetadata';
 import { createGlyphname } from '../lib/RenderUtils';
 
 function addLigatureInfo(
