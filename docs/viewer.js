@@ -339,7 +339,11 @@ class SMuFLFontViewer {
       $uCodeSpan.text(text);
     }
 
-    $scratchpadDialogTextarea.on('input', (e) => {
+    $scratchpadDialogTextarea.on('keyup', (e) => {
+      updateCurrentUCharInfo();
+    });
+
+    $scratchpadDialogTextarea.on('mouseup', (e) => {
       updateCurrentUCharInfo();
     });
 
