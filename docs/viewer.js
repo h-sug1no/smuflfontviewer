@@ -68,6 +68,8 @@ class SMuFLFontViewer {
     const $codepointSelect = $('#codepointSelect');
     let $codepointSelect_selectize;
 
+    let rosgCpSelect;  // repeatOffset sample glyph cp select.
+
     sMuFLMetadata.init(options).then(function (/* obj */) {
       if (sMuFLMetadata.initErrors.length) {
         alert(sMuFLMetadata.initErrors.map(function (str) {
@@ -98,74 +100,103 @@ class SMuFLFontViewer {
           });
         });
 
-        $codepointSelect.selectize({
-          options: soptions,
-          optgroups: [
-            { value: 'glyphnames', label: 'glyphnames' },
-            { value: 'optionalGlyphs', label: 'optionalGlyphs' },
-            { value: 'codepoint', label: 'codepoint' },
-          ],
-          optgroupField: 'series',
-          labelField: 'name',
-          searchField: ['name'],
-          placeholder: 'enter glyphname or (c)odepoint',
-          maxItems: 1,
-          create: false,
-          onType: function (str) {
-            // console.log(str);
-            $codepointSelect_selectize.onType(str);
-          },
-          onChange: function (value) {
-            if (value.length) {
-              setCodepointByString(value);
+        function initCpSelect($codepointSelect, onChangeCB, onBlurCB) {
+          $codepointSelect.selectize({
+            options: soptions,
+            optgroups: [
+              { value: 'glyphnames', label: 'glyphnames' },
+              { value: 'optionalGlyphs', label: 'optionalGlyphs' },
+              { value: 'codepoint', label: 'codepoint' },
+            ],
+            optgroupField: 'series',
+            labelField: 'name',
+            searchField: ['name'],
+            placeholder: 'enter glyphname or (c)odepoint',
+            maxItems: 1,
+            create: false,
+            onType: function (str) {
+              // console.log(str);
+              $codepointSelect_selectize.onType(str);
+            },
+            onChange: function (value) {
+              onChangeCB(value);
+            },
+            onBlur: function () {
+              onBlurCB($codepointSelect_selectize);
             }
-          },
-          onBlur: function () {
-            if (!$codepointSelect_selectize.getValue().length) {
-              $codepointSelect_selectize.setValue(history.currentUCodepoint, true);
+            //openOnFocus: false,
+            //plugins: ['optgroup_columns']
+          });
+
+          const $codepointSelect_selectize = $codepointSelect[0].selectize;
+          $codepointSelect_selectize.onType = function(str, keepOptions) {
+            str = str.toUpperCase();
+            if (str.match(/^[A-F0-9]+$/)) {
+              let cpNumber = NaN;
+              try {
+                cpNumber = parseInt(str, 16);
+                // check cpNumber is valid unicode codepoint.
+                String.fromCodePoint(cpNumber);
+              } catch (e) {
+                // RangeError: xxxxxxx is not a valid code point
+                // console.log(e);
+                return;
+              }
+              if (isNaN(cpNumber)) {
+                return;
+              }
+
+              str = formatCodepointNumber(cpNumber);
+              const cpData = $codepointSelect_selectize.addCodePointItem(str);
+              $codepointSelect_selectize.refreshOptions(!keepOptions);
+              return str;
             }
+          };
+          $codepointSelect_selectize.addCodePointItem = function (cp) {
+            cp = cp.toUpperCase();
+            const cpData = {
+              series: 'codepoint',
+              value: cp,
+              name: cp
+            }
+            $codepointSelect_selectize.addOption(cpData);
+            return cpData;
+          };
+          return {
+            $codepointSelect: $codepointSelect,
+            $codepointSelect_selectize: $codepointSelect_selectize,
+          };
+        }
+        const cpSelect0 = initCpSelect($codepointSelect, (value) => {
+          if (value.length) {
+            setCodepointByString(value);
           }
-          //openOnFocus: false,
-          //plugins: ['optgroup_columns']
+        },
+        ($codepointSelect_selectize) => {
+          if (!$codepointSelect_selectize.getValue().length) {
+            $codepointSelect_selectize.setValue(history.currentUCodepoint, true);
+          }
         });
+        $codepointSelect_selectize = cpSelect0.$codepointSelect_selectize;
 
-        $codepointSelect_selectize = $codepointSelect[0].selectize;
-        $codepointSelect_selectize.onType = function(str, keepOptions) {
-          str = str.toUpperCase();
-          if (str.match(/^[A-F0-9]+$/)) {
-            let cpNumber = NaN;
-            try {
-              cpNumber = parseInt(str, 16);
-              // check cpNumber is valid unicode codepoint.
-              String.fromCodePoint(cpNumber);
-            } catch (e) {
-              // RangeError: xxxxxxx is not a valid code point
-              // console.log(e);
-              return;
-            }
-            if (isNaN(cpNumber)) {
-              return;
-            }
+        const $rosgCpSelect = $('<selct class="rosgCpSelect"></selct>');
+        $smuflGlyphHints_repatOffset3StateBox[0].parentElement.parentElement.appendChild($rosgCpSelect[0]);
+        rosgCpSelect = initCpSelect($rosgCpSelect, (value) => {
+          if (value.length) {
+            // repaint repeatOffset sample glyph.
+            // renderGlyph(currentGlyphData);
+          }
+        },
+        ($codepointSelect_selectize) => {
+          // fixme: onBlurCB.
+        });
+        rosgCpSelect.$codepointSelect_selectize.$control.prop('title',
+          'Select a glyph to use as an example drawing for the repeatOffset property');
 
-            str = formatCodepointNumber(cpNumber);
-            const cpData = $codepointSelect_selectize.addCodePointItem(str);
-            $codepointSelect_selectize.refreshOptions(!keepOptions);
-            return str;
-          }
-        };
-        $codepointSelect_selectize.addCodePointItem = function (cp) {
-          cp = cp.toUpperCase();
-          const cpData = {
-            series: 'codepoint',
-            value: cp,
-            name: cp
-          }
-          $codepointSelect_selectize.addOption(cpData);
-          return cpData;
-        };
         that._handle_onResourceReady('smuflMetadata');
       }
     });
+
 
     const params = new URLSearchParams(window.location.search);
 
@@ -218,6 +249,7 @@ class SMuFLFontViewer {
 
     const $smuflGlyphHints_repatOffset3StateBox =
       $smuflGlyphHints.find('#' + toHintlabelIdStr('repeatOffset') + ' input');
+    const smuflGlyphHints_repatOffset3StateBoxElm = $smuflGlyphHints_repatOffset3StateBox[0];
 
     const $smuflGlyphHints_cutOutOrigin_BBL =
       $smuflGlyphHints.find('#' + toHintlabelIdStr('cutOutOrigin_BBL') + ' input');
@@ -462,8 +494,8 @@ class SMuFLFontViewer {
       return str.padStart(4, '0');
     }
 
-    function getCodepointNumber() {
-      return Number('0x' + getCodepoint(), 16);
+    function getCodepointNumber(cpStr) {
+      return Number('0x' + (cpStr || getCodepoint()), 16);
     }
 
     function setCodepointByNumber(codepointNumber) {
@@ -562,6 +594,10 @@ class SMuFLFontViewer {
       history.prevUCodepoint = history.currentUCodepoint;
       $codepointSelect.val(codepointStr);
       history.currentUCodepoint = getCodepoint();
+      if (rosgCpSelect && rosgCpSelect.$codepointSelect_selectize) {
+        rosgCpSelect.$codepointSelect_selectize.setValue(history.currentUCodepoint,
+          true /*silent: no changed event*/);
+      }
       _postDraw();
     }
 
@@ -569,6 +605,14 @@ class SMuFLFontViewer {
       const target = ev.target;
       if (target._on3StateChange) {
         target._on3StateChange();
+      }
+
+      if (rosgCpSelect) {
+        if (smuflGlyphHints_repatOffset3StateBoxElm._3state == 2) {
+          rosgCpSelect.$codepointSelect_selectize.$control.show();
+        } else {
+          rosgCpSelect.$codepointSelect_selectize.$control.hide();
+        }
       }
 
       //console.log(this);
@@ -1603,7 +1647,10 @@ class SMuFLFontViewer {
         ctx.save();
         if (repeatOffset) {
           ctx.fillStyle = '#44444477';
-          _renderGlyph(glyphData, x + (anchorCsToScreenCsX(repeatOffset[0], sbl)),
+          const tGlyphData = {
+            codepoint: getCodepointNumber(rosgCpSelect.$codepointSelect.val()),
+          };
+          _renderGlyph(tGlyphData, x + (anchorCsToScreenCsX(repeatOffset[0], sbl)),
             y + (anchorCsToScreenCsY(repeatOffset[1], sbl)), fontSize);
         }
         ctx.restore();
@@ -2053,7 +2100,8 @@ class SMuFLFontViewer {
         },
         onBlur: function () {
           if (!$rangeSelect_selectize.getValue().length) {
-            $rangeSelect_selectize.setValue($rangeSelect_selectize.currentValue_, true);
+            $rangeSelect_selectize.setValue($rangeSelect_selectize.currentValue_,
+              true /*silent: no changed event*/);
           }
         }
       });
