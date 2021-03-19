@@ -108,7 +108,10 @@ class SMuFLMetadata {
       [{names: that.data.glyphnames, isOptionalGlyph: false},
         {names: fontMetadata.optionalGlyphs, isOptionalGlyph: true}].forEach(function(namesDef) {
           const names = namesDef.names;
-          Object.keys(namesDef.names).forEach(function(key) {
+          if (!names) {
+            console.warn('!names: ',namesDef);
+          }
+          Object.keys(namesDef.names || {}).forEach(function(key) {
             const name = names[key];
             const cp = name.codepoint;
             if (glyphsByUCodepoint[cp]) {

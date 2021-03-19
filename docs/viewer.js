@@ -91,7 +91,8 @@ class SMuFLFontViewer {
         });
 
         const optionalGlyphs = sMuFLMetadata.fontMetadata().optionalGlyphs;
-        Object.keys(optionalGlyphs).forEach((gname) => {
+        console.warn('no optionalGlyphs');
+        Object.keys(optionalGlyphs||{}).forEach((gname) => {
           const cp = optionalGlyphs[gname].codepoint.replace('U+', '');
           soptions.push({
             series: 'optionalGlyphs',
@@ -2073,12 +2074,14 @@ class SMuFLFontViewer {
       rangeItems.push(dictItem);
 
       const optRange = sMuFLMetadata.getFontInfo().optRange;
-      dictItem = rangeItemDic[optRange.description] = {
-        value: optRange.description,
-        name: optRange.description,
-        codepoint: sMuFLMetadata.uCodepoint2Codepoint(optRange.range_start)
-      };
-      rangeItems.push(dictItem);
+      if (optRange.range_start) {
+        dictItem = rangeItemDic[optRange.description] = {
+          value: optRange.description,
+          name: optRange.description,
+          codepoint: sMuFLMetadata.uCodepoint2Codepoint(optRange.range_start)
+        };
+        rangeItems.push(dictItem);
+      }
 
       for (const rk in ranges) {
         const range = ranges[rk];
