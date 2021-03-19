@@ -91,7 +91,8 @@ class SMuFLFontViewer {
         });
 
         const optionalGlyphs = sMuFLMetadata.fontMetadata().optionalGlyphs;
-        Object.keys(optionalGlyphs).forEach((gname) => {
+        console.warn('no optionalGlyphs');
+        Object.keys(optionalGlyphs||{}).forEach((gname) => {
           const cp = optionalGlyphs[gname].codepoint.replace('U+', '');
           soptions.push({
             series: 'optionalGlyphs',
@@ -800,7 +801,7 @@ class SMuFLFontViewer {
       filenames.forEach(function(filename) {
         const aDom = document.createElement('a');
         aDom.classList.add('specLink');
-        aDom.href = `https://w3c.github.io/smufl/gitbook/specification/${filename}.html`;
+        aDom.href = `https://w3c.github.io/smufl/latest/specification/${filename}.html`;
         aDom.text = filename;
         aDom.target = `_smuflfontvierer_${filename}_`;
         aDom.title = `${filename} spec`;
@@ -904,10 +905,14 @@ class SMuFLFontViewer {
             case 'optionalGlyphs':
               _$c_appendText($contentContainer, `${key}: ...`);
               break;
+            case 'glyphAdvanceWidths':
+              _$c_appendText($contentContainer, `${key}: FIXME:...`);
+              break;
             case 'sets':
               add_sets(key, fontMetadata[key]);
               break;
             default:
+              _$c_appendText($contentContainer, `${key}: unsupported property.`);
               break;
           }
           if (addBr) {
@@ -2073,12 +2078,14 @@ class SMuFLFontViewer {
       rangeItems.push(dictItem);
 
       const optRange = sMuFLMetadata.getFontInfo().optRange;
-      dictItem = rangeItemDic[optRange.description] = {
-        value: optRange.description,
-        name: optRange.description,
-        codepoint: sMuFLMetadata.uCodepoint2Codepoint(optRange.range_start)
-      };
-      rangeItems.push(dictItem);
+      if (optRange.range_start) {
+        dictItem = rangeItemDic[optRange.description] = {
+          value: optRange.description,
+          name: optRange.description,
+          codepoint: sMuFLMetadata.uCodepoint2Codepoint(optRange.range_start)
+        };
+        rangeItems.push(dictItem);
+      }
 
       for (const rk in ranges) {
         const range = ranges[rk];
@@ -2113,6 +2120,14 @@ class SMuFLFontViewer {
 
       const settings_cutOutOrigin_BBL = params.get('settings.cutOutOrigin_BBL') === 'true';
       $smuflGlyphHints_cutOutOrigin_BBL.prop('checked', settings_cutOutOrigin_BBL);
+
+      const fontMetadata = sMuFLMetadata.fontMetadata();
+
+      $('#BOptionalGlyphs').prop('disabled', !!!fontMetadata.optionalGlyphs);
+      $('#BFontMetadataLigatures').prop('disabled', !!!fontMetadata.ligatures);
+      $('#BFontMetadataSets').prop('disabled', !!!fontMetadata.sets);
+      $('#BFontMetadataGlyphsWithAnchors').prop('disabled', !!!fontMetadata.glyphsWithAnchors);
+      $('#BFontMetadataGlyphsWithAlternates').prop('disabled', !!!fontMetadata.glyphsWithAlternates);
 
       let glyph = params.get('glyph');
       if (glyph) {
