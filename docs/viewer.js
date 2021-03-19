@@ -2117,6 +2117,14 @@ class SMuFLFontViewer {
       const settings_cutOutOrigin_BBL = params.get('settings.cutOutOrigin_BBL') === 'true';
       $smuflGlyphHints_cutOutOrigin_BBL.prop('checked', settings_cutOutOrigin_BBL);
 
+      const fontMetadata = sMuFLMetadata.fontMetadata();
+
+      $('#BOptionalGlyphs').prop('disabled', !!!fontMetadata.optionalGlyphs);
+      $('#BFontMetadataLigatures').prop('disabled', !!!fontMetadata.ligatures);
+      $('#BFontMetadataSets').prop('disabled', !!!fontMetadata.sets);
+      $('#BFontMetadataGlyphsWithAnchors').prop('disabled', !!!fontMetadata.glyphsWithAnchors);
+      $('#BFontMetadataGlyphsWithAlternates').prop('disabled', !!!fontMetadata.glyphsWithAlternates);
+
       let glyph = params.get('glyph');
       if (glyph) {
         var gd = _getGlyphData(glyph);
