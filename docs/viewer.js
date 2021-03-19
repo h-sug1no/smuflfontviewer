@@ -801,7 +801,7 @@ class SMuFLFontViewer {
       filenames.forEach(function(filename) {
         const aDom = document.createElement('a');
         aDom.classList.add('specLink');
-        aDom.href = `https://w3c.github.io/smufl/gitbook/specification/${filename}.html`;
+        aDom.href = `https://w3c.github.io/smufl/latest/specification/${filename}.html`;
         aDom.text = filename;
         aDom.target = `_smuflfontvierer_${filename}_`;
         aDom.title = `${filename} spec`;
