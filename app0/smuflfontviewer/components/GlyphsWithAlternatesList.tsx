@@ -17,13 +17,13 @@ function createAlternatesInfo(
         {'\n'}
         {alternates.alternates.map(function (v: any) {
           return (
-            <>
+            <span key={`${baseGlyphname}_${v.codepoint}`}>
               {'codepoint: '}
               {createCodepoint(v.codepoint)}
               {`, name: `}
               {createGlyphname(sMuFLMetadata, v.name, glyphname).jsxDom}
               {`\n`}
-            </>
+            </span>
           );
         })}
       </>
