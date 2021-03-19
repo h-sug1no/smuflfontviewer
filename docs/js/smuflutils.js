@@ -160,7 +160,7 @@ class SMuFLMetadata {
         optClasses: optClasses,
         classes: {}
       };
-      Object.keys(computedClasses.classes).
+      Object.keys(computedClasses.smuflClasses).
         concat(Object.keys(computedClasses.optClasses)).forEach(function(className) {
           if (!computedClasses.classes[className]) {
             computedClasses.classes[className] = (computedClasses.smuflClasses[className] || []).
