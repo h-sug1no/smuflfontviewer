@@ -905,10 +905,14 @@ class SMuFLFontViewer {
             case 'optionalGlyphs':
               _$c_appendText($contentContainer, `${key}: ...`);
               break;
+            case 'glyphAdvanceWidths':
+              _$c_appendText($contentContainer, `${key}: FIXME:...`);
+              break;
             case 'sets':
               add_sets(key, fontMetadata[key]);
               break;
             default:
+              _$c_appendText($contentContainer, `${key}: unsupported property.`);
               break;
           }
           if (addBr) {
