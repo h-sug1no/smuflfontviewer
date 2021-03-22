@@ -564,6 +564,7 @@ class SMuFLFontViewer {
       if (uCodepoint) {
         charStr = sMuFLMetadata.uCodepoint2CharString(uCodepoint);
       }
+      const nCodepoint = sMuFLMetadata.uCodepoint2Codepoint(uCodepoint);
 
       const $uCodepoint = showUCodepoint ?
         `<span class="uCodepoint">(${uCodepoint})</span> `: '';
@@ -572,7 +573,9 @@ class SMuFLFontViewer {
         $t.addClass('optionalGlyph');
       }
       if (option.isUnknownOptionalGlyph) {
-        $t.addClass('unknownOptionalGlyph');
+        if (0xF400 <= nCodepoint && nCodepoint <= 0xFFFF) {
+          $t.addClass('unknownOptionalGlyph');
+        }
       }
       if (currentGlyphName === glyphname) {
         $t.addClass('currentGlyph');
