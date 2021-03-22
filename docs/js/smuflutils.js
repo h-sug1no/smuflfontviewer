@@ -241,8 +241,11 @@ class SMuFLMetadata {
   glyphname2uCodepoint(glyphname, options = {}) {
     let item =  this.data.glyphnames[glyphname];
     if (!item && options.searchOptional) {
-      item = this.fontMetadata().optionalGlyphs[glyphname];
+      item = (this.fontMetadata().optionalGlyphs || {})[glyphname];
       options.isOptionalGlyph = item !== undefined;
+
+      // glyphname with no optionalGlyphs entry.
+      options.isUnknownOptionalGlyph = item === undefined;
     }
     return ((item || {}).codepoint);
   }
