@@ -147,9 +147,12 @@ function _createAnyListPage(
 
   const _createGlyphInfos = (item: any) => {
     const glyphs = getGlyphsFunc(item);
-    return glyphs.map(function (glyphName: string) {
+    return glyphs.map(function (glyphName: string, idx: number) {
+      // FIXME: glyphName may string or object. simplify key string but how to?
+      const key = `${listName}_${idx}_${JSON.stringify(glyphName)}`;
+      // console.log(key);
       return (
-        <div className="glyphContainer" key={`${listName}_${glyphName}`}>
+        <div className="glyphContainer" key={key}>
           {addGlyphFunc(glyphName)}
         </div>
       );
