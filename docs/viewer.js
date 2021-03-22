@@ -615,14 +615,6 @@ class SMuFLFontViewer {
         target._on3StateChange();
       }
 
-      if (rosgCpSelect) {
-        if (smuflGlyphHints_repatOffset3StateBoxElm._3state == 2) {
-          rosgCpSelect.$codepointSelect_selectize.$control.show();
-        } else {
-          rosgCpSelect.$codepointSelect_selectize.$control.hide();
-        }
-      }
-
       //console.log(this);
       renderGlyph(currentGlyphData);
     });
@@ -1654,6 +1646,18 @@ class SMuFLFontViewer {
 
       ctx.fillStyle = '#444444cc';
       _renderGlyph(glyphData, x, y, fontSize);
+
+      if (rosgCpSelect) {
+        if ($(smuflGlyphHints_repatOffset3StateBoxElm).parent().is(':hidden')) {
+          rosgCpSelect.$codepointSelect_selectize.$control.hide();
+        } else {
+          if (smuflGlyphHints_repatOffset3StateBoxElm._3state == 2) {
+            rosgCpSelect.$codepointSelect_selectize.$control.show();
+          } else {
+            rosgCpSelect.$codepointSelect_selectize.$control.hide();
+          }
+        }
+      }
 
       if ($smuflGlyphHints_repatOffset3StateBox.prop('checked')) {
         ctx.save();
