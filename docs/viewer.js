@@ -564,6 +564,7 @@ class SMuFLFontViewer {
       if (uCodepoint) {
         charStr = sMuFLMetadata.uCodepoint2CharString(uCodepoint);
       }
+      const nCodepoint = sMuFLMetadata.uCodepoint2Codepoint(uCodepoint);
 
       const $uCodepoint = showUCodepoint ?
         `<span class="uCodepoint">(${uCodepoint})</span> `: '';
@@ -572,9 +573,12 @@ class SMuFLFontViewer {
         $t.addClass('optionalGlyph');
       }
       if (option.isUnknownOptionalGlyph) {
-        $t.addClass('unknownOptionalGlyph');
+        if (0xF400 <= nCodepoint && nCodepoint <= 0xFFFF) {
+          $t.addClass('unknownOptionalGlyph');
+        }
       }
-      if (currentGlyphName === glyphname) {
+      const tGlyphname = glyphname || uCodepoint;
+      if (tGlyphname && currentGlyphName === tGlyphname) {
         $t.addClass('currentGlyph');
       }
 
@@ -1826,7 +1830,7 @@ class SMuFLFontViewer {
       const glyphname = sMuFLMetadata.uCodepoint2Glyphname(uCodepoint, option1);
 
       $smuflGlyphInfoText.empty();
-      appendGlyphname($smuflGlyphInfoText, glyphname, glyphname, uCodepoint);
+      appendGlyphname($smuflGlyphInfoText, glyphname, glyphname || uCodepoint, uCodepoint);
       _$c_appendText($smuflGlyphInfoText, '\n');
       let glyphnameData = sMuFLMetadata.data.glyphnames[glyphname];
       const optionalGlyphs = sMuFLMetadata.fontMetadata().optionalGlyphs;
@@ -1930,11 +1934,16 @@ class SMuFLFontViewer {
       $alternatesInfo.empty();
       let alternates = sMuFLMetadata.fontMetadata().glyphsWithAlternates;
       let baseGlyphnames = [];
-      if (option1.isOptionalGlyph) {
+      if (option1.isOptionalGlyph || !glyphname) {
         if (fontInfo) {
           const glyph = fontInfo.glyphsByUCodepoint[uCodepoint];
           if (glyph || fontInfo.glyphsWithAlternates) {
             const alternateFors = fontInfo.alternateFors[glyph.glyphname];
+            if (alternateFors) {
+              baseGlyphnames = alternateFors;
+            }
+          } else if (fontInfo.alternateFors) {
+            const alternateFors = fontInfo.alternateFors[uCodepoint];
             if (alternateFors) {
               baseGlyphnames = alternateFors;
             }
