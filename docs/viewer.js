@@ -571,6 +571,9 @@ class SMuFLFontViewer {
       if (option.isOptionalGlyph) {
         $t.addClass('optionalGlyph');
       }
+      if (option.isUnknownOptionalGlyph) {
+        $t.addClass('unknownOptionalGlyph');
+      }
       if (currentGlyphName === glyphname) {
         $t.addClass('currentGlyph');
       }
@@ -1128,7 +1131,7 @@ class SMuFLFontViewer {
           _$c_appendText($alternatesInfo, 'codepoint: ');
           appendCodepoint($alternatesInfo, v.codepoint);
           _$c_appendText($alternatesInfo, `, name: `);
-          appendGlyphname($alternatesInfo, v.name, glyphname);
+          appendGlyphname($alternatesInfo, v.name, glyphname, v.codepoint);
           _$c_appendText($alternatesInfo, `\n`);
         });
       }
