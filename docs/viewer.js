@@ -974,12 +974,12 @@ class SMuFLFontViewer {
       });
     });
 
-    function addLigatureInfo($ligaturesInfo, label, ligature, glyphname) {
+    function addLigatureInfo($ligaturesInfo, label, ligature, glyphname, currentGlyphName) {
       if (ligature) {
         if (label) {
           _$c_appendText($ligaturesInfo, label);
         }
-        appendGlyphname($ligaturesInfo, glyphname, undefined, undefined, true);
+        appendGlyphname($ligaturesInfo, glyphname, currentGlyphName, undefined, true);
         _$c_appendText($ligaturesInfo, '\ndescription: ');
         _$c_appendText($ligaturesInfo, (ligature.description || '') + '\n');
         if (ligature.componentGlyphs) {
@@ -1996,7 +1996,7 @@ class SMuFLFontViewer {
       const ligatures = sMuFLMetadata.fontMetadata().ligatures;
       const ligature = ligatures ? ligatures[glyphname] : undefined;
 
-      addLigatureInfo($ligaturesInfo, `ligatures: `, ligature, glyphname);
+      addLigatureInfo($ligaturesInfo, `ligatures: `, ligature, glyphname, glyphname);
 
       $setsInfo.empty();
       if (fontInfo) {
