@@ -577,7 +577,7 @@ class SMuFLFontViewer {
           $t.addClass('unknownOptionalGlyph');
         }
       }
-      if (currentGlyphName === glyphname) {
+      if (glyphname && currentGlyphName === glyphname) {
         $t.addClass('currentGlyph');
       }
 
@@ -1933,11 +1933,16 @@ class SMuFLFontViewer {
       $alternatesInfo.empty();
       let alternates = sMuFLMetadata.fontMetadata().glyphsWithAlternates;
       let baseGlyphnames = [];
-      if (option1.isOptionalGlyph) {
+      if (option1.isOptionalGlyph || !glyphname) {
         if (fontInfo) {
           const glyph = fontInfo.glyphsByUCodepoint[uCodepoint];
           if (glyph || fontInfo.glyphsWithAlternates) {
             const alternateFors = fontInfo.alternateFors[glyph.glyphname];
+            if (alternateFors) {
+              baseGlyphnames = alternateFors;
+            }
+          } else if (fontInfo.alternateFors) {
+            const alternateFors = fontInfo.alternateFors[uCodepoint];
             if (alternateFors) {
               baseGlyphnames = alternateFors;
             }

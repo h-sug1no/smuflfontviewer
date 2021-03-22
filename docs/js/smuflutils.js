@@ -85,9 +85,11 @@ class SMuFLMetadata {
         Object.keys(glyphsWithAlternates).forEach(function(key) {
           const tAlternates = glyphsWithAlternates[key].alternates;
           tAlternates.forEach(function(v) {
-            const tAlternateFors = alternateFors[v.name] =
-              alternateFors[v.name] || [];
+            [v.name, v.codepoint].forEach(function(vkey) {
+            const tAlternateFors = alternateFors[vkey] =
+              alternateFors[vkey] || [];
             tAlternateFors.push(key);
+            });
           });
         });
       }
