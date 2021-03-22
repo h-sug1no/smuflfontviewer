@@ -507,13 +507,17 @@ class SMuFLFontViewer {
       setCodepointByString(formatCodepointNumber(codepointNumber));
     }
 
-    function appendCodepoint($c, uCodepointStr) {
-      $c.append($(`<span class="smuflCodepoint">${uCodepointStr}</span>`));
+    function appendCodepoint($c, uCodepointStr, currentUCodepoint) {
+      let currentGlyph = '';
+      if (uCodepointStr && (uCodepointStr === currentUCodepoint)) {
+        currentGlyph = ' currentGlyph';
+      }
+      $c.append($(`<span class="smuflCodepoint${currentGlyph}">${uCodepointStr}</span>`));
     }
 
-    function appendCodepointOrText($c, uCodepointStr) {
+    function appendCodepointOrText($c, uCodepointStr, currentUCodepoint) {
       if (uCodepointStr.startsWith && uCodepointStr.startsWith('U+')) {
-        appendCodepoint($c, uCodepointStr);
+        appendCodepoint($c, uCodepointStr, currentUCodepoint);
       }
       else {
         _$c_appendText($c, uCodepointStr);
@@ -1118,14 +1122,14 @@ class SMuFLFontViewer {
     });
 
 
-    function addAlternatesInfo($alternatesInfo, alternates, baseGlyphname, glyphname) {
+    function addAlternatesInfo($alternatesInfo, alternates, baseGlyphname, glyphname, currentUCodepoint) {
       if (alternates && alternates.alternates) {
         _$c_appendText($alternatesInfo, 'alternates: ');
         appendGlyphname($alternatesInfo, baseGlyphname, glyphname, undefined, true);
         _$c_appendText($alternatesInfo, '\n');
         alternates.alternates.forEach(function (v) {
           _$c_appendText($alternatesInfo, 'codepoint: ');
-          appendCodepoint($alternatesInfo, v.codepoint);
+          appendCodepoint($alternatesInfo, v.codepoint, currentUCodepoint);
           _$c_appendText($alternatesInfo, `, name: `);
           appendGlyphname($alternatesInfo, v.name, glyphname, v.codepoint);
           _$c_appendText($alternatesInfo, `\n`);
@@ -1838,7 +1842,7 @@ class SMuFLFontViewer {
 
       if (!glyphnameData) {
         _$c_appendText($smuflGlyphInfoText, 'codepoint: ');
-        appendCodepointOrText($smuflGlyphInfoText, uCodepoint);
+        appendCodepointOrText($smuflGlyphInfoText, uCodepoint, uCodepoint);
         appendAlternateCodepointFors($smuflGlyphInfoText, uCodepoint);
       }
       else {
@@ -1847,7 +1851,7 @@ class SMuFLFontViewer {
           if (key !== 'classes') {
             _$c_appendText($smuflGlyphInfoText,
               key + ': ');
-            appendCodepointOrText($smuflGlyphInfoText, glyphnameData[key]);
+            appendCodepointOrText($smuflGlyphInfoText, glyphnameData[key], uCodepoint);
             _$c_appendText($smuflGlyphInfoText, '\n');
           }
         }
@@ -1956,7 +1960,7 @@ class SMuFLFontViewer {
 
       baseGlyphnames.forEach(function (baseGlyphname) {
         const tAalternates = alternates ? alternates[baseGlyphname] : undefined;
-        addAlternatesInfo($alternatesInfo, tAalternates, baseGlyphname, glyphname);
+        addAlternatesInfo($alternatesInfo, tAalternates, baseGlyphname, glyphname, uCodepoint);
       });
 
       const classes = sMuFLMetadata.getFontInfo().computedClasses.classes;
@@ -2021,7 +2025,7 @@ class SMuFLFontViewer {
             _$c_appendText($setInfo, `, alternateFor: `);
             appendGlyphname($setInfo, item.glyph.alternateFor, glyphname);
             _$c_appendText($setInfo, `, codepoint: `);
-            appendCodepointOrText($setInfo, item.glyph.codepoint);
+            appendCodepointOrText($setInfo, item.glyph.codepoint, uCodepoint);
             _$c_appendText($setInfo, `, description: ${item.glyph.description}`);
             _$c_appendText($setInfo, `, name: `);
             appendGlyphname($setInfo, item.glyph.name, glyphname);
