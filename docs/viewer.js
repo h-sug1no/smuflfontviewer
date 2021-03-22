@@ -571,6 +571,9 @@ class SMuFLFontViewer {
       if (option.isOptionalGlyph) {
         $t.addClass('optionalGlyph');
       }
+      if (option.isUnknownOptionalGlyph) {
+        $t.addClass('unknownOptionalGlyph');
+      }
       if (currentGlyphName === glyphname) {
         $t.addClass('currentGlyph');
       }
@@ -610,14 +613,6 @@ class SMuFLFontViewer {
       const target = ev.target;
       if (target._on3StateChange) {
         target._on3StateChange();
-      }
-
-      if (rosgCpSelect) {
-        if (smuflGlyphHints_repatOffset3StateBoxElm._3state == 2) {
-          rosgCpSelect.$codepointSelect_selectize.$control.show();
-        } else {
-          rosgCpSelect.$codepointSelect_selectize.$control.hide();
-        }
       }
 
       //console.log(this);
@@ -1128,7 +1123,7 @@ class SMuFLFontViewer {
           _$c_appendText($alternatesInfo, 'codepoint: ');
           appendCodepoint($alternatesInfo, v.codepoint);
           _$c_appendText($alternatesInfo, `, name: `);
-          appendGlyphname($alternatesInfo, v.name, glyphname);
+          appendGlyphname($alternatesInfo, v.name, glyphname, v.codepoint);
           _$c_appendText($alternatesInfo, `\n`);
         });
       }
@@ -1651,6 +1646,18 @@ class SMuFLFontViewer {
 
       ctx.fillStyle = '#444444cc';
       _renderGlyph(glyphData, x, y, fontSize);
+
+      if (rosgCpSelect) {
+        if ($(smuflGlyphHints_repatOffset3StateBoxElm).parent().is(':hidden')) {
+          rosgCpSelect.$codepointSelect_selectize.$control.hide();
+        } else {
+          if (smuflGlyphHints_repatOffset3StateBoxElm._3state == 2) {
+            rosgCpSelect.$codepointSelect_selectize.$control.show();
+          } else {
+            rosgCpSelect.$codepointSelect_selectize.$control.hide();
+          }
+        }
+      }
 
       if ($smuflGlyphHints_repatOffset3StateBox.prop('checked')) {
         ctx.save();
