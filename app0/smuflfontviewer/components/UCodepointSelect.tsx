@@ -39,19 +39,27 @@ export default function UCodepointSelect(/*props*/): JSX.Element {
       <Autocomplete
         value={value}
         onChange={(event, newValue: any) => {
+          // console.log(`onChange: ${JSON.stringify(newValue)}`);
           if (typeof newValue === 'string') {
+            /*
             setValue({
               value: newValue,
               name: newValue,
               series: 'unknown new string',
             });
+            */
+            setValue(null);
           } else if (newValue && newValue.inputValue) {
-            // Create a new value from the user input
-            setValue({
-              value: newValue.inputValue,
-              name: newValue.inputValue,
-              series: 'unknown input string',
-            });
+            if (newValue.value) {
+              setValue(newValue);
+            } else {
+              // Create a new value from the user input
+              setValue({
+                value: newValue.inputValue,
+                name: newValue.inputValue,
+                series: 'unknown input string',
+              });
+            }
           } else {
             setValue(newValue);
           }
@@ -88,6 +96,7 @@ export default function UCodepointSelect(/*props*/): JSX.Element {
               }
 
               str = formatCodepointNumber(cpNumber);
+              // console.log(`${str}: ${cpNumber}`);
               if (!ucSelectOptionsMap[str]) {
                 ucSelectOptionsMap[str] = {
                   inputValue: params.inputValue,
@@ -95,8 +104,8 @@ export default function UCodepointSelect(/*props*/): JSX.Element {
                   value: `${str}`,
                   series: 'codepoint',
                 };
-                // ucSelectOptions.unshift(ucSelectOptionsMap[str]);
-                // filtered.unshift(ucSelectOptionsMap[str]);
+                ucSelectOptions.unshift(ucSelectOptionsMap[str]);
+                filtered.unshift(ucSelectOptionsMap[str]);
               }
             }
           }
