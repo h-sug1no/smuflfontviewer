@@ -8,6 +8,7 @@ import Container from '@material-ui/core/Container';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
+
 import {
   Select,
   MenuItem,
@@ -38,6 +39,10 @@ import { LigaturesList } from '../components/LigaturesList';
 import { SetsList } from '../components/SetsList';
 import { GlyphsWithAlternatesList } from '../components/GlyphsWithAlternatesList';
 import { GlyphsWithAnchorsList } from '../components/GlyphsWithAnchorsList';
+import UCodepointSelect, {
+  initUCodepointSelectOptions,
+  IUCSelectOption,
+} from '../components/UCodepointSelect';
 
 /*
 import ProTip from '../src/ProTip';
@@ -414,6 +419,34 @@ function _initFontFace(options: Options, handle_onResourceReady: any) {
     });
 }
 
+const createUCodepointSelectOptions = (sMuFLMetadata: Database) => {
+  const fontInfo = sMuFLMetadata.getFontInfo();
+  const soptions: IUCSelectOption[] = [];
+  const glyphnames = sMuFLMetadata.data_.glyphnames;
+
+  Object.keys(glyphnames).forEach((gname) => {
+    //{series: 'optionalGlyphs', value: 10, name: '1'},
+    const cp = glyphnames[gname].codepoint.replace('U+', '');
+    soptions.push({
+      series: 'glyphnames',
+      value: cp,
+      name: cp + ': ' + gname,
+    });
+  });
+
+  const optionalGlyphs = fontInfo.fontMetadata_.optionalGlyphs;
+  console.warn('no optionalGlyphs');
+  Object.keys(optionalGlyphs || {}).forEach((gname) => {
+    const cp = optionalGlyphs[gname].codepoint.replace('U+', '');
+    soptions.push({
+      series: 'optionalGlyphs',
+      value: cp,
+      name: cp + ': ' + gname,
+    });
+  });
+  initUCodepointSelectOptions(soptions);
+};
+
 export default function Viewer(): ReactElement {
   enum DBState {
     INITIAL,
@@ -444,6 +477,7 @@ export default function Viewer(): ReactElement {
           setDBState(DBState.ERROR);
         } else {
           setDBState(DBState.FONTLOADING);
+          createUCodepointSelectOptions(sMuFLMetadata);
           _initFontFace(options, (type: string) => {
             if (type === 'smuflFontFace') {
               setDBState(DBState.READY);
@@ -480,6 +514,7 @@ export default function Viewer(): ReactElement {
       <Container maxWidth="xl">
         <Box my={4}>
           <HeaderMenu />
+          <UCodepointSelect />
           <Typography variant="h4" component="h1" gutterBottom>
             text: FIXME
           </Typography>
