@@ -1,5 +1,5 @@
 /* eslint-disable no-use-before-define */
-import React from 'react';
+import React, { useCallback, useEffect } from 'react';
 import TextField from '@material-ui/core/TextField';
 import { Autocomplete, createFilterOptions } from '@material-ui/lab';
 import parse from 'autosuggest-highlight/parse';
@@ -30,10 +30,25 @@ export const match = (text: string, query: string): [number, number][] => {
   return results;
 };
 
-export default function UCodepointSelect(/*props*/): JSX.Element {
+export default function UCodepointSelect(props: any): JSX.Element {
+  const { onChange, value } = props;
   // fixme: define type of values.
-  const [value, setValue] = React.useState<IUCSelectOption | null>(null);
+  // const [value, setValue] = React.useState<IUCSelectOption | null>(null);
 
+  const [tick, setTick] = React.useState<number>(0);
+  const refTick = React.useRef<number>();
+  const setValue = useCallback(
+    (v) => {
+      if (!onChange(v)) {
+        setTick((refTick.current || 0) + 1);
+      }
+    },
+    [onChange],
+  );
+
+  useEffect(() => {
+    refTick.current = tick;
+  });
   return (
     <>
       <Autocomplete

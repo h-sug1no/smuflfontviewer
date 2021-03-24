@@ -457,6 +457,7 @@ export default function Viewer(): ReactElement {
   }
   const { query, asPath } = useRouter();
   const [dbState, setDBState] = useState(DBState.INITIAL);
+  const [currentUCodepoint, setCurrentUCodepoint] = useState<IUCSelectOption | null>(null);
 
   useEffect(() => {
     // console.log('isLoading:' + isLoading);
@@ -505,6 +506,17 @@ export default function Viewer(): ReactElement {
     );
   }
 
+  const ucodepointSelectOnChange = (v: IUCSelectOption) => {
+    console.log(JSON.stringify(v));
+    if (v) {
+      setCurrentUCodepoint(v);
+    } else {
+      // how to inform repaint?
+      // keep current ucodepoint on select.
+    }
+    return !!v;
+  };
+
   return (
     <>
       <Head>
@@ -514,7 +526,7 @@ export default function Viewer(): ReactElement {
       <Container maxWidth="xl">
         <Box my={4}>
           <HeaderMenu />
-          <UCodepointSelect />
+          <UCodepointSelect onChange={ucodepointSelectOnChange} value={currentUCodepoint} />
           <Typography variant="h4" component="h1" gutterBottom>
             text: FIXME
           </Typography>
