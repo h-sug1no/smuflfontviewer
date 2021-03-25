@@ -8,7 +8,7 @@ import Container from '@material-ui/core/Container';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
-
+import NoteIcon from '@material-ui/icons/Note';
 import {
   Select,
   MenuItem,
@@ -42,6 +42,8 @@ import { GlyphsWithAnchorsList } from '../components/GlyphsWithAnchorsList';
 import UCodepointSelect, {
   initUCodepointSelectOptions,
   IUCSelectOption,
+  getUCSelectOptionByValue,
+  formatCodepointNumber,
 } from '../components/UCodepointSelect';
 
 /*
@@ -447,6 +449,12 @@ const createUCodepointSelectOptions = (sMuFLMetadata: Database) => {
   initUCodepointSelectOptions(soptions);
 };
 
+const useStyles = makeStyles(() => ({
+  button: {
+    fontSize: '2rem',
+  },
+}));
+
 export default function Viewer(): ReactElement {
   enum DBState {
     INITIAL,
@@ -455,9 +463,15 @@ export default function Viewer(): ReactElement {
     ERROR,
     READY,
   }
+  const classes = useStyles();
   const { query, asPath } = useRouter();
   const [dbState, setDBState] = useState(DBState.INITIAL);
-  const [currentUCodepoint, setCurrentUCodepoint] = useState<IUCSelectOption | null>(null);
+  const [currentUCodepoint, _setCurrentUCodepoint] = useState<IUCSelectOption | null>(null);
+  const currentUCodepointRef = React.useRef(currentUCodepoint);
+  const setCurrentUCodepoint = (data: IUCSelectOption | null) => {
+    currentUCodepointRef.current = data || null;
+    _setCurrentUCodepoint(currentUCodepointRef.current);
+  };
 
   useEffect(() => {
     // console.log('isLoading:' + isLoading);
@@ -482,6 +496,12 @@ export default function Viewer(): ReactElement {
           _initFontFace(options, (type: string) => {
             if (type === 'smuflFontFace') {
               setDBState(DBState.READY);
+              if (!currentUCodepointRef.current) {
+                const tUCp = getUCSelectOptionByValue('E0A3');
+                if (tUCp) {
+                  setCurrentUCodepoint(tUCp);
+                }
+              }
             }
           });
         }
@@ -517,6 +537,54 @@ export default function Viewer(): ReactElement {
     return !!v;
   };
 
+  function getCodepoint() {
+    const tcp = currentUCodepointRef.current || { value: '0' };
+    return tcp.value;
+  }
+
+  function getCodepointNumber() {
+    return Number('0x' + getCodepoint());
+  }
+
+  function selectCodepointByString(cp: string) {
+    setCurrentUCodepoint(getUCSelectOptionByValue(cp));
+  }
+
+  function selectCodepointByNumber(cpNumber: number) {
+    selectCodepointByString(formatCodepointNumber(cpNumber));
+  }
+
+  function seekToCodepoint(cpNumber: number, d: number, checkHasGlyph: boolean) {
+    const fontInfo = sMuFLMetadata.getFontInfo();
+    let glyphsByUCodepoint;
+    if (fontInfo) {
+      glyphsByUCodepoint = fontInfo.glyphsByUCodepoint;
+    }
+
+    let codepointStr;
+    while ((cpNumber += d) >= 0 && cpNumber < 0x10ffff && !codepointStr) {
+      const tCodepointStr = formatCodepointNumber(cpNumber);
+      if (checkHasGlyph && glyphsByUCodepoint) {
+        if (glyphsByUCodepoint[sMuFLMetadata.ensureUCodepoint(tCodepointStr)]) {
+          codepointStr = tCodepointStr;
+        }
+      } else {
+        codepointStr = tCodepointStr;
+      }
+    }
+    if (codepointStr) {
+      selectCodepointByString(codepointStr);
+    }
+  }
+
+  const messages = {
+    BPrev: 'show prev codepoint(h)',
+    BNextGlyph: 'show next codepoint with glyph(j)',
+    BPrevGlyph: 'show prev codepoint with glyph(k)',
+    BNext: 'show next codepoint(l)',
+    BShowPrev: 'show (p)rev glyph',
+    BShowScratchpad: 'toggle Scratchpad',
+  };
   return (
     <>
       <Head>
@@ -528,8 +596,53 @@ export default function Viewer(): ReactElement {
           <HeaderMenu />
           <UCodepointSelect onChange={ucodepointSelectOnChange} value={currentUCodepoint} />
           <Typography variant="h4" component="h1" gutterBottom>
+            <span className="smufl">{'render glyph'}</span>
             text: FIXME
           </Typography>
+
+          <Tooltip title={messages.BPrev}>
+            <Button
+              className={classes.button}
+              onClick={() => {
+                seekToCodepoint(getCodepointNumber(), -1, false);
+              }}
+            >
+              ←
+            </Button>
+          </Tooltip>
+          <Tooltip
+            title={messages.BNextGlyph}
+            onClick={() => {
+              seekToCodepoint(getCodepointNumber(), 1, false);
+            }}
+          >
+            <Button className={classes.button}>↓</Button>
+          </Tooltip>
+          <Tooltip title={messages.BPrevGlyph}>
+            <Button
+              className={classes.button}
+              onClick={() => {
+                seekToCodepoint(getCodepointNumber(), -1, true);
+              }}
+            >
+              ↑
+            </Button>
+          </Tooltip>
+          <Tooltip title={messages.BNextGlyph}>
+            <Button
+              className={classes.button}
+              onClick={() => {
+                seekToCodepoint(getCodepointNumber(), 1, true);
+              }}
+            >
+              →
+            </Button>
+          </Tooltip>
+          <Tooltip title={messages.BShowScratchpad}>
+            <IconButton className={classes.button}>
+              <NoteIcon />
+            </IconButton>
+          </Tooltip>
           {/*
           <Select
             id="presetSelect"

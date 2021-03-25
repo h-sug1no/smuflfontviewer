@@ -139,7 +139,7 @@ export default function UCodepointSelect(props: any): JSX.Element {
           }
           // Add "xxx" option created dynamically
           if (option.inputValue) {
-            return option.inputValue;
+            // return option.inputValue;
           }
           // Regular option
           return option.name;
@@ -201,7 +201,45 @@ const initUCodepointSelectOptions = (src: IUCSelectOption[]): void => {
   });
 };
 
-function formatCodepointNumber(codepointNumber: number) {
+function registerUCSelectOption(cpStr = '') {
+  let ret = null;
+  let str = cpStr.toUpperCase();
+  if (str.match(/^[A-F0-9]+$/)) {
+    let cpNumber = NaN;
+    try {
+      cpNumber = parseInt(str, 16);
+      // check cpNumber is valid unicode codepoint.
+      String.fromCodePoint(cpNumber);
+    } catch (e) {
+      // RangeError: xxxxxxx is not a valid code point
+      // console.log(e);
+      return ret;
+    }
+    if (isNaN(cpNumber)) {
+      return ret;
+    }
+
+    str = formatCodepointNumber(cpNumber);
+    // console.log(`${str}: ${cpNumber}`);
+    if (!ucSelectOptionsMap[str]) {
+      ucSelectOptionsMap[str] = {
+        inputValue: cpStr,
+        name: `${str}`,
+        value: `${str}`,
+        series: 'codepoint',
+      };
+    }
+    ret = ucSelectOptionsMap[str];
+  }
+  return ret;
+}
+
+export function getUCSelectOptionByValue(cpStr: string): IUCSelectOption | null {
+  // TODO: check cpValue is codepoint then add to Map then return it.
+  return registerUCSelectOption(cpStr);
+}
+
+export function formatCodepointNumber(codepointNumber: number): string {
   let str = 'NaN';
   if (isNaN(codepointNumber)) {
     return str;
@@ -210,11 +248,5 @@ function formatCodepointNumber(codepointNumber: number) {
   str = codepointNumber.toString(16).toUpperCase();
   return str.padStart(4, '0');
 }
-
-/*
-function getCodepointNumber(cpStr: string) {
-  return Number('0x' + (cpStr || getCodepoint()), 16);
-}
-*/
 
 export { initUCodepointSelectOptions };
