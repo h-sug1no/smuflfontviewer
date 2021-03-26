@@ -45,6 +45,7 @@ import UCodepointSelect, {
   getUCSelectOptionByValue,
   formatCodepointNumber,
 } from '../components/UCodepointSelect';
+import GlyphCanvas from '../components/GlyphCanvas';
 
 /*
 import ProTip from '../src/ProTip';
@@ -643,6 +644,7 @@ export default function Viewer(): ReactElement {
               <NoteIcon />
             </IconButton>
           </Tooltip>
+          <GlyphCanvas value={currentUCodepoint} />
           {/*
           <Select
             id="presetSelect"

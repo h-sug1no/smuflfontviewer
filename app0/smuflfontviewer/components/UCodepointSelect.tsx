@@ -11,6 +11,7 @@ const filterOptions = (options: string[], state: FilterOptionsState) =>
 */
 
 import { Dict } from '../lib/SMuFLMetadata';
+import { AssignmentReturnedTwoTone } from '@material-ui/icons';
 // import { ContactsTwoTone } from '@material-ui/icons';
 const filter = createFilterOptions<IUCSelectOption>({
   /* limit: 10 */
@@ -191,6 +192,10 @@ export type IUCSelectOption = {
 let ucSelectOptions: IUCSelectOption[] = [];
 const ucSelectOptionsMap: Dict<IUCSelectOption> = {};
 const initUCodepointSelectOptions = (src: IUCSelectOption[]): void => {
+  if (Object.keys(ucSelectOptionsMap)) {
+    // for hot reload on debugging?
+    return;
+  }
   ucSelectOptions = src;
   ucSelectOptions.forEach((v) => {
     if (!ucSelectOptionsMap[v.value]) {
