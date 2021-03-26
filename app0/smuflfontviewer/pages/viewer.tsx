@@ -183,6 +183,13 @@ function HeaderMenu() {
       '@media (max-width: 900px)': {
         paddingLeft: 0,
       },
+      opacity: 0,
+      height: '5px',
+      overflow: 'hidden',
+      '&:hover': {
+        opacity: 1,
+        height: 'auto',
+      },
     },
     logo: {
       fontFamily: 'Work Sans, sans-serif',
