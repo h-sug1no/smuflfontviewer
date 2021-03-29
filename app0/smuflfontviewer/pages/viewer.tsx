@@ -45,6 +45,11 @@ import UCodepointSelect, {
   getUCSelectOptionByValue,
   formatCodepointNumber,
 } from '../components/UCodepointSelect';
+
+import RangeSelect, {
+  registerRangeSelectOption,
+  IRangeSelectOption,
+} from '../components/RangeSelect';
 import GlyphCanvas from '../components/GlyphCanvas';
 
 /*
@@ -457,6 +462,14 @@ const createUCodepointSelectOptions = (sMuFLMetadata: Database) => {
   initUCodepointSelectOptions(soptions);
 };
 
+const createRangeSelectOptions = (sMuFLMetadata: Database) => {
+  const ranges = sMuFLMetadata.data_.ranges;
+
+  Object.keys(ranges).forEach((range) => {
+    registerRangeSelectOption(range);
+  });
+};
+
 const useStyles = makeStyles(() => ({
   button: {
     fontSize: '2rem',
@@ -474,11 +487,19 @@ export default function Viewer(): ReactElement {
   const classes = useStyles();
   const { query, asPath } = useRouter();
   const [dbState, setDBState] = useState(DBState.INITIAL);
+
   const [currentUCodepoint, _setCurrentUCodepoint] = useState<IUCSelectOption | null>(null);
   const currentUCodepointRef = React.useRef(currentUCodepoint);
   const setCurrentUCodepoint = (data: IUCSelectOption | null) => {
     currentUCodepointRef.current = data || null;
     _setCurrentUCodepoint(currentUCodepointRef.current);
+  };
+
+  const [currentRange, _setCurrentRange] = useState<IUCSelectOption | null>(null);
+  const currentRangeRef = React.useRef(currentRange);
+  const setCurrentRange = (data: IRangeSelectOption | null) => {
+    currentRangeRef.current = data || null;
+    _setCurrentRange(currentRangeRef.current);
   };
 
   useEffect(() => {
@@ -501,6 +522,7 @@ export default function Viewer(): ReactElement {
         } else {
           setDBState(DBState.FONTLOADING);
           createUCodepointSelectOptions(sMuFLMetadata);
+          createRangeSelectOptions(sMuFLMetadata);
           _initFontFace(options, (type: string) => {
             if (type === 'smuflFontFace') {
               setDBState(DBState.READY);
@@ -538,6 +560,17 @@ export default function Viewer(): ReactElement {
     console.log(JSON.stringify(v));
     if (v) {
       setCurrentUCodepoint(v);
+    } else {
+      // how to inform repaint?
+      // keep current ucodepoint on select.
+    }
+    return !!v;
+  };
+
+  const rangeSelectOnChange = (v: IUCSelectOption) => {
+    console.log(JSON.stringify(v));
+    if (v) {
+      setCurrentRange(v);
     } else {
       // how to inform repaint?
       // keep current ucodepoint on select.
@@ -603,55 +636,62 @@ export default function Viewer(): ReactElement {
         <Box my={4}>
           <HeaderMenu />
           <UCodepointSelect onChange={ucodepointSelectOnChange} value={currentUCodepoint} />
-          <Typography variant="h4" component="h1" gutterBottom>
-            <span className="smufl">{'render glyph'}</span>
-            text: FIXME
-          </Typography>
+          <div>
+            <Typography variant="h4" component="h1" gutterBottom>
+              <span className="smufl">{'render glyph'}</span>
+              text: FIXME
+            </Typography>
 
-          <Tooltip title={messages.BPrev}>
-            <Button
-              className={classes.button}
+            <Tooltip title={messages.BPrev}>
+              <Button
+                className={classes.button}
+                onClick={() => {
+                  seekToCodepoint(getCodepointNumber(), -1, false);
+                }}
+              >
+                ←
+              </Button>
+            </Tooltip>
+            <Tooltip
+              title={messages.BNextGlyph}
               onClick={() => {
-                seekToCodepoint(getCodepointNumber(), -1, false);
+                seekToCodepoint(getCodepointNumber(), 1, false);
               }}
             >
-              ←
-            </Button>
-          </Tooltip>
-          <Tooltip
-            title={messages.BNextGlyph}
-            onClick={() => {
-              seekToCodepoint(getCodepointNumber(), 1, false);
-            }}
-          >
-            <Button className={classes.button}>↓</Button>
-          </Tooltip>
-          <Tooltip title={messages.BPrevGlyph}>
-            <Button
-              className={classes.button}
-              onClick={() => {
-                seekToCodepoint(getCodepointNumber(), -1, true);
-              }}
-            >
-              ↑
-            </Button>
-          </Tooltip>
-          <Tooltip title={messages.BNextGlyph}>
-            <Button
-              className={classes.button}
-              onClick={() => {
-                seekToCodepoint(getCodepointNumber(), 1, true);
-              }}
-            >
-              →
-            </Button>
-          </Tooltip>
-          <Tooltip title={messages.BShowScratchpad}>
-            <IconButton className={classes.button}>
-              <NoteIcon />
-            </IconButton>
-          </Tooltip>
-          <GlyphCanvas value={currentUCodepoint} />
+              <Button className={classes.button}>↓</Button>
+            </Tooltip>
+            <Tooltip title={messages.BPrevGlyph}>
+              <Button
+                className={classes.button}
+                onClick={() => {
+                  seekToCodepoint(getCodepointNumber(), -1, true);
+                }}
+              >
+                ↑
+              </Button>
+            </Tooltip>
+            <Tooltip title={messages.BNextGlyph}>
+              <Button
+                className={classes.button}
+                onClick={() => {
+                  seekToCodepoint(getCodepointNumber(), 1, true);
+                }}
+              >
+                →
+              </Button>
+            </Tooltip>
+            <Tooltip title={messages.BShowScratchpad}>
+              <IconButton className={classes.button}>
+                <NoteIcon />
+              </IconButton>
+            </Tooltip>
+          </div>
+          <div>
+            <RangeSelect onChange={rangeSelectOnChange} value={currentRange} />
+          </div>
+          <div>
+            <GlyphCanvas value={currentUCodepoint} />
+          </div>
           {/*
           <Select
             id="presetSelect"
