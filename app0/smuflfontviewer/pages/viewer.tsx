@@ -45,7 +45,7 @@ import UCodepointSelect, {
   getUCSelectOptionByValue,
   formatCodepointNumber,
 } from '../components/UCodepointSelect';
-
+import { UCodePoint } from '../lib/UCodePoint';
 import RangeSelect, {
   registerRangeSelectOption,
   IRangeSelectOption,
@@ -465,8 +465,9 @@ const createUCodepointSelectOptions = (sMuFLMetadata: Database) => {
 const createRangeSelectOptions = (sMuFLMetadata: Database) => {
   const ranges = sMuFLMetadata.data_.ranges;
 
-  Object.keys(ranges).forEach((range) => {
-    registerRangeSelectOption(range);
+  Object.keys(ranges).forEach((key) => {
+    const range = ranges[key];
+    registerRangeSelectOption(key, UCodePoint.fromUString(range.range_start).toNumber());
   });
 };
 
@@ -567,10 +568,11 @@ export default function Viewer(): ReactElement {
     return !!v;
   };
 
-  const rangeSelectOnChange = (v: IUCSelectOption) => {
+  const rangeSelectOnChange = (v: IRangeSelectOption) => {
     console.log(JSON.stringify(v));
     if (v) {
       setCurrentRange(v);
+      selectCodepointByNumber(v.codepoint);
     } else {
       // how to inform repaint?
       // keep current ucodepoint on select.
