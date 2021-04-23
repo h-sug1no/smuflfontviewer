@@ -1156,6 +1156,74 @@ class SMuFLFontViewer {
     $('#BFontMetadataGlyphsWithAnchors').on('click', function () {
       _$infoDialog_showModal(specLinkDoms['font metadata glyphsWithAnchors'], function ($contentContainer) {
         try {
+          const $gwaOptionContainer = $(`<div class="gwanchorsOptionContainer">filter: </div>`);
+          $contentContainer.append($gwaOptionContainer);
+          const $options = $(`<div class="options"></div>`);
+
+          ['check all', 'toggle all'].forEach((bName, idx) => {
+            const $btn =
+              $(`<button class="gwanchorOptionButton">${bName}</button>`);
+            $gwaOptionContainer.append($btn);
+            switch (idx) {
+              case 0:
+                $btn.on('click', () => {
+                  $options.find('input').each((eIdx, elm) => {
+                    elm.checked = true;
+                    $(elm).change();
+                  });
+                });
+                break;
+              case 1:
+                $btn.on('click', () => {
+                  $options.find('input').each((eIdx, elm) => {
+                    elm.checked = !elm.checked;
+                    $(elm).change();
+                  });
+                });
+                break;
+              default:
+                break;
+            }
+          });
+
+          $gwaOptionContainer.append($options);
+
+          const styleEl = document.createElement('style');
+          document.head.appendChild(styleEl);
+          const styleSheet = styleEl.sheet;
+
+          ['splitStemUpSE',
+            'splitStemUpSW',
+            'splitStemDownNE',
+            'splitStemDownNW',
+            'stemUpSE',
+            'stemDownNW',
+            'stemUpNW',
+            'stemDownSW',
+            'nominalWidth',
+            'numeralTop',
+            'numeralBottom',
+            'cutOutNE',
+            'cutOutSE',
+            'cutOutSW',
+            'cutOutNW',
+            'graceNoteSlashSW',
+            'graceNoteSlashNE',
+            'graceNoteSlashNW',
+            'graceNoteSlashSE',
+            'repeatOffset',
+            'noteheadOrigin',
+            'opticalCenter'].forEach((aName) => {
+              const sIdx = styleSheet.insertRule(`.${aName} {display: block}`, styleSheet.cssRules.length);
+              const $cbLabel = $(`<label class="gwanchorOption"><input type="checkbox" name="${aName}"
+                checked/>${aName}</label>`);
+              const $checkbox = $cbLabel.find('input');
+              $checkbox.on('change', () => {
+                styleSheet.cssRules[sIdx].style.display = $checkbox.prop('checked') ? 'block' : '';
+              });
+              $options.append($cbLabel);
+            });
+
           const glyphsWithAnchors = sMuFLMetadata.getFontInfo().fontMetadata.glyphsWithAnchors;
           Object.keys(glyphsWithAnchors).forEach(function (glyphname) {
             const glyph = glyphsWithAnchors[glyphname];
@@ -1167,6 +1235,7 @@ class SMuFLFontViewer {
             $glyphContainer.append($nbsp);
             _$c_appendText($glyphContainer, Object.keys(glyph).join(', '));
             $gwaContainer.append($glyphContainer);
+            $gwaContainer.prop('class', Object.keys(glyph).concat('gwanchorsContainer').join(' '));
           });
         } catch (e) {
           console.log(e);
@@ -2164,6 +2233,8 @@ class SMuFLFontViewer {
       _postDraw();
       if (options.has('showFontMetadata')) {
         $('#BFontMetadata').click();
+      } else if (options.has('showGlyphsWithAnchors')) {
+        $('#BFontMetadataGlyphsWithAnchors').click();
       }
     };
 

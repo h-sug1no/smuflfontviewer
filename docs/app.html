@@ -275,6 +275,34 @@
       border-radius: 0.2em;
       display: inline-block;
     }
+
+    .gwanchorsContainer {
+      display: none;
+    }
+
+    .gwanchorsOptionContainer {
+      padding: 10px;
+      margin-top: 10px;
+      position: fixed;
+      overflow: hidden;
+      top: 0;
+      z-index: 102;
+      border-radius: 1em;
+      background-color: #e0e0e0;
+    }
+    .gwanchorsOptionContainer * {
+      display: none;
+    }
+    .gwanchorsOptionContainer:hover * {
+      display: unset;
+    }
+    .gwanchorsOptionContainer:hover {
+      height: auto;
+      width: auto;
+    }
+    .gwanchorOption {
+      white-space: nowrap;
+    }
   </style>
 
   <style type="text/css" media="print">
