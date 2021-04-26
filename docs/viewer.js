@@ -1158,9 +1158,11 @@ class SMuFLFontViewer {
         const btns = [];
         const checkboxes = [];
         const $options = $(`<div class="options"></div>`);
+
         try {
           const $gwaOptionContainer = $(`<div class="gwanchorsOptionContainer">filter: </div>`);
           $contentContainer.append($gwaOptionContainer);
+          $gwaOptionContainer.prop('title', 'check anchors to show items with a specific anchors');
 
           ['check all', 'toggle all'].forEach((bName, idx) => {
             const $btn =
