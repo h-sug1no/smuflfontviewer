@@ -275,10 +275,44 @@
       border-radius: 0.2em;
       display: inline-block;
     }
+
+    .gwanchorsContainer {
+      display: none;
+    }
+
+    .gwanchorsOptionContainer {
+      padding: 5px 10px;
+      margin-top: 10px;
+      position: fixed;
+      overflow: hidden;
+      top: 0;
+      z-index: 102;
+      border-radius: 1em;
+      background-color: #e0e0e0;
+    }
+    .gwanchorsOptionContainer:hover {
+      padding: 10px;
+      height: auto;
+      width: calc(100vw - 70px);
+      margin: 10px;
+      margin-left: auto;
+      box-shadow: 10px 10px 10px rgba(0,0,0,0.4);
+    }
+
+    .gwanchorsOptionContainer * {
+      display: none;
+    }
+    .gwanchorsOptionContainer:hover * {
+      display: inline-block;
+    }
+
+    .gwanchorOption {
+      white-space: nowrap;
+    }
   </style>
 
   <style type="text/css" media="print">
-    #dialogUi {
+    #dialogUi, .gwanchorsOptionContainer {
       display: none;
     }
 
