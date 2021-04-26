@@ -102,7 +102,7 @@ class SMuFLFontViewer {
           });
         });
 
-        function initCpSelect($codepointSelect, onChangeCB, onBlurCB) {
+        const initCpSelect = ($codepointSelect, onChangeCB, onBlurCB) => {
           $codepointSelect.selectize({
             options: soptions,
             optgroups: [
@@ -168,7 +168,7 @@ class SMuFLFontViewer {
             $codepointSelect: $codepointSelect,
             $codepointSelect_selectize: $codepointSelect_selectize,
           };
-        }
+        };
         const cpSelect0 = initCpSelect($codepointSelect, (value) => {
           if (value.length) {
             setCodepointByString(value);
