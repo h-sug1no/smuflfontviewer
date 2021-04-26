@@ -605,7 +605,7 @@ class SSRenderer {
       ctx.restore();
     }
 
-    function drawNotes(dCtx, system, sbbox) {
+    function drawNotes(dCtx, system/*, sbbox*/) {
       const ctx = dCtx.ctx;
       system = {
         x: system.x + 10,
@@ -775,7 +775,7 @@ class SSRenderer {
         x2: npos[2].x + m1.scaledBBox.w,
         y2: npos[2].y + 4.5 * sbl,
       },
-        3, 'below');
+      3, 'below');
 
       lyricDefs[0].x = npos[0].x + (m1.scaledBBox.w * 0.5);
       lyricDefs[1].x = npos[1].x + (m1.scaledBBox.w * 0.5);
