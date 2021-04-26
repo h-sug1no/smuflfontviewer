@@ -281,7 +281,7 @@
     }
 
     .gwanchorsOptionContainer {
-      padding: 10px;
+      padding: 5px 10px;
       margin-top: 10px;
       position: fixed;
       overflow: hidden;
@@ -290,16 +290,22 @@
       border-radius: 1em;
       background-color: #e0e0e0;
     }
+    .gwanchorsOptionContainer:hover {
+      padding: 10px;
+      height: auto;
+      width: auto;
+      margin: 10px;
+      margin-left: auto;
+      box-shadow: 10px 10px 10px rgba(0,0,0,0.4);
+    }
+
     .gwanchorsOptionContainer * {
       display: none;
     }
     .gwanchorsOptionContainer:hover * {
       display: unset;
     }
-    .gwanchorsOptionContainer:hover {
-      height: auto;
-      width: auto;
-    }
+
     .gwanchorOption {
       white-space: nowrap;
     }
