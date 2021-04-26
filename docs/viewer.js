@@ -1155,35 +1155,19 @@ class SMuFLFontViewer {
 
     $('#BFontMetadataGlyphsWithAnchors').on('click', function () {
       _$infoDialog_showModal(specLinkDoms['font metadata glyphsWithAnchors'], function ($contentContainer) {
+        const btns = [];
+        const checkboxes = [];
+        const $options = $(`<div class="options"></div>`);
         try {
           const $gwaOptionContainer = $(`<div class="gwanchorsOptionContainer">filter: </div>`);
           $contentContainer.append($gwaOptionContainer);
-          const $options = $(`<div class="options"></div>`);
 
           ['check all', 'toggle all'].forEach((bName, idx) => {
             const $btn =
               $(`<button class="gwanchorOptionButton">${bName}</button>`);
+              const btnElm = $btn.get(0);
             $gwaOptionContainer.append($btn);
-            switch (idx) {
-              case 0:
-                $btn.on('click', () => {
-                  $options.find('input').each((eIdx, elm) => {
-                    elm.checked = true;
-                    $(elm).change();
-                  });
-                });
-                break;
-              case 1:
-                $btn.on('click', () => {
-                  $options.find('input').each((eIdx, elm) => {
-                    elm.checked = !elm.checked;
-                    $(elm).change();
-                  });
-                });
-                break;
-              default:
-                break;
-            }
+            btns.push($btn);
           });
 
           $gwaOptionContainer.append($options);
@@ -1218,8 +1202,11 @@ class SMuFLFontViewer {
               const $cbLabel = $(`<label class="gwanchorOption"><input type="checkbox" name="${aName}"
                 checked/>${aName}</label>`);
               const $checkbox = $cbLabel.find('input');
-              $checkbox.on('change', () => {
-                styleSheet.cssRules[sIdx].style.display = $checkbox.prop('checked') ? 'block' : '';
+              checkboxes.push({
+                $checkbox,
+                onChange: () => {
+                  styleSheet.cssRules[sIdx].style.display = $checkbox.prop('checked') ? 'block' : '';
+                },
               });
               $options.append($cbLabel);
             });
@@ -1240,6 +1227,27 @@ class SMuFLFontViewer {
         } catch (e) {
           console.log(e);
         }
+
+        $contentContainer.onAttachedToDom = () => {
+          btns.forEach(($btn, idx) => {
+            $btn.off('click');
+            $btn.on('click', () => {
+              $options.find('input').each((eIdx, elm) => {
+                if (!idx) {
+                  elm.checked = true;
+                } else {
+                  elm.checked = !elm.checked;
+                }
+                $(elm).change();
+              });
+            });
+          });
+
+          checkboxes.forEach(({$checkbox, onChange}) => {
+            $checkbox.off('change');
+            $checkbox.on('change', onChange);
+          });
+        };
       });
     });
 
