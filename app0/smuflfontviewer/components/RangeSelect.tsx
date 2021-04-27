@@ -68,7 +68,7 @@ export default function RangeSelect(props: any): JSX.Element {
         selectOnFocus
         clearOnBlur
         handleHomeEndKeys
-        id="free-solo-with-text-demo"
+        id="ucodepoint-select"
         options={rangeSelectOptions}
         getOptionLabel={(option: any) => {
           // Value selected with enter, right from the input

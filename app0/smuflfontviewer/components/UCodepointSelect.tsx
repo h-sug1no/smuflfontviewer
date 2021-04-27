@@ -131,7 +131,7 @@ export default function UCodepointSelect(props: any): JSX.Element {
         selectOnFocus
         clearOnBlur
         handleHomeEndKeys
-        id="free-solo-with-text-demo"
+        id="range-select"
         options={ucSelectOptions}
         getOptionLabel={(option: any) => {
           // Value selected with enter, right from the input
@@ -192,7 +192,7 @@ export type IUCSelectOption = {
 let ucSelectOptions: IUCSelectOption[] = [];
 const ucSelectOptionsMap: Dict<IUCSelectOption> = {};
 const initUCodepointSelectOptions = (src: IUCSelectOption[]): void => {
-  if (Object.keys(ucSelectOptionsMap)) {
+  if (Object.keys(ucSelectOptionsMap).length) {
     // for hot reload on debugging?
     return;
   }
