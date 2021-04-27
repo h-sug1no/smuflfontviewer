@@ -412,8 +412,8 @@ class SMuFLFontViewer {
 
       _setIsActive(false);
 
+      $smuflGlyphCanvasContainer.off('wheel');
       $smuflGlyphCanvasContainer.on('wheel', function (ev) {
-        console.log(ev);
         ev.preventDefault();
         $smuflRenderGlyphOptionsGlyphSize.val(Number($smuflRenderGlyphOptionsGlyphSize.val()) -
           ((ev.originalEvent.deltaY < 0 ? -1 : 1) * 20));
@@ -955,6 +955,13 @@ class SMuFLFontViewer {
 
           $ssOptionsGlyphSize.on('input.ssUI', function () {
             drawSs();
+          });
+          $gmCanvas.off('wheel');
+          $gmCanvas.on('wheel', function (ev) {
+            ev.preventDefault();
+            $ssOptionsGlyphSize.val(Number($ssOptionsGlyphSize.val()) -
+              ((ev.originalEvent.deltaY < 0 ? -1 : 1) * 20));
+            $ssOptionsGlyphSize.trigger('input');
           });
         };
 
