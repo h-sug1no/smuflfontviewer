@@ -4,11 +4,14 @@ import { IUCSelectOption } from './UCodepointSelect';
 import { Typography, Box, Slider } from '@material-ui/core';
 
 function useCanvas(draw: any, value: IUCSelectOption, context = '2d') {
-  const canvasRef = React.useRef<any>(null);
+  const canvasRef = React.useRef<HTMLCanvasElement>(null);
 
   React.useEffect(
     () => {
-      const ctx: CanvasRenderingContext2D | null = canvasRef.current.getContext(context);
+      if (!canvasRef.current) {
+        return;
+      }
+      const ctx: RenderingContext | null = canvasRef.current.getContext(context);
       draw(canvasRef.current, ctx);
     },
     [draw, value, context], // fires on these props changed.
@@ -78,6 +81,28 @@ export default function GlyphCanvas(props: any): JSX.Element {
 
   const sizeLabelFormat = useCallback((val) => val, []);
   const handleSizeChange = useCallback((e, val) => setSize(val), []);
+  const SLIDER_RANGE = {
+    min: 20,
+    max: 1000,
+  };
+
+  useEffect(() => {
+    if (!canvasRef.current) {
+      return;
+    }
+
+    const canvasElm = canvasRef.current;
+    const listener = (e: WheelEvent) => {
+      e.preventDefault();
+      setSize(
+        Math.min(SLIDER_RANGE.max, Math.max(SLIDER_RANGE.min, (e.deltaY > 0 ? 1 : -1) * 30 + size)),
+      );
+    };
+    canvasElm.addEventListener('wheel', listener);
+    return () => {
+      canvasElm.removeEventListener('wheel', listener);
+    };
+  }, [SLIDER_RANGE.max, SLIDER_RANGE.min, canvasRef, size]);
 
   return (
     <>
@@ -90,9 +115,9 @@ export default function GlyphCanvas(props: any): JSX.Element {
         </Typography>
         <Slider
           value={size}
-          min={20}
+          min={SLIDER_RANGE.min}
           step={1}
-          max={1000}
+          max={SLIDER_RANGE.max}
           // scale={calculateValue}
           getAriaValueText={sizeLabelFormat}
           valueLabelFormat={sizeLabelFormat}
