@@ -3,10 +3,14 @@
  */
 
 export class UCodePoint {
-  codepoint_: number;
+  cpNumber_: number;
 
-  constructor(codepoint: number) {
-    this.codepoint_ = codepoint;
+  constructor(cpNumber: number) {
+    this.cpNumber_ = cpNumber;
+  }
+
+  public static fromCpNumber(cpNumber: number): UCodePoint {
+    return new UCodePoint(cpNumber);
   }
 
   public static fromUString(uString: string): UCodePoint {
@@ -15,15 +19,15 @@ export class UCodePoint {
   }
 
   public toUString(addPrefix = true): string {
-    const str = this.codepoint_.toString(16).toUpperCase();
+    const str = this.cpNumber_.toString(16).toUpperCase();
     return (addPrefix ? 'U+' : '') + str.padStart(4, '0');
   }
 
   public toCharString(): string {
-    return isNaN(this.codepoint_) ? '?' : String.fromCodePoint(this.codepoint_);
+    return isNaN(this.cpNumber_) ? '?' : String.fromCodePoint(this.cpNumber_);
   }
 
   public toNumber(): number {
-    return this.codepoint_;
+    return this.cpNumber_;
   }
 }

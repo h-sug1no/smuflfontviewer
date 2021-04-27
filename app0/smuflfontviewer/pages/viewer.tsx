@@ -48,6 +48,7 @@ import UCodepointSelect, {
 import { UCodePoint } from '../lib/UCodePoint';
 import RangeSelect, {
   registerRangeSelectOption,
+  getRangeSelectOptionByValue,
   IRangeSelectOption,
 } from '../components/RangeSelect';
 import GlyphCanvas from '../components/GlyphCanvas';
@@ -462,6 +463,7 @@ const createUCodepointSelectOptions = (sMuFLMetadata: Database) => {
   initUCodepointSelectOptions(soptions);
 };
 
+const UNICODE_RANGE_NAME = 'unicode';
 const createRangeSelectOptions = (sMuFLMetadata: Database) => {
   const ranges = sMuFLMetadata.data_.ranges;
 
@@ -469,6 +471,56 @@ const createRangeSelectOptions = (sMuFLMetadata: Database) => {
     const range = ranges[key];
     registerRangeSelectOption(key, UCodePoint.fromUString(range.range_start).toNumber());
   });
+  registerRangeSelectOption(UNICODE_RANGE_NAME, 0x21, 'unicode range');
+  const optRange = sMuFLMetadata.getFontInfo().optRange;
+  if (optRange) {
+    registerRangeSelectOption(
+      optRange.description,
+      UCodePoint.fromUString(optRange.range_start).toNumber(),
+    );
+  }
+};
+const cpNumber2Range = (cpNumber: number) => {
+  const ranges = sMuFLMetadata.data_.ranges;
+  let tRange;
+  for (const key in ranges) {
+    const range = ranges[key];
+    if (!range.nStart) {
+      range.nStart = UCodePoint.fromUString(range.range_start).toNumber();
+      range.nEnd = UCodePoint.fromUString(range.range_end).toNumber();
+    }
+    if (cpNumber >= range.nStart && cpNumber <= range.nEnd) {
+      tRange = {
+        key: key,
+        r: range,
+      };
+      break;
+    }
+  }
+
+  if (!tRange) {
+    const tGlyph = sMuFLMetadata.getFontInfo().glyphsByUCodepoint[
+      UCodePoint.fromCpNumber(cpNumber).toUString()
+    ];
+    if (tGlyph && tGlyph.isOptionalGlyph) {
+      const optRange = sMuFLMetadata.getFontInfo().optRange;
+      tRange = {
+        key: optRange.description,
+        r: optRange,
+      };
+    }
+  }
+
+  if (!tRange) {
+    tRange = {
+      key: UNICODE_RANGE_NAME,
+      r: {
+        description: UNICODE_RANGE_NAME,
+        noSpecLink: true,
+      },
+    };
+  }
+  return tRange;
 };
 
 const useStyles = makeStyles(() => ({
@@ -494,6 +546,12 @@ export default function Viewer(): ReactElement {
   const setCurrentUCodepoint = (data: IUCSelectOption | null) => {
     currentUCodepointRef.current = data || null;
     _setCurrentUCodepoint(currentUCodepointRef.current);
+    const tRange = cpNumber2Range(
+      UCodePoint.fromUString((data || {}).value || 'NaN' /* FIXME */).toNumber(),
+    );
+    if (tRange) {
+      setCurrentRange(getRangeSelectOptionByValue(tRange.key));
+    }
   };
 
   const [currentRange, _setCurrentRange] = useState<IUCSelectOption | null>(null);
@@ -628,6 +686,7 @@ export default function Viewer(): ReactElement {
     BShowPrev: 'show (p)rev glyph',
     BShowScratchpad: 'toggle Scratchpad',
   };
+
   return (
     <>
       <Head>

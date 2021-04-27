@@ -128,16 +128,17 @@ export type IRangeSelectOption = {
 const rangeSelectOptions: IRangeSelectOption[] = [];
 const rangeSelectOptionsMap: Dict<IRangeSelectOption> = {};
 
-export function registerRangeSelectOption(rangeStr: string, cpNumber: number) {
+const str2key = (str: string) => str.trim();
+export function registerRangeSelectOption(rangeStr: string, cpNumber: number, series?: string) {
   let ret = null;
-  const str = rangeStr.trim();
+  const str = str2key(rangeStr);
   if (!rangeSelectOptionsMap[str]) {
     const newItem = (rangeSelectOptionsMap[str] = {
       inputValue: rangeStr,
       name: `${str}`,
       value: `${str}`,
       codepoint: cpNumber,
-      series: 'smufl range',
+      series: series || 'smufl range',
     });
     rangeSelectOptions.push(newItem);
   }
@@ -145,6 +146,6 @@ export function registerRangeSelectOption(rangeStr: string, cpNumber: number) {
   return ret;
 }
 
-export function getrangeSelectOptionByValue(rangeStr: string): IRangeSelectOption | null {
-  return rangeSelectOptionsMap[rangeStr];
+export function getRangeSelectOptionByValue(rangeStr: string): IRangeSelectOption | null {
+  return rangeSelectOptionsMap[str2key(rangeStr)];
 }
