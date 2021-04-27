@@ -956,13 +956,55 @@ class SMuFLFontViewer {
           $ssOptionsGlyphSize.on('input.ssUI', function () {
             drawSs();
           });
-          $gmCanvas.off('wheel');
-          $gmCanvas.on('wheel', function (ev) {
-            ev.preventDefault();
-            $ssOptionsGlyphSize.val(Number($ssOptionsGlyphSize.val()) -
-              ((ev.originalEvent.deltaY < 0 ? -1 : 1) * 20));
-            $ssOptionsGlyphSize.trigger('input');
-          });
+
+          (() => {
+            $gmCanvas.off('wheel');
+            $gmCanvas.on('wheel', function (ev) {
+              ev.preventDefault();
+              $ssOptionsGlyphSize.val(Number($ssOptionsGlyphSize.val()) -
+                ((ev.originalEvent.deltaY < 0 ? -1 : 1) * 20));
+              $ssOptionsGlyphSize.trigger('input');
+            });
+
+            const scrollElm = document.body;
+            let isActive = false;
+            let startPos;
+
+            function _setIsActive(v) {
+              isActive = v;
+              $gmCanvas.css('cursor', isActive ? 'move' : '');
+            }
+
+            _setIsActive(false);
+
+            $gmCanvas.on('mousedown', function (ev) {
+              if (ev.button !== 0) { return; }
+              _setIsActive(true);
+              startPos = {
+                clientX: ev.clientX,
+                clientY: ev.clientY,
+                scrollLeft: scrollElm.scrollLeft,
+                scrollTop: scrollElm.scrollTop
+              };
+            });
+
+            $gmCanvas.on('mousemove', function (ev) {
+              if (isActive) {
+                scrollElm.scrollTop = (startPos.scrollTop -
+                  (ev.clientY - startPos.clientY));
+                scrollElm.scrollLeft = (startPos.scrollLeft -
+                  (ev.clientX - startPos.clientX));
+              }
+            });
+
+            $gmCanvas.on('mouseup', function (ev) {
+              if (ev.button !== 0) { return; }
+              _setIsActive(false);
+            });
+            $gmCanvas.on('mouseleave', function (/*ev*/) {
+              _setIsActive(false);
+            });
+          })();
         };
 
         const $gmCanvas = $('<canvas id="gm_canvas"></canvas>');
