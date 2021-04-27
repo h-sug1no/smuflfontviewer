@@ -412,6 +412,14 @@ class SMuFLFontViewer {
 
       _setIsActive(false);
 
+      $smuflGlyphCanvasContainer.on('wheel', function (ev) {
+        console.log(ev);
+        ev.preventDefault();
+        $smuflRenderGlyphOptionsGlyphSize.val(Number($smuflRenderGlyphOptionsGlyphSize.val()) -
+          ((ev.originalEvent.deltaY < 0 ? -1 : 1) * 20));
+        $smuflRenderGlyphOptionsGlyphSize.trigger('input');
+      });
+
       $smuflGlyphCanvasContainer.on('mousedown', function (ev) {
         if (ev.button !== 0) { return; }
         _setIsActive(true);
