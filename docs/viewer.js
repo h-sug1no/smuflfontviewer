@@ -867,6 +867,7 @@ class SMuFLFontViewer {
 
     $('#BFontMetadata').on('click', function () {
       _$infoDialog_showModal(specLinkDoms['font metadata'], function($contentContainer) {
+        $contentContainer.addClass('fontMetadataContainer')
         function add_engravingDefaults(name, engravingDefaults) {
           _$c_appendText($contentContainer, `${name}: `);
           const $tdContaienr = $('<div class="engravingDefaultsContainer"></div>');
