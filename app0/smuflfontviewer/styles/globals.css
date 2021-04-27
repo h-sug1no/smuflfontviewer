@@ -275,3 +275,13 @@ body.fakeDialogVisible #rootContainer.fakeDialog div#infoDialog {
   border-radius: 0.2em;
   display: inline-block;
 }
+
+.gcBox {
+  width: 50vw;
+  height: 50vw;
+  overflow: auto;
+}
+
+.gcSizeBox {
+  width: 100px;
+}

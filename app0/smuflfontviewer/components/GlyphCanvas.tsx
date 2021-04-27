@@ -1,6 +1,7 @@
 /* eslint-disable no-use-before-define */
 import React, { useCallback, useEffect } from 'react';
 import { IUCSelectOption } from './UCodepointSelect';
+import { Typography, Box, Slider } from '@material-ui/core';
 
 function useCanvas(draw: any, value: IUCSelectOption, context = '2d') {
   const canvasRef = React.useRef<any>(null);
@@ -38,6 +39,7 @@ const draw = (
   c: HTMLCanvasElement,
   ctx: CanvasRenderingContext2D | null,
   value: IUCSelectOption,
+  size: number,
 ) => {
   if (!ctx) {
     return;
@@ -51,19 +53,12 @@ const draw = (
   }
 
   const glyphData = resolveGlyphdata(value.value);
-  _renderGlyph(glyphData, 100, 100, 100, ctx);
+  _renderGlyph(glyphData, 100, 100, size, ctx);
 };
 
 export default function GlyphCanvas(props: any): JSX.Element {
   const { value } = props;
   console.log(value);
-  const drawGlyph = useCallback(
-    (c: HTMLCanvasElement, ctx: CanvasRenderingContext2D | null) => {
-      draw(c, ctx, value);
-    },
-    [value],
-  );
-  const canvasRef = useCanvas(drawGlyph, value);
 
   const [tick] = React.useState<number>(0);
   const refTick = React.useRef<number>();
@@ -72,9 +67,40 @@ export default function GlyphCanvas(props: any): JSX.Element {
     refTick.current = tick;
   });
 
+  const [size, setSize] = React.useState<number>(40);
+  const drawGlyph = useCallback(
+    (c: HTMLCanvasElement, ctx: CanvasRenderingContext2D | null) => {
+      draw(c, ctx, value, size);
+    },
+    [value, size],
+  );
+  const canvasRef = useCanvas(drawGlyph, value);
+
+  const sizeLabelFormat = useCallback((val) => val, []);
+  const handleSizeChange = useCallback((e, val) => setSize(val), []);
+
   return (
     <>
-      <canvas ref={canvasRef} width="800" height="600" />
+      <Box className="gcBox">
+        <canvas ref={canvasRef} width="800" height="600" />
+      </Box>
+      <Box className="gcSizeBox">
+        <Typography id="non-linear-slider-glyph-size" gutterBottom>
+          size: {size}
+        </Typography>
+        <Slider
+          value={size}
+          min={20}
+          step={1}
+          max={1000}
+          // scale={calculateValue}
+          getAriaValueText={sizeLabelFormat}
+          valueLabelFormat={sizeLabelFormat}
+          onChange={handleSizeChange}
+          valueLabelDisplay="auto"
+          aria-labelledby="non-linear-slider-glyph-size"
+        />
+      </Box>
     </>
   );
 }
