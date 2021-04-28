@@ -69,7 +69,11 @@ const initMouseHandlers = (
   };
 };
 
-function useCanvas(draw: any, value: IUCSelectOption, context = '2d') {
+function useCanvas(
+  draw: (canvasElm: HTMLCanvasElement, ctx: RenderingContext) => void,
+  value: IUCSelectOption,
+  context = '2d',
+) {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
 
   React.useEffect(
@@ -78,7 +82,9 @@ function useCanvas(draw: any, value: IUCSelectOption, context = '2d') {
         return;
       }
       const ctx: RenderingContext | null = canvasRef.current.getContext(context);
-      draw(canvasRef.current, ctx);
+      if (ctx) {
+        draw(canvasRef.current, ctx);
+      }
     },
     [draw, value, context], // fires on these props changed.
   );
@@ -138,8 +144,8 @@ export default function GlyphCanvas(props: any): JSX.Element {
 
   const [size, setSize] = React.useState<number>(40);
   const drawGlyph = useCallback(
-    (c: HTMLCanvasElement, ctx: CanvasRenderingContext2D | null) => {
-      draw(c, ctx, value, size);
+    (c: HTMLCanvasElement, ctx: RenderingContext | null) => {
+      draw(c, ctx as CanvasRenderingContext2D, value, size);
     },
     [value, size],
   );
