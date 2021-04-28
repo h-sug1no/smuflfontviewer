@@ -128,7 +128,7 @@ const draw = (
   }
 
   const glyphData = resolveGlyphdata(value.value);
-  _renderGlyph(glyphData, 100, 100, size, ctx);
+  _renderGlyph(glyphData, x, y, size, ctx);
 };
 
 export default function GlyphCanvas(props: any): JSX.Element {
@@ -149,6 +149,11 @@ export default function GlyphCanvas(props: any): JSX.Element {
     },
     [value, size],
   );
+  const sizeRef = React.useRef(size);
+  useEffect(() => {
+    sizeRef.current = size;
+  }, [size]);
+
   const canvasRef = useCanvas(drawGlyph, value);
   const gcBoxRef = React.useRef<HTMLDivElement>(null);
 
@@ -159,20 +164,34 @@ export default function GlyphCanvas(props: any): JSX.Element {
     max: 1000,
   };
 
+  const resetScPos = useCallback(() => {
+    if (!gcBoxRef.current) {
+      return;
+    }
+    const gcBoxElm = gcBoxRef.current;
+    gcBoxElm.scrollTop = gcBoxElm.scrollHeight * 0.5 - gcBoxElm.clientHeight * 0.5;
+    gcBoxElm.scrollLeft = gcBoxElm.scrollWidth * 0.5 - gcBoxElm.clientWidth * 0.5;
+  }, [gcBoxRef]);
+
+  const updateSize = useCallback(
+    (v) => {
+      setSize(Math.min(SLIDER_RANGE.max, Math.max(SLIDER_RANGE.min, v * 30 + sizeRef.current)));
+    },
+    [SLIDER_RANGE.max, SLIDER_RANGE.min, sizeRef],
+  );
+
   useEffect(() => {
     if (!gcBoxRef.current) {
       return;
     }
     const gcBoxElm = gcBoxRef.current;
 
-    const mhInfos = initMouseHandlers(gcBoxElm, gcBoxElm, (v) =>
-      setSize(Math.min(SLIDER_RANGE.max, Math.max(SLIDER_RANGE.min, v * 30 + size))),
-    );
-
+    const mhInfos = initMouseHandlers(gcBoxElm, gcBoxElm, updateSize);
+    resetScPos();
     return () => {
       mhInfos.off();
     };
-  }, [SLIDER_RANGE.max, SLIDER_RANGE.min, gcBoxRef, size]);
+  }, [SLIDER_RANGE.max, SLIDER_RANGE.min, gcBoxRef, resetScPos, updateSize]);
 
   return (
     <>
