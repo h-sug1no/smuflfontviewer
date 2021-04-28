@@ -11,7 +11,6 @@ const filterOptions = (options: string[], state: FilterOptionsState) =>
 */
 
 import { Dict } from '../lib/SMuFLMetadata';
-import { AssignmentReturnedTwoTone } from '@material-ui/icons';
 // import { ContactsTwoTone } from '@material-ui/icons';
 const filter = createFilterOptions<IUCSelectOption>({
   /* limit: 10 */
@@ -31,11 +30,12 @@ export const match = (text: string, query: string): [number, number][] => {
   return results;
 };
 
-export default function UCodepointSelect(props: any): JSX.Element {
-  const { onChange, value } = props;
+type IOnChange = (v: IUCSelectOption | null) => boolean;
+type IUCodepointSelectOptions = { onChange: IOnChange; value: IUCSelectOption | null | string };
+export default function UCodepointSelect(props: IUCodepointSelectOptions): JSX.Element {
   // fixme: define type of values.
   // const [value, setValue] = React.useState<IUCSelectOption | null>(null);
-
+  const { onChange, value } = props;
   const [tick, setTick] = React.useState<number>(0);
   const refTick = React.useRef<number>();
   const setValue = useCallback(
@@ -54,7 +54,7 @@ export default function UCodepointSelect(props: any): JSX.Element {
     <>
       <Autocomplete
         value={value}
-        onChange={(event, newValue: any) => {
+        onChange={(event, newValue: IUCSelectOption | null | string) => {
           // console.log(`onChange: ${JSON.stringify(newValue)}`);
           if (typeof newValue === 'string') {
             /*
@@ -133,7 +133,7 @@ export default function UCodepointSelect(props: any): JSX.Element {
         handleHomeEndKeys
         id="range-select"
         options={ucSelectOptions}
-        getOptionLabel={(option: any) => {
+        getOptionLabel={(option: IUCSelectOption | string) => {
           // Value selected with enter, right from the input
           if (typeof option === 'string') {
             return option;

@@ -615,7 +615,7 @@ export default function Viewer(): ReactElement {
     );
   }
 
-  const ucodepointSelectOnChange = (v: IUCSelectOption) => {
+  const ucodepointSelectOnChange = (v: IUCSelectOption | null): boolean => {
     console.log(JSON.stringify(v));
     if (v) {
       setCurrentUCodepoint(v);

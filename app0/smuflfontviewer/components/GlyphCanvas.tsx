@@ -71,7 +71,7 @@ const initMouseHandlers = (
 
 function useCanvas(
   draw: (canvasElm: HTMLCanvasElement, ctx: RenderingContext) => void,
-  value: IUCSelectOption,
+  value: IUCSelectOption | null,
   context = '2d',
 ) {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
@@ -92,14 +92,18 @@ function useCanvas(
   return canvasRef;
 }
 
-function resolveGlyphdata(cpStr: string) {
+type IGlyphData = {
+  codepoint: number;
+};
+
+function resolveGlyphdata(cpStr: string): IGlyphData {
   return {
     codepoint: parseInt(cpStr, 16),
   };
 }
 
 function _renderGlyph(
-  glyphData: any,
+  glyphData: IGlyphData,
   x: number,
   y: number,
   fontSize: string | number,
@@ -131,7 +135,8 @@ const draw = (
   _renderGlyph(glyphData, x, y, size, ctx);
 };
 
-export default function GlyphCanvas(props: any): JSX.Element {
+type IGlyphCanvasOptions = { value: IUCSelectOption | null };
+export default function GlyphCanvas(props: IGlyphCanvasOptions): JSX.Element {
   const { value } = props;
   console.log(value);
 
@@ -145,7 +150,9 @@ export default function GlyphCanvas(props: any): JSX.Element {
   const [size, setSize] = React.useState<number>(40);
   const drawGlyph = useCallback(
     (c: HTMLCanvasElement, ctx: RenderingContext | null) => {
-      draw(c, ctx as CanvasRenderingContext2D, value, size);
+      if (value) {
+        draw(c, ctx as CanvasRenderingContext2D, value, size);
+      }
     },
     [value, size],
   );
