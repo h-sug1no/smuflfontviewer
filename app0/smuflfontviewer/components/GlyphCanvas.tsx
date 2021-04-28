@@ -3,6 +3,72 @@ import React, { useCallback, useEffect } from 'react';
 import { IUCSelectOption } from './UCodepointSelect';
 import { Typography, Box, Slider } from '@material-ui/core';
 
+const initMouseHandlers = (
+  elm: HTMLElement,
+  scrollElm: HTMLElement,
+  setSize: (val: number) => void,
+) => {
+  let isActive = false;
+  let startPos: { clientX: number; clientY: number; scrollLeft: number; scrollTop: number };
+
+  function _setIsActive(v: boolean) {
+    isActive = v;
+    elm.style.cursor = isActive ? 'move' : '';
+  }
+
+  _setIsActive(false);
+
+  const handlers: { [key: string]: EventListenerOrEventListenerObject } = {
+    wheel(ev: Event) {
+      ev.preventDefault();
+      const wev: WheelEvent = ev as WheelEvent;
+      setSize(wev.deltaY > 0 ? -1 : 1);
+    },
+    mousedown(ev: Event) {
+      const mev: MouseEvent = ev as MouseEvent;
+      if (mev.button !== 0) {
+        return;
+      }
+      _setIsActive(true);
+      startPos = {
+        clientX: mev.clientX,
+        clientY: mev.clientY,
+        scrollLeft: scrollElm.scrollLeft,
+        scrollTop: scrollElm.scrollTop,
+      };
+    },
+    mousemove(ev: Event) {
+      const mev: MouseEvent = ev as MouseEvent;
+      if (isActive) {
+        scrollElm.scrollTop = startPos.scrollTop - (mev.clientY - startPos.clientY);
+        scrollElm.scrollLeft = startPos.scrollLeft - (mev.clientX - startPos.clientX);
+      }
+    },
+    mouseup(ev: Event) {
+      const mev: MouseEvent = ev as MouseEvent;
+      if (mev.button !== 0) {
+        return;
+      }
+      _setIsActive(false);
+    },
+    mouseleave(/*ev*/) {
+      _setIsActive(false);
+    },
+  };
+
+  Object.keys(handlers).forEach((key) => {
+    elm.addEventListener(key, handlers[key]);
+  });
+
+  return {
+    off: () => {
+      Object.keys(handlers).forEach((key) => {
+        elm.removeEventListener(key, handlers[key]);
+      });
+    },
+  };
+};
+
 function useCanvas(draw: any, value: IUCSelectOption, context = '2d') {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
 
@@ -78,6 +144,7 @@ export default function GlyphCanvas(props: any): JSX.Element {
     [value, size],
   );
   const canvasRef = useCanvas(drawGlyph, value);
+  const gcBoxRef = React.useRef<HTMLDivElement>(null);
 
   const sizeLabelFormat = useCallback((val) => val, []);
   const handleSizeChange = useCallback((e, val) => setSize(val), []);
@@ -87,28 +154,25 @@ export default function GlyphCanvas(props: any): JSX.Element {
   };
 
   useEffect(() => {
-    if (!canvasRef.current) {
+    if (!gcBoxRef.current) {
       return;
     }
+    const gcBoxElm = gcBoxRef.current;
 
-    const canvasElm = canvasRef.current;
-    const listener = (e: WheelEvent) => {
-      e.preventDefault();
-      setSize(
-        Math.min(SLIDER_RANGE.max, Math.max(SLIDER_RANGE.min, (e.deltaY > 0 ? 1 : -1) * 30 + size)),
-      );
-    };
-    canvasElm.addEventListener('wheel', listener);
+    const mhInfos = initMouseHandlers(gcBoxElm, gcBoxElm, (v) =>
+      setSize(Math.min(SLIDER_RANGE.max, Math.max(SLIDER_RANGE.min, v * 30 + size))),
+    );
+
     return () => {
-      canvasElm.removeEventListener('wheel', listener);
+      mhInfos.off();
     };
-  }, [SLIDER_RANGE.max, SLIDER_RANGE.min, canvasRef, size]);
+  }, [SLIDER_RANGE.max, SLIDER_RANGE.min, gcBoxRef, size]);
 
   return (
     <>
-      <Box className="gcBox">
+      <div className="gcBox" ref={gcBoxRef}>
         <canvas ref={canvasRef} width="800" height="600" />
-      </Box>
+      </div>
       <Box className="gcSizeBox">
         <Typography id="non-linear-slider-glyph-size" gutterBottom>
           size: {size}
