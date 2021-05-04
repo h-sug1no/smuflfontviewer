@@ -529,7 +529,7 @@ class SSRenderer {
     }
 
     /*
-    https://w3c.github.io/smufl/gitbook/specification/scoring-metrics-glyph-registration.html
+    https://w3c.github.io/smufl/latest/specification/scoring-metrics-glyph-registration.html
     ---------------------------------------------------------------------
     Digits for time signatures should be scaled such that each digits
     is two staff spaces tall, i.e. 0.5 em, and vertically centered on the baseline.
