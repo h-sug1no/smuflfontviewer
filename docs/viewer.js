@@ -2047,7 +2047,7 @@ class SMuFLFontViewer {
           _$c_appendText($rangeInfo, tRange.key);
         }
         else {
-          const $aDom = $(`<a href="https://w3c.github.io/smufl/gitbook/tables/${filename}.html"
+          const $aDom = $(`<a href="https://w3c.github.io/smufl/latest/tables/${filename}.html"
  title="${tRange.key} range spec">${tRange.key}</a>`);
           $rangeInfo.append($aDom);
         }
