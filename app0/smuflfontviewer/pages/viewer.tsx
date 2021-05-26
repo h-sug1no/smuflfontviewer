@@ -1,7 +1,6 @@
 import Head from 'next/head';
 // import styles from '../styles/Home.module.css';
 import { /* NextRouter, Router, */ useRouter } from 'next/router';
-import { ParsedUrlQuery } from 'querystring';
 // import { route } from 'next/dist/next-server/server/router';
 
 import Container from '@material-ui/core/Container';
@@ -45,86 +44,13 @@ import RangeSelect, {
   IRangeSelectOption,
 } from '../components/RangeSelect';
 import GlyphCanvas from '../components/GlyphCanvas';
-
+import { Options } from '../lib/Viewer';
+import { _initFontFace } from '../lib/JSDomFontFace';
 /*
 import ProTip from '../src/ProTip';
 import Link from '../src/Link';
 import Copyright from '../src/Copyright';
 */
-
-export class Settings {
-  static keys = ['cutOutOrigin_BBL'];
-  static prefKey(idx: number): string {
-    return `settings.${Settings.keys[idx]}`;
-  }
-
-  cutOutOrigin_BBL: boolean;
-
-  constructor(cutOutOrigin_BBL = false) {
-    this.cutOutOrigin_BBL = cutOutOrigin_BBL;
-  }
-
-  toQuery(ret: URLSearchParams): void {
-    ret.set(Settings.prefKey(0), this.cutOutOrigin_BBL.toString());
-  }
-
-  static fromQuery(query: ParsedUrlQuery): Settings {
-    let cutOutOrigin_BBL = false;
-    const key0 = this.prefKey(0);
-    if (key0 in query) {
-      cutOutOrigin_BBL = (query[key0] || 'false') === 'true';
-    }
-    return new Settings(cutOutOrigin_BBL);
-  }
-}
-
-export class Options {
-  static keys = ['fontUrl', 'fontMetadataUrl', 'glyphnamesUrl', 'classesUrl', 'rangesUrl', 'glyph'];
-  params: Record<string, string>;
-  settings: Settings;
-
-  constructor(params = {}, settings: Settings = new Settings()) {
-    this.params = params;
-    this.settings = settings;
-  }
-
-  toURLSearchParams(): URLSearchParams {
-    const ret = new URLSearchParams(this.params);
-    this.settings.toQuery(ret);
-    return ret;
-  }
-
-  get(key: string): string {
-    return this.params[key];
-  }
-
-  static fromValues(
-    fontUrl: string,
-    fontMetadataUrl: string,
-    glyphnamesUrl: string,
-    classesUrl: string,
-    rangesUrl: string,
-    settings: Settings = new Settings(),
-    glyph?: string,
-  ): Options {
-    const params: Record<string, string> = {};
-    params.fontUrl = fontUrl;
-    params.fontMetadataUrl = fontMetadataUrl;
-    params.glyphnamesUrl = glyphnamesUrl;
-    params.classesUrl = classesUrl;
-    params.rangesUrl = rangesUrl;
-    if (glyph) {
-      params.glyph = glyph;
-    }
-
-    return new Options(params, settings);
-  }
-
-  static fromQuery(query: ParsedUrlQuery): Options {
-    const settings = Settings.fromQuery(query);
-    return new Options(query, settings);
-  }
-}
 
 const sMuFLMetadata: Database = new Database();
 
@@ -393,43 +319,6 @@ function HeaderMenu() {
     );
   }
   return Header();
-}
-
-type IHandle_onResourceReady = (type: string) => void;
-
-function _initFontFace(options: Options, handle_onResourceReady: IHandle_onResourceReady) {
-  const fontFace = {
-    fontUrl: options.get('fontUrl'),
-  };
-
-  // Since, no FontFace(still Working Draft) interface is supported by typescript
-  // use 'any'...
-  const anyWin: any = window;
-  const anyDoc: any = document;
-  if (!anyWin.FontFace) {
-    alert('no window.FontFace. This browser is not supported.');
-  }
-
-  const smuflFontFace = new anyWin.FontFace('SMuFLFont', `url(${fontFace.fontUrl})`);
-
-  smuflFontFace
-    .load()
-    .then(function (loaded_face: any) {
-      // loaded_face holds the loaded FontFace
-      anyDoc.fonts.add(loaded_face);
-      let fontUrlItems = fontFace.fontUrl.split('/');
-      if (fontUrlItems.length < 1) {
-        fontUrlItems = ['?'];
-      }
-      document.title = `${fontUrlItems[fontUrlItems.length - 1]}: ${document.title}`;
-      window.setTimeout(function () {
-        handle_onResourceReady('smuflFontFace');
-      });
-    })
-    .catch(function (error: any) {
-      // error occurred
-      alert(error + ': ' + fontFace.fontUrl);
-    });
 }
 
 const createUCodepointSelectOptions = (sMuFLMetadata: Database) => {

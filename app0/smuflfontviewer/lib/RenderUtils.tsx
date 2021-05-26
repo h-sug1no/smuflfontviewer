@@ -1,20 +1,25 @@
 import { Link } from '@material-ui/core';
 import { ListItem } from '@material-ui/core';
-import { SyntheticEvent } from 'react';
+import { SyntheticEvent, ReactNode } from 'react';
 import { Database, SearchOptions, Dict } from '../lib/SMuFLMetadata';
 import { UCodePoint } from '../lib/UCodePoint';
 import clsx from 'clsx';
 
-function createCodepoint(uCodepointStr: string) {
+function createCodepoint(uCodepointStr: string): ReactNode {
   return <span className="smuflCodepoint">{uCodepointStr}</span>;
 }
 
-function createCodepointOrText(uCodepointStr: string): JSX.Element {
+function createCodepointOrText(uCodepointStr: string): ReactNode {
   if (uCodepointStr.startsWith && uCodepointStr.startsWith('U+')) {
     return createCodepoint(uCodepointStr);
   }
   return <>{uCodepointStr}</>;
 }
+
+type IGylphnameDomInfo = {
+  jsxDom: ReactNode;
+  uCodepoint: string;
+};
 
 function createGlyphname(
   sMuFLMetadata: Database,
@@ -22,7 +27,7 @@ function createGlyphname(
   currentGlyphName?: string,
   uCodepoint?: string,
   showUCodepoint?: boolean,
-): any {
+): IGylphnameDomInfo {
   const option: SearchOptions = { searchOptional: true };
   let tUCodepoint = sMuFLMetadata.glyphname2uCodepoint(glyphname, option);
   if ((uCodepoint || tUCodepoint) !== tUCodepoint) {
@@ -61,6 +66,8 @@ function createGlyphname(
         !!(currentGlyphName === glyphname) && 'currentGlyph',
         !!option.isOptionalGlyph && 'optionalGlyph',
       )}
+      // use dom.dataset(https://developer.mozilla.org/ja/docs/Learn/HTML/Howto/Use_data_attributes)
+      // to avoid {any} type.
       ref={(elm: any) => {
         if (elm) {
           elm.uCodepoint = uCodepoint;
@@ -80,7 +87,7 @@ function createGlyphname(
   };
 }
 
-function createGlyphnameInfo(sMuFLMetadata: Database, ginfo: any, glyphname: string): JSX.Element {
+function createGlyphnameInfo(sMuFLMetadata: Database, ginfo: any, glyphname: string): ReactNode {
   /*
   _$c_appendText($contentContainer, `${ginfo.codepoint}: `);
   appendGlyphname($contentContainer, glyphname); // here, no current glyph.

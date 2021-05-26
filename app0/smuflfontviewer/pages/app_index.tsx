@@ -17,7 +17,7 @@ import {
   Tooltip,
 } from '@material-ui/core';
 import React, { useState, useEffect, ReactElement } from 'react';
-import { Options, Settings } from './viewer';
+import { Options, Settings } from '../lib/Viewer';
 import { route } from 'next/dist/next-server/server/router';
 /*
 import ProTip from '../src/ProTip';
