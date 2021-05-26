@@ -1,9 +1,9 @@
 /**
  * Copyright (c) 2020 h-sug1no
  */
-import { UCodePoint } from './UCodePoint';
 
-export type Dict<T> = { [key: string]: T };
+import { Dict, Glyphnames, Classes, Ranges } from './SMuFLTypes';
+import { UCodePoint } from './UCodePoint';
 
 export interface SearchOptions {
   isOptionalGlyph?: boolean;
@@ -44,9 +44,9 @@ export class FontInfo {
 export class Data {
   [key: string]: any;
   fontMetadata_?: FontMetadata;
-  glyphnames: any;
-  classes: any;
-  ranges: any;
+  glyphnames?: Glyphnames;
+  classes?: Classes;
+  ranges?: Ranges;
 }
 
 export class Database {
@@ -164,8 +164,8 @@ export class Database {
         { names: this.data_.glyphnames, isOptionalGlyph: false },
         { names: fontMetadata.optionalGlyphs, isOptionalGlyph: true },
       ].forEach(function (namesDef) {
-        const names = namesDef.names;
-        Object.keys(namesDef.names).forEach(function (key) {
+        const names = namesDef.names || {};
+        Object.keys(names).forEach(function (key) {
           const name = names[key];
           const cp: string = name.codepoint;
           if (glyphsByUCodepoint[cp]) {
@@ -283,8 +283,8 @@ export class Database {
     return ret;
   }
 
-  glyphname2uCodepoint(glyphname: string, options: SearchOptions = {}): string {
-    let item: any = this.data_.glyphnames[glyphname];
+  glyphname2uCodepoint(glyphname: string, options: SearchOptions = {}): string | undefined {
+    let item = (this.data_.glyphnames || {})[glyphname];
     const fontMetadata = this.fontMetadata();
     if (!item && options.searchOptional && fontMetadata) {
       const optionalGlyphs: any = fontMetadata.optionalGlyphs;
@@ -292,7 +292,7 @@ export class Database {
       options.isOptionalGlyph = item !== undefined;
     }
     // fixme: type of
-    return (item || {}).codepoint;
+    return (item || { codepoint: undefined }).codepoint;
   }
 
   glyphname2string(glyphname: string): any {

@@ -22,7 +22,8 @@ import {
 import MenuIcon from '@material-ui/icons/Menu';
 import React, { useState, useEffect, ReactElement, useRef } from 'react';
 import AnyListDialogRef, { IHandlers } from '../components/AnyListDialog';
-import { Database, Dict } from '../lib/SMuFLMetadata';
+import { Dict, GlyphnameItem, UCodepointStr } from '../lib/SMuFLTypes';
+import { Database } from '../lib/SMuFLMetadata';
 import { GlyphnamesList } from '../components/GlyphnamesList';
 import { OptionalGlyphsList } from '../components/OptionalGlyphsList';
 import { RangesList } from '../components/RangesList';
@@ -324,18 +325,23 @@ function HeaderMenu() {
 const createUCodepointSelectOptions = (sMuFLMetadata: Database) => {
   const fontInfo = sMuFLMetadata.getFontInfo();
   const soptions: IUCSelectOption[] = [];
-  const glyphnames = sMuFLMetadata.data_.glyphnames;
+  const glyphnames = sMuFLMetadata.data_.glyphnames || {};
 
   Object.keys(glyphnames).forEach((gname) => {
     //{series: 'optionalGlyphs', value: 10, name: '1'},
-    const cp = glyphnames[gname].codepoint.replace('U+', '');
-    soptions.push({
-      series: 'glyphnames',
-      value: cp,
-      name: cp + ': ' + gname,
-    });
+    const glyphnameItem: GlyphnameItem = glyphnames[gname];
+    if (glyphnameItem && glyphnameItem.codepoint) {
+      const ucpStr: UCodepointStr = glyphnameItem.codepoint;
+      if (ucpStr) {
+        const cp = ucpStr.replace('U+', '');
+        soptions.push({
+          series: 'glyphnames',
+          value: cp,
+          name: cp + ': ' + gname,
+        });
+      }
+    }
   });
-
   const optionalGlyphs = fontInfo.fontMetadata_.optionalGlyphs;
   console.warn('no optionalGlyphs');
   Object.keys(optionalGlyphs || {}).forEach((gname) => {
@@ -352,6 +358,10 @@ const createUCodepointSelectOptions = (sMuFLMetadata: Database) => {
 const UNICODE_RANGE_NAME = 'unicode';
 const createRangeSelectOptions = (sMuFLMetadata: Database) => {
   const ranges = sMuFLMetadata.data_.ranges;
+
+  if (!ranges) {
+    return;
+  }
 
   Object.keys(ranges).forEach((key) => {
     const range = ranges[key];
@@ -373,6 +383,8 @@ const cpNumber2Range = (cpNumber: number) => {
     const range = ranges[key];
     if (!range.nStart) {
       range.nStart = UCodePoint.fromUString(range.range_start).toNumber();
+    }
+    if (!range.nEnd) {
       range.nEnd = UCodePoint.fromUString(range.range_end).toNumber();
     }
     if (cpNumber >= range.nStart && cpNumber <= range.nEnd) {

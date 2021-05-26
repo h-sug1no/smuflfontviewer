@@ -1,7 +1,8 @@
 import { Link } from '@material-ui/core';
 import { ListItem } from '@material-ui/core';
 import { SyntheticEvent, ReactNode } from 'react';
-import { Database, SearchOptions, Dict } from '../lib/SMuFLMetadata';
+import { Dict } from '../lib/SMuFLTypes';
+import { Database, SearchOptions } from '../lib/SMuFLMetadata';
 import { UCodePoint } from '../lib/UCodePoint';
 import clsx from 'clsx';
 
@@ -18,7 +19,7 @@ function createCodepointOrText(uCodepointStr: string): ReactNode {
 
 type IGylphnameDomInfo = {
   jsxDom: ReactNode;
-  uCodepoint: string;
+  uCodepoint: string | undefined;
 };
 
 function createGlyphname(

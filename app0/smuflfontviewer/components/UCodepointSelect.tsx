@@ -10,7 +10,7 @@ const filterOptions = (options: string[], state: FilterOptionsState) =>
   defaultFilterOptions(options, state).slice(0, 100);
 */
 
-import { Dict } from '../lib/SMuFLMetadata';
+import { Dict } from '../lib/SMuFLTypes';
 // import { ContactsTwoTone } from '@material-ui/icons';
 const filter = createFilterOptions<IUCSelectOption>({
   /* limit: 10 */
