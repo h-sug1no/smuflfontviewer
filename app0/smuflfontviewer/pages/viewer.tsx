@@ -10,16 +10,9 @@ import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import NoteIcon from '@material-ui/icons/Note';
 import {
-  Select,
   MenuItem,
-  Divider,
-  TextField,
-  FormControlLabel,
-  Checkbox,
   Tooltip,
-  StepIconClasskey,
   CircularProgress,
-  Menu,
   Link,
   Toolbar,
   makeStyles,
@@ -29,7 +22,7 @@ import {
 } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 import React, { useState, useEffect, ReactElement, useRef } from 'react';
-import AnyListDialogRef from '../components/AnyListDialog';
+import AnyListDialogRef, { IHandlers } from '../components/AnyListDialog';
 import { Database, Dict } from '../lib/SMuFLMetadata';
 import { GlyphnamesList } from '../components/GlyphnamesList';
 import { OptionalGlyphsList } from '../components/OptionalGlyphsList';
@@ -219,7 +212,7 @@ function HeaderMenu() {
   }));
 
   function Header() {
-    const cal = useRef<any>(null);
+    const cal = useRef<IHandlers | null>(null);
 
     const { header, logo, menuButton, toolbar, drawerContainer } = useStyles();
 
@@ -242,7 +235,7 @@ function HeaderMenu() {
       window.addEventListener('resize', () => setResponsiveness());
     }, []);
 
-    const onClick = (type: string, e: any) => {
+    const onClick = (type: string, e: React.MouseEvent) => {
       console.log(type, e);
       if (cal && cal.current) {
         let listJsxDom = type ? dialogContents[type] : undefined;
@@ -359,7 +352,7 @@ function HeaderMenu() {
             color={'inherit'}
             style={{ textDecoration: 'none' }}
             key={`${idx}_href`}
-            onClick={(e: any) => onClick(eType, e)}
+            onClick={(e: React.MouseEvent) => onClick(eType, e)}
           >
             <MenuItem>{label}</MenuItem>
           </Link>
@@ -383,7 +376,7 @@ function HeaderMenu() {
               to: href,
               component: 'span',
               className: menuButton,
-              onClick: (e: any) => onClick(eType, e),
+              onClick: (e: React.MouseEvent) => onClick(eType, e),
             }}
           >
             {label}
@@ -402,13 +395,17 @@ function HeaderMenu() {
   return Header();
 }
 
-function _initFontFace(options: Options, handle_onResourceReady: any) {
+type IHandle_onResourceReady = (type: string) => void;
+
+function _initFontFace(options: Options, handle_onResourceReady: IHandle_onResourceReady) {
   const fontFace = {
     fontUrl: options.get('fontUrl'),
   };
 
-  const anyWin = window as any;
-  const anyDoc = document as any;
+  // Since, no FontFace(still Working Draft) interface is supported by typescript
+  // use 'any'...
+  const anyWin: any = window;
+  const anyDoc: any = document;
   if (!anyWin.FontFace) {
     alert('no window.FontFace. This browser is not supported.');
   }
@@ -543,7 +540,7 @@ export default function Viewer(): ReactElement {
 
   const [currentUCodepoint, _setCurrentUCodepoint] = useState<IUCSelectOption | null>(null);
   const currentUCodepointRef = React.useRef(currentUCodepoint);
-  const setCurrentUCodepoint = (data: IUCSelectOption | null) => {
+  const setCurrentUCodepoint = React.useCallback((data: IUCSelectOption | null) => {
     currentUCodepointRef.current = data || null;
     _setCurrentUCodepoint(currentUCodepointRef.current);
     const tRange = cpNumber2Range(
@@ -552,7 +549,7 @@ export default function Viewer(): ReactElement {
     if (tRange) {
       setCurrentRange(getRangeSelectOptionByValue(tRange.key));
     }
-  };
+  }, []);
 
   const [currentRange, _setCurrentRange] = useState<IUCSelectOption | null>(null);
   const currentRangeRef = React.useRef(currentRange);
@@ -605,6 +602,7 @@ export default function Viewer(): ReactElement {
     asPath,
     dbState,
     query,
+    setCurrentUCodepoint,
   ]);
 
   if (dbState <= DBState.LOADING) {

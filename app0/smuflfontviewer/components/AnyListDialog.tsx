@@ -27,10 +27,10 @@ const Transition: DialogProps['TransitionComponent'] = React.forwardRef(function
   return <Slide direction="up" ref={ref} {...(props as SlideProps)} />;
 });
 
-type IHandleClickOpen = { handleClickOpen: (children: ReactNode) => void | null };
+export type IHandlers = { handleClickOpen: (children: ReactNode) => void | null };
 // type AnyListDialogProp = null; // {someprop: proptype}
 
-const AnyListDialogRef = React.forwardRef<IHandleClickOpen>(function AnyListDialog(props, ref) {
+const AnyListDialogRef = React.forwardRef<IHandlers>(function AnyListDialog(props, ref) {
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
 
@@ -47,12 +47,12 @@ const AnyListDialogRef = React.forwardRef<IHandleClickOpen>(function AnyListDial
 
   if (ref) {
     const funcs = { handleClickOpen };
-    (ref as MutableRefObject<IHandleClickOpen>).current = funcs;
+    (ref as MutableRefObject<IHandlers>).current = funcs;
     /* FIXME: more detailed check?
     if (typeof ref === 'function') {
       ref(funcs);
     } else if (ref) {
-      (ref as React.MutableRefObject<IHandleClickOpen>).current = funcs;
+      (ref as React.MutableRefObject<IHandlers>).current = funcs;
     }
     */
   }
