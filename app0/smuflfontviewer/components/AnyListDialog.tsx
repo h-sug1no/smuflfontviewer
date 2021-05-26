@@ -1,17 +1,12 @@
-import React from 'react';
+import React, { MutableRefObject, ReactNode } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
-import ListItemText from '@material-ui/core/ListItemText';
-import ListItem from '@material-ui/core/ListItem';
-import List from '@material-ui/core/List';
-import Divider from '@material-ui/core/Divider';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import CloseIcon from '@material-ui/icons/Close';
-import Slide from '@material-ui/core/Slide';
+import { Slide, SlideProps, DialogProps } from '@material-ui/core';
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
@@ -25,16 +20,22 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Transition: any = React.forwardRef(function Transition(props: any, ref: any) {
-  return <Slide direction="up" ref={ref} {...props} />;
+const Transition: DialogProps['TransitionComponent'] = React.forwardRef(function Transition(
+  props,
+  ref,
+) {
+  return <Slide direction="up" ref={ref} {...(props as SlideProps)} />;
 });
 
-const AnyListDialogRef = React.forwardRef(function AnyListDialog(props, ref: any) {
+type IHandleClickOpen = { handleClickOpen: (children: ReactNode) => void | null };
+// type AnyListDialogProp = null; // {someprop: proptype}
+
+const AnyListDialogRef = React.forwardRef<IHandleClickOpen>(function AnyListDialog(props, ref) {
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
 
-  const [children, setChildren] = React.useState(null);
-  const handleClickOpen = (children: any) => {
+  const [children, setChildren] = React.useState<ReactNode | null>(null);
+  const handleClickOpen = (children: ReactNode) => {
     setChildren(children);
     setOpen(true);
   };
@@ -44,7 +45,17 @@ const AnyListDialogRef = React.forwardRef(function AnyListDialog(props, ref: any
     setChildren(null);
   };
 
-  ref.current = { handleClickOpen };
+  if (ref) {
+    const funcs = { handleClickOpen };
+    (ref as MutableRefObject<IHandleClickOpen>).current = funcs;
+    /* FIXME: more detailed check?
+    if (typeof ref === 'function') {
+      ref(funcs);
+    } else if (ref) {
+      (ref as React.MutableRefObject<IHandleClickOpen>).current = funcs;
+    }
+    */
+  }
 
   return (
     <div>
