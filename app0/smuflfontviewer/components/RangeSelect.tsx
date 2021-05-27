@@ -129,8 +129,11 @@ const rangeSelectOptions: IRangeSelectOption[] = [];
 const rangeSelectOptionsMap: Dict<IRangeSelectOption> = {};
 
 const str2key = (str: string) => str.trim();
-export function registerRangeSelectOption(rangeStr: string, cpNumber: number, series?: string) {
-  let ret = null;
+export function registerRangeSelectOption(
+  rangeStr: string,
+  cpNumber: number,
+  series?: string,
+): IRangeSelectOption {
   const str = str2key(rangeStr);
   if (!rangeSelectOptionsMap[str]) {
     const newItem = (rangeSelectOptionsMap[str] = {
@@ -142,7 +145,7 @@ export function registerRangeSelectOption(rangeStr: string, cpNumber: number, se
     });
     rangeSelectOptions.push(newItem);
   }
-  ret = rangeSelectOptionsMap[str];
+  const ret = rangeSelectOptionsMap[str];
   return ret;
 }
 
