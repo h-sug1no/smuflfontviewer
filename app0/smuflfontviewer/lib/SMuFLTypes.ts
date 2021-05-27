@@ -69,3 +69,185 @@ export type SFVRangeItem = RangeItem & {
  * SMuFL ranges dict. key is RangenameStr.
  */
 export type Ranges = Dict<SFVRangeItem>;
+
+///////////////////////////////////////////////////////////
+// font specific metadata
+
+/**
+ * @see https://w3c.github.io/smufl/latest/specification/glyphswithanchors.html
+ */
+
+export type GlyphsWithAnchorItem = {
+  splitStemUpSE?: Array<number>;
+  splitStemUpSW?: Array<number>;
+  splitStemDownNE?: Array<number>;
+  splitStemDownNW?: Array<number>;
+  stemUpSE?: Array<number>;
+  stemDownNW?: Array<number>;
+  stemUpNW?: Array<number>;
+  stemDownSW?: Array<number>;
+  nominalWidth?: number;
+  numeralTop?: Array<number>;
+  numeralBottom?: Array<number>;
+  cutOutNE?: Array<number>;
+  cutOutSE?: Array<number>;
+  cutOutSW?: Array<number>;
+  cutOutNW?: Array<number>;
+  graceNoteSlashSW?: Array<number>;
+  graceNoteSlashNE?: Array<number>;
+  graceNoteSlashNW?: Array<number>;
+  graceNoteSlashSE?: Array<number>;
+  repeatOffset?: Array<number>;
+  noteheadOrigin?: Array<number>;
+  opticalCenter?: Array<number>;
+};
+
+/**
+ * @see https://w3c.github.io/smufl/latest/specification/glyphswithalternates.html
+ */
+export type GlyphsWithAlternateAlternateItem = {
+  codepoint?: UCodepointStr;
+  name?: GlyphnameStr;
+};
+export type GlyphsWithAlternateItem = {
+  alternates?: Array<GlyphsWithAlternateAlternateItem>;
+};
+
+/**
+ * @see https://w3c.github.io/smufl/latest/specification/glyphbboxes.html
+ */
+export type glyphBBoxItem = {
+  bBoxNE?: Array<number>;
+  bBoxSW?: Array<number>;
+};
+/**
+ * @see https://w3c.github.io/smufl/latest/specification/ligatures.html
+ */
+
+export type LigatureItem = {
+  codepoint?: UCodepointStr;
+  componentGlyphs?: Array<GlyphnameStr>;
+  description?: string;
+};
+
+/**
+ * SMuFL sets name
+ */
+export type SetnameStr = string;
+
+/**
+ * SMuFL sets type
+ */
+export type SetTypeStr = string;
+
+export type SetGlyphItem = {
+  /**
+   * @type UCodepointStr
+   */
+  codepoint: UCodepointStr;
+  /**
+   * @type GlyphnameStr
+   */
+  name: GlyphnameStr;
+  /**
+   * @type GlyphnameStr
+   */
+  alternateFor: GlyphnameStr;
+};
+
+export type SetItem = {
+  /**
+   "opticalVariantsSmall" 	Glyphs designed for use on smaller staff sizes.
+   "flagsShort" 	Alternate shorter flags for notes with augmentation dots.
+   "flagsStraight" 	Alternate flags that are straight rather than curved.
+   "timeSigsLarge" 	Alternate time signature digits for use outside the staff.
+   "noteheadsLarge" 	Alternate oversized noteheads.
+   @type SetTypeStr
+   */
+  type?: SetTypeStr;
+  description?: string;
+  glyphs?: Array<SetGlyphItem>;
+};
+
+/**
+ * @see https://w3c.github.io/smufl/latest/specification/optionalglyphs.html
+ */
+export type OptionalGlyphItem = {
+  classes?: Array<ClassnameStr>;
+  codepoint?: UCodepointStr;
+  description?: string;
+};
+
+/////////////////////////////////////////////////////////////////////
+
+/**
+ *  @see https://w3c.github.io/smufl/latest/specification/engravingdefaults.html
+ */
+export type EngravingDefaults = Dict<unknown> & {
+  textFontFamily?: Array<string>;
+  staffLineThickness?: number;
+  stemThickness?: number;
+  beamThickness?: number;
+  beamSpacing?: number;
+  legerLineThickness?: number;
+  legerLineExtension?: number;
+  slurEndpointThickness?: number;
+  slurMidpointThickness?: number;
+  tieEndpointThickness?: number;
+  tieMidpointThickness?: number;
+  thinBarlineThickness?: number;
+  thickBarlineThickness?: number;
+  dashedBarlineThickness?: number;
+  dashedBarlineDashLength?: number;
+  dashedBarlineGapLength?: number;
+  barlineSeparation?: number;
+  thinThickBarlineSeparation?: number;
+  repeatBarlineDotSeparation?: number;
+  bracketThickness?: number;
+  subBracketThickness?: number;
+  hairpinThickness?: number;
+  octaveLineThickness?: number;
+  pedalLineThickness?: number;
+  repeatEndingLineThickness?: number;
+  arrowShaftThickness?: number;
+  lyricLineThickness?: number;
+  textEnclosureThickness?: number;
+  tupletBracketThickness?: number;
+  hBarThickness?: number;
+};
+
+/**
+ * @see https://w3c.github.io/smufl/latest/specification/glyphadvancewidths.html
+ SMuFL GlyphAdvanceWidth dict. key is GlyphnameStr.
+*/
+export type GlyphAdvanceWidth = Dict<number>;
+
+/**
+ * SMuFL glyphsWithAnchors dict. key is GlyphnameStr.
+ */
+export type GlyphsWithAnchors = Dict<GlyphsWithAnchorItem>;
+
+/**
+ * SMuFL glyphsWithAlternates dict. key is GlyphnameStr.
+ */
+export type GlyphsWithAlternates = Dict<GlyphsWithAlternateItem>;
+
+/**
+ * SMuFL glyphBBoxes dict. key is GlyphnameStr.
+ */
+export type GlyphBBoxes = Dict<glyphBBoxItem>;
+
+/**
+ * SMuFL ligatures dict. key is GlyphnameStr.
+ */
+export type Ligatures = Dict<LigatureItem>;
+
+/**
+ * SMuFL sets dict. key is SetnameStr.
+ */
+export type Sets = Dict<SetItem>;
+
+/**
+ * SMuFL optionalGlyphs dict. key is GlyphnameStr;
+ */
+export type OptionalGlyphs = Dict<OptionalGlyphItem>;
