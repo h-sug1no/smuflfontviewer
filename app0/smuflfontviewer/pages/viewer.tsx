@@ -365,7 +365,9 @@ const createRangeSelectOptions = (sMuFLMetadata: Database) => {
 
   Object.keys(ranges).forEach((key) => {
     const range = ranges[key];
-    registerRangeSelectOption(key, UCodePoint.fromUString(range.range_start).toNumber());
+    if (range.range_start) {
+      registerRangeSelectOption(key, UCodePoint.fromUString(range.range_start).toNumber());
+    }
   });
   registerRangeSelectOption(UNICODE_RANGE_NAME, 0x21, 'unicode range');
   const optRange = sMuFLMetadata.getFontInfo().optRange;
@@ -381,13 +383,14 @@ const cpNumber2Range = (cpNumber: number) => {
   let tRange;
   for (const key in ranges) {
     const range = ranges[key];
-    if (!range.nStart) {
+    if (!range.nStart && range.range_start) {
       range.nStart = UCodePoint.fromUString(range.range_start).toNumber();
     }
-    if (!range.nEnd) {
+    if (!range.nEnd && range.range_end) {
       range.nEnd = UCodePoint.fromUString(range.range_end).toNumber();
     }
-    if (cpNumber >= range.nStart && cpNumber <= range.nEnd) {
+
+    if (cpNumber >= Number(range.nStart) && cpNumber <= Number(range.nEnd)) {
       tRange = {
         key: key,
         r: range,
