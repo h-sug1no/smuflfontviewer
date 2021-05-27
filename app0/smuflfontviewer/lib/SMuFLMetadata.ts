@@ -32,6 +32,11 @@ export class FontMetadata {
   optionalGlyphs?: OptionalGlyphs;
 }
 
+export type GlyphItem = {
+  glyphname: GlyphnameStr;
+  isOptionalGlyph: boolean;
+};
+
 export class FontInfo {
   fontMetadata_: FontMetadata;
   /**
@@ -42,8 +47,8 @@ export class FontInfo {
    * key is GlyphnameStr.
    */
   setsByName?: Dict<Array<SetByAnyMapItem>>;
-  alternateFors?: Dict<any>;
-  alternateCodepointFors?: Dict<any>;
+  alternateFors?: Dict<Array<GlyphnameStr>>;
+  alternateCodepointFors?: Dict<Array<GlyphItem>>;
   glyphsByUCodepoint?: Dict<any>;
   optClasses?: Dict<Array<any>>;
   optRange?: {
@@ -163,14 +168,19 @@ export class Database {
 
       fontInfo.alternateFors = {};
       const alternateFors = fontInfo.alternateFors;
-      const glyphsWithAlternates: Record<string, any> = fontMetadata.glyphsWithAlternates || {};
+      const glyphsWithAlternates = fontMetadata.glyphsWithAlternates || {};
       if (glyphsWithAlternates) {
         Object.keys(glyphsWithAlternates).forEach(function (key) {
           const tAlternates = glyphsWithAlternates[key].alternates;
-          tAlternates.forEach(function (v: any) {
-            const tAlternateFors = (alternateFors[v.name] = alternateFors[v.name] || []);
-            tAlternateFors.push(key);
-          });
+          if (tAlternates) {
+            tAlternates.forEach(function (v) {
+              const { name } = v;
+              if (name) {
+                const tAlternateFors = (alternateFors[name] = alternateFors[name] || []);
+                tAlternateFors.push(key);
+              }
+            });
+          }
         });
       }
 
