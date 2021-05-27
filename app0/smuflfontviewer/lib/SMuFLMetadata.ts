@@ -15,6 +15,7 @@ import {
   OptionalGlyphs,
   OptionalGlyphItem,
   GlyphnameStr,
+  SFVRangeItem,
 } from './SMuFLTypes';
 import { UCodePoint } from './UCodePoint';
 
@@ -47,18 +48,17 @@ export class FontInfo {
    * key is GlyphnameStr.
    */
   setsByName?: Dict<Array<SetByAnyMapItem>>;
+  /**
+   * key is UCodepointStr
+   */
   alternateFors?: Dict<Array<GlyphnameStr>>;
+  /**
+   * key is GlyphnameStr
+   */
   alternateCodepointFors?: Dict<Array<GlyphItem>>;
-  glyphsByUCodepoint?: Dict<any>;
-  optClasses?: Dict<Array<any>>;
-  optRange?: {
-    description: string;
-    noSpecLink: boolean;
-    nEnd: number;
-    nStart: number;
-    range_end: any;
-    range_start: any;
-  };
+  glyphsByUCodepoint?: Dict<GlyphItem>;
+  optClasses?: Classes;
+  optRange?: SFVOptRangeItem;
   computedClasses?: { smuflClasses: any; optClasses: Dict<Array<any>>; classes: Dict<Array<any>> };
   constructor(fontMetadata: FontMetadata) {
     this.fontMetadata_ = fontMetadata;
@@ -69,6 +69,10 @@ export type SetByAnyMapItem = {
   setName: SetnameStr;
   set: SetItem;
   glyph: SetGlyphItem;
+};
+
+export type SFVOptRangeItem = SFVRangeItem & {
+  noSpecLink?: boolean;
 };
 
 export class Data {
@@ -246,11 +250,11 @@ export class Database {
 
           if (cp) {
             const nCp: number = UCodePoint.fromUString(cp).toNumber();
-            if (nCp < optRange.nStart) {
+            if (nCp < Number(optRange.nStart)) {
               optRange.nStart = nCp;
               optRange.range_start = cp;
             }
-            if (nCp > optRange.nEnd) {
+            if (nCp > Number(optRange.nEnd)) {
               optRange.nEnd = nCp;
               optRange.range_end = cp;
             }

@@ -46,7 +46,7 @@ export type Glyphnames = Dict<GlyphnameItem>;
 /**
  * SMuFL class item:  array of GlyphnameStr.
  */
-export type ClassItem = Array<string>;
+export type ClassItem = Array<GlyphnameStr>;
 
 /**
  * SMuFL classes dict. key is ClassnameStr.
@@ -55,9 +55,9 @@ export type Classes = Dict<ClassItem>;
 
 export type RangeItem = {
   description?: string;
-  glyphs: Array<GlyphnameStr>;
-  range_end: UCodepointStr;
-  range_start: UCodepointStr;
+  glyphs?: Array<GlyphnameStr>;
+  range_end?: UCodepointStr;
+  range_start?: UCodepointStr;
 };
 
 export type SFVRangeItem = RangeItem & {
