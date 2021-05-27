@@ -1,6 +1,6 @@
 import Head from 'next/head';
 // import styles from '../styles/Home.module.css';
-import { /* NextRouter, Router, */ Router, useRouter } from 'next/router';
+import { /* NextRouter, Router, */ useRouter } from 'next/router';
 // import { route } from 'next/dist/next-server/server/router';
 
 import Container from '@material-ui/core/Container';
@@ -18,7 +18,7 @@ import {
 } from '@material-ui/core';
 import React, { useState, useEffect, ReactElement } from 'react';
 import { Options, Settings } from '../lib/Viewer';
-import { route } from 'next/dist/next-server/server/router';
+// import { route } from 'next/dist/next-server/server/router';
 /*
 import ProTip from '../src/ProTip';
 import Link from '../src/Link';
@@ -134,7 +134,7 @@ export default function AppIndex(): ReactElement {
   const [glyph, setGlyph] = useState<string>('');
   const [cutOutOrigin_BBL, setCutOutOrigin_BBL] = useState<boolean>(false);
 
-  const { query, asPath, push } = useRouter();
+  const { query, asPath } = useRouter();
   const [isLoading, setIsLoading] = useState(true);
 
   const setPreset = (val: number) => {
