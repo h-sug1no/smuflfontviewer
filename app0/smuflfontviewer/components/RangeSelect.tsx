@@ -3,7 +3,7 @@ import TextField from '@material-ui/core/TextField';
 import { Autocomplete, createFilterOptions } from '@material-ui/lab';
 import parse from 'autosuggest-highlight/parse';
 
-import { Dict } from '../lib/SMuFLMetadata';
+import { Dict } from '../lib/SMuFLTypes';
 
 import { match } from './UCodepointSelect';
 

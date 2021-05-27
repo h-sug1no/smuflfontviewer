@@ -16,6 +16,9 @@ import {
   OptionalGlyphItem,
   GlyphnameStr,
   SFVRangeItem,
+  UCodepointStr,
+  Ligatures,
+  GlyphsWithAnchors,
 } from './SMuFLTypes';
 import { UCodePoint } from './UCodePoint';
 
@@ -31,6 +34,8 @@ export class FontMetadata {
   sets?: Sets;
   glyphsWithAlternates?: GlyphsWithAlternates;
   optionalGlyphs?: OptionalGlyphs;
+  ligatures?: Ligatures;
+  glyphsWithAnchors?: GlyphsWithAnchors;
 }
 
 export type GlyphItem = {
@@ -305,13 +310,13 @@ export class Database {
     });
   }
 
-  getFontInfo(fontName?: string): any {
+  getFontInfo(fontName?: string): FontInfo {
     const fontInfos = this.fontInfos_ || {};
     fontName = fontName || Object.keys(fontInfos)[0];
     return fontInfos[fontName];
   }
 
-  fontMetadata(fontName?: string): any {
+  fontMetadata(fontName?: string): FontMetadata | undefined {
     const fontInfo = this.getFontInfo(fontName);
     return fontInfo ? fontInfo.fontMetadata_ : undefined;
   }
@@ -344,15 +349,17 @@ export class Database {
     let item = (this.data_.glyphnames || {})[glyphname];
     const fontMetadata = this.fontMetadata();
     if (!item && options.searchOptional && fontMetadata) {
-      const optionalGlyphs: any = fontMetadata.optionalGlyphs;
-      item = optionalGlyphs[glyphname];
-      options.isOptionalGlyph = item !== undefined;
+      const optionalGlyphs = fontMetadata.optionalGlyphs;
+      if (optionalGlyphs) {
+        item = optionalGlyphs[glyphname];
+        options.isOptionalGlyph = item !== undefined;
+      }
     }
     // fixme: type of
     return (item || { codepoint: undefined }).codepoint;
   }
 
-  glyphname2string(glyphname: string): any {
+  glyphname2string(glyphname: string): UCodepointStr | undefined {
     return this.glyphname2uCodepoint(glyphname);
   }
 }

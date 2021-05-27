@@ -342,15 +342,18 @@ const createUCodepointSelectOptions = (sMuFLMetadata: Database) => {
       }
     }
   });
-  const optionalGlyphs = fontInfo.fontMetadata_.optionalGlyphs;
+  const optionalGlyphs = fontInfo.fontMetadata_.optionalGlyphs || {};
   console.warn('no optionalGlyphs');
   Object.keys(optionalGlyphs || {}).forEach((gname) => {
-    const cp = optionalGlyphs[gname].codepoint.replace('U+', '');
-    soptions.push({
-      series: 'optionalGlyphs',
-      value: cp,
-      name: cp + ': ' + gname,
-    });
+    const { codepoint } = optionalGlyphs[gname] || {};
+    if (codepoint) {
+      const cp = codepoint.replace('U+', '');
+      soptions.push({
+        series: 'optionalGlyphs',
+        value: cp,
+        name: cp + ': ' + gname,
+      });
+    }
   });
   initUCodepointSelectOptions(soptions);
 };
@@ -371,9 +374,9 @@ const createRangeSelectOptions = (sMuFLMetadata: Database) => {
   });
   registerRangeSelectOption(UNICODE_RANGE_NAME, 0x21, 'unicode range');
   const optRange = sMuFLMetadata.getFontInfo().optRange;
-  if (optRange) {
+  if (optRange && optRange.range_start) {
     registerRangeSelectOption(
-      optRange.description,
+      optRange.description || '?',
       UCodePoint.fromUString(optRange.range_start).toNumber(),
     );
   }
@@ -400,15 +403,16 @@ const cpNumber2Range = (cpNumber: number) => {
   }
 
   if (!tRange) {
-    const tGlyph = sMuFLMetadata.getFontInfo().glyphsByUCodepoint[
-      UCodePoint.fromCpNumber(cpNumber).toUString()
-    ];
-    if (tGlyph && tGlyph.isOptionalGlyph) {
-      const optRange = sMuFLMetadata.getFontInfo().optRange;
-      tRange = {
-        key: optRange.description,
-        r: optRange,
-      };
+    const fontInfo = sMuFLMetadata.getFontInfo();
+    if (fontInfo && fontInfo.glyphsByUCodepoint) {
+      const tGlyph = fontInfo.glyphsByUCodepoint[UCodePoint.fromCpNumber(cpNumber).toUString()];
+      if (tGlyph && tGlyph.isOptionalGlyph) {
+        const optRange = sMuFLMetadata.getFontInfo().optRange;
+        tRange = {
+          key: optRange?.description,
+          r: optRange,
+        };
+      }
     }
   }
 
@@ -450,7 +454,7 @@ export default function Viewer(): ReactElement {
     const tRange = cpNumber2Range(
       UCodePoint.fromUString((data || {}).value || 'NaN' /* FIXME */).toNumber(),
     );
-    if (tRange) {
+    if (tRange && tRange.key) {
       setCurrentRange(getRangeSelectOptionByValue(tRange.key));
     }
   }, []);
