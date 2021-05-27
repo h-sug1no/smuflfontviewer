@@ -59,7 +59,11 @@ export class FontInfo {
   glyphsByUCodepoint?: Dict<GlyphItem>;
   optClasses?: Classes;
   optRange?: SFVOptRangeItem;
-  computedClasses?: { smuflClasses: any; optClasses: Dict<Array<any>>; classes: Dict<Array<any>> };
+  computedClasses?: {
+    smuflClasses: Classes;
+    optClasses: Classes;
+    classes: Classes;
+  };
   constructor(fontMetadata: FontMetadata) {
     this.fontMetadata_ = fontMetadata;
   }
@@ -264,7 +268,7 @@ export class Database {
 
       // resolve optionalGlyphs classes.
       fontInfo.computedClasses = {
-        smuflClasses: this.data_.classes,
+        smuflClasses: this.data_.classes || {},
         optClasses: optClasses,
         classes: {},
       };
@@ -272,7 +276,7 @@ export class Database {
       Object.keys(computedClasses.classes)
         .concat(Object.keys(computedClasses.optClasses))
         .forEach(function (className: string) {
-          const classes: Dict<Array<any>> = computedClasses.classes;
+          const classes = computedClasses.classes;
           if (!classes[className]) {
             classes[className] = (computedClasses.smuflClasses[className] || []).concat(
               computedClasses.optClasses[className] || [],
