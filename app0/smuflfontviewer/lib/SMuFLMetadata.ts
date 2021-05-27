@@ -8,9 +8,13 @@ import {
   Classes,
   Ranges,
   Sets,
+  SetItem,
+  SetGlyphItem,
+  SetnameStr,
   GlyphsWithAlternates,
   OptionalGlyphs,
   OptionalGlyphItem,
+  GlyphnameStr,
 } from './SMuFLTypes';
 import { UCodePoint } from './UCodePoint';
 
@@ -30,8 +34,14 @@ export class FontMetadata {
 
 export class FontInfo {
   fontMetadata_: FontMetadata;
-  setsByAlternateFor?: Dict<any>;
-  setsByName?: Dict<any>;
+  /**
+   * key is GlyphnameStr.
+   */
+  setsByAlternateFor?: Dict<Array<SetByAnyMapItem>>;
+  /**
+   * key is GlyphnameStr.
+   */
+  setsByName?: Dict<Array<SetByAnyMapItem>>;
   alternateFors?: Dict<any>;
   alternateCodepointFors?: Dict<any>;
   glyphsByUCodepoint?: Dict<any>;
@@ -49,6 +59,12 @@ export class FontInfo {
     this.fontMetadata_ = fontMetadata;
   }
 }
+
+export type SetByAnyMapItem = {
+  setName: SetnameStr;
+  set: SetItem;
+  glyph: SetGlyphItem;
+};
 
 export class Data {
   [key: string]: any;
@@ -117,17 +133,23 @@ export class Database {
       fontInfo.setsByName = {};
       const setsByName = fontInfo.setsByName;
 
-      const sets: Record<string, any> = fontMetadata.sets || {};
+      const sets = fontMetadata.sets || {};
       if (sets) {
         Object.keys(sets).forEach((key) => {
           const set = sets[key];
-          set.glyphs.forEach((glyph: any) => {
+          if (!set.glyphs) {
+            return;
+          }
+          set.glyphs.forEach((glyph) => {
             const mapItem = {
+              /**
+               * @type: SetnameStr
+               */
               setName: key,
               set: set,
               glyph: glyph,
             };
-            const gAlternateFor: string = glyph.alternateFor;
+            const gAlternateFor: GlyphnameStr = glyph.alternateFor;
 
             const sbafItem = (setsByAlternateFor[gAlternateFor] =
               setsByAlternateFor[gAlternateFor] || []);
