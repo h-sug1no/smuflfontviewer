@@ -2,7 +2,16 @@
  * Copyright (c) 2020 h-sug1no
  */
 
-import { Dict, Glyphnames, Classes, Ranges } from './SMuFLTypes';
+import {
+  Dict,
+  Glyphnames,
+  Classes,
+  Ranges,
+  Sets,
+  GlyphsWithAlternates,
+  OptionalGlyphs,
+  OptionalGlyphItem,
+} from './SMuFLTypes';
 import { UCodePoint } from './UCodePoint';
 
 export interface SearchOptions {
@@ -14,9 +23,9 @@ export interface SearchOptions {
 export class FontMetadata {
   fontName?: string;
   fontVersion?: string;
-  sets?: Record<string, any>;
-  glyphsWithAlternates?: Record<string, any>;
-  optionalGlyphs?: Record<string, any>;
+  sets?: Sets;
+  glyphsWithAlternates?: GlyphsWithAlternates;
+  optionalGlyphs?: OptionalGlyphs;
 }
 
 export class FontInfo {
@@ -167,44 +176,52 @@ export class Database {
         const names = namesDef.names || {};
         Object.keys(names).forEach(function (key) {
           const name = names[key];
-          const cp: string = name.codepoint;
-          if (glyphsByUCodepoint[cp]) {
-            console.error(
-              `duplicate codepoint: ${cp}: ${key}, ${glyphsByUCodepoint[cp].glyphname}`,
-            );
-          }
-          const glyphItem = {
-            glyphname: key,
-            isOptionalGlyph: namesDef.isOptionalGlyph,
-          };
-          glyphsByUCodepoint[cp] = glyphItem;
+          const cp = name.codepoint;
+          if (cp) {
+            if (glyphsByUCodepoint[cp]) {
+              console.error(
+                `duplicate codepoint: ${cp}: ${key}, ${glyphsByUCodepoint[cp].glyphname}`,
+              );
+            }
+            const glyphItem = {
+              glyphname: key,
+              isOptionalGlyph: namesDef.isOptionalGlyph,
+            };
+            glyphsByUCodepoint[cp] = glyphItem;
 
-          // alternateCodepoint: ...the Unicode Musical Symbols range code point
-          // (if applicable) provided as the value for the "alternateCodepoint" key.
-          const glyphs = (alternateCodepointFors[name.alternateCodepoint] =
-            alternateCodepointFors[name.alternateCodepoint] || []);
-          glyphs.push(glyphItem);
+            // alternateCodepoint: ...the Unicode Musical Symbols range code point
+            // (if applicable) provided as the value for the "alternateCodepoint" key.
+            const alternateCodepoint = name.alternateCodepoint;
+            if (alternateCodepoint) {
+              const glyphs = (alternateCodepointFors[alternateCodepoint] =
+                alternateCodepointFors[alternateCodepoint] || []);
+              glyphs.push(glyphItem);
+            }
+          }
 
           if (!namesDef.isOptionalGlyph) {
             return;
           }
 
+          const optName: OptionalGlyphItem = name;
           // compute some data from optionalGlyphs.
-          if (name.classes) {
-            name.classes.forEach(function (clazz: string) {
+          if (optName.classes) {
+            optName.classes.forEach(function (clazz: string) {
               optClasses[clazz] = optClasses[clazz] || [];
               optClasses[clazz].push(key);
             });
           }
 
-          const nCp: number = UCodePoint.fromUString(cp).toNumber();
-          if (nCp < optRange.nStart) {
-            optRange.nStart = nCp;
-            optRange.range_start = cp;
-          }
-          if (nCp > optRange.nEnd) {
-            optRange.nEnd = nCp;
-            optRange.range_end = cp;
+          if (cp) {
+            const nCp: number = UCodePoint.fromUString(cp).toNumber();
+            if (nCp < optRange.nStart) {
+              optRange.nStart = nCp;
+              optRange.range_start = cp;
+            }
+            if (nCp > optRange.nEnd) {
+              optRange.nEnd = nCp;
+              optRange.range_end = cp;
+            }
           }
         });
       });

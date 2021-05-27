@@ -176,6 +176,7 @@ export type OptionalGlyphItem = {
   classes?: Array<ClassnameStr>;
   codepoint?: UCodepointStr;
   description?: string;
+  alternateCodepoint?: UCodepointStr;
 };
 
 /////////////////////////////////////////////////////////////////////
