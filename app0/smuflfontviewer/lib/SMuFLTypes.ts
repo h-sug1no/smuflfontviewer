@@ -172,11 +172,8 @@ export type SetItem = {
 /**
  * @see https://w3c.github.io/smufl/latest/specification/optionalglyphs.html
  */
-export type OptionalGlyphItem = {
+export type OptionalGlyphItem = GlyphnameItem & {
   classes?: Array<ClassnameStr>;
-  codepoint?: UCodepointStr;
-  description?: string;
-  alternateCodepoint?: UCodepointStr;
 };
 
 /////////////////////////////////////////////////////////////////////

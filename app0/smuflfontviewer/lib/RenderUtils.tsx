@@ -1,7 +1,7 @@
 import { Link } from '@material-ui/core';
 import { ListItem } from '@material-ui/core';
 import { SyntheticEvent, ReactNode } from 'react';
-import { Dict } from '../lib/SMuFLTypes';
+import { Dict, GlyphnameItem } from '../lib/SMuFLTypes';
 import { Database, SearchOptions } from '../lib/SMuFLMetadata';
 import { UCodePoint } from '../lib/UCodePoint';
 import clsx from 'clsx';
@@ -69,9 +69,9 @@ function createGlyphname(
       )}
       // use dom.dataset(https://developer.mozilla.org/ja/docs/Learn/HTML/Howto/Use_data_attributes)
       // to avoid {any} type.
-      ref={(elm: any) => {
+      ref={(elm: HTMLElement) => {
         if (elm) {
-          elm.uCodepoint = uCodepoint;
+          elm.dataset.uCodepoint = uCodepoint;
         }
       }}
     >
@@ -88,7 +88,11 @@ function createGlyphname(
   };
 }
 
-function createGlyphnameInfo(sMuFLMetadata: Database, ginfo: any, glyphname: string): ReactNode {
+function createGlyphnameInfo(
+  sMuFLMetadata: Database,
+  ginfo: GlyphnameItem,
+  glyphname: string,
+): ReactNode {
   /*
   _$c_appendText($contentContainer, `${ginfo.codepoint}: `);
   appendGlyphname($contentContainer, glyphname); // here, no current glyph.
