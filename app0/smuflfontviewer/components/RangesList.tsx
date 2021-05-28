@@ -1,6 +1,7 @@
 import { Link } from '@material-ui/core';
 import { SyntheticEvent } from 'react';
-import { Database, Dict } from '../lib/SMuFLMetadata';
+import { Dict } from '../lib/SMuFLTypes';
+import { Database } from '../lib/SMuFLMetadata';
 import { createGlyphname } from '../lib/RenderUtils';
 
 type addItemFuncType = (item: any) => JSX.Element;

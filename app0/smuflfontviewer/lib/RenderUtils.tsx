@@ -18,7 +18,7 @@ function createCodepointOrText(uCodepointStr: string): ReactNode {
 }
 
 type IGylphnameDomInfo = {
-  jsxDom: ReactNode;
+  jsxDom: JSX.Element;
   uCodepoint: string | undefined;
 };
 
