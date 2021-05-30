@@ -1,10 +1,11 @@
+import { Classes } from '../lib/SMuFLTypes';
 import { Database } from '../lib/SMuFLMetadata';
 import { createGlyphname, _createAnyListPage } from '../lib/RenderUtils';
 
-function ClassesList(sMuFLMetadata: Database, classes: any): JSX.Element {
+function ClassesList(sMuFLMetadata: Database, classes: Classes | undefined): JSX.Element {
   return _createAnyListPage(
     'classes',
-    classes,
+    classes || {},
     //addItemFunc
     (/* item: any */) => {
       return <></>;
