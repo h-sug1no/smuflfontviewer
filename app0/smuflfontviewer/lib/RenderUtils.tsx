@@ -6,7 +6,7 @@ import { Database, SearchOptions } from '../lib/SMuFLMetadata';
 import { UCodePoint } from '../lib/UCodePoint';
 import clsx from 'clsx';
 
-function createCodepoint(uCodepointStr: string): ReactNode {
+function createCodepoint(uCodepointStr?: string): ReactNode {
   return <span className="smuflCodepoint">{uCodepointStr}</span>;
 }
 
@@ -24,7 +24,7 @@ type IGylphnameDomInfo = {
 
 function createGlyphname(
   sMuFLMetadata: Database,
-  glyphname: string,
+  glyphname?: string,
   currentGlyphName?: string,
   uCodepoint?: string,
   showUCodepoint?: boolean,

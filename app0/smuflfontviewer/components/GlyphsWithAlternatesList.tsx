@@ -1,10 +1,15 @@
 import { List, ListItem } from '@material-ui/core';
 import { Database } from '../lib/SMuFLMetadata';
+import {
+  GlyphsWithAlternates,
+  GlyphsWithAlternateItem,
+  GlyphsWithAlternateAlternateItem,
+} from '../lib/SMuFLTypes';
 import { createGlyphname, createCodepoint } from '../lib/RenderUtils';
 
 function createAlternatesInfo(
   sMuFLMetadata: Database,
-  alternates: any,
+  alternates: GlyphsWithAlternateItem,
   baseGlyphname: string,
   glyphname?: string,
 ) {
@@ -15,7 +20,7 @@ function createAlternatesInfo(
         {'alternates: '}
         {createGlyphname(sMuFLMetadata, baseGlyphname, glyphname, undefined, true).jsxDom}
         {'\n'}
-        {alternates.alternates.map(function (v: any) {
+        {alternates.alternates.map(function (v: GlyphsWithAlternateAlternateItem) {
           return (
             <span key={`${baseGlyphname}_${v.codepoint}`}>
               {'codepoint: '}
@@ -32,7 +37,10 @@ function createAlternatesInfo(
   return ret;
 }
 
-function GlyphsWithAlternatesList(sMuFLMetadata: Database, gwAlternates: any): JSX.Element {
+function GlyphsWithAlternatesList(
+  sMuFLMetadata: Database,
+  gwAlternates: GlyphsWithAlternates = {},
+): JSX.Element {
   const ret: Array<JSX.Element> = [];
   try {
     Object.keys(gwAlternates).forEach(function (akey: string) {

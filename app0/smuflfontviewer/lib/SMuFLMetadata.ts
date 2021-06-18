@@ -345,7 +345,10 @@ export class Database {
     return ret;
   }
 
-  glyphname2uCodepoint(glyphname: string, options: SearchOptions = {}): string | undefined {
+  glyphname2uCodepoint(
+    glyphname: string | undefined = '',
+    options: SearchOptions = {},
+  ): string | undefined {
     let item = (this.data_.glyphnames || {})[glyphname];
     const fontMetadata = this.fontMetadata();
     if (!item && options.searchOptional && fontMetadata) {
