@@ -153,6 +153,8 @@ export type SetGlyphItem = {
    * @type GlyphnameStr
    */
   alternateFor: GlyphnameStr;
+
+  description: string;
 };
 
 export type SetItem = {

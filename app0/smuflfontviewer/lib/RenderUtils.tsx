@@ -113,16 +113,16 @@ function createGlyphnameInfo(
   );
 }
 
-type addItemFuncType = (item: any) => JSX.Element;
-type getGlyphsFuncType = (item: any) => Array<any>;
-type addGlyphFuncType = (glyphName: string) => JSX.Element;
+type addItemFuncType<T> = (item: T) => JSX.Element;
+type getGlyphsFuncType<T, GT> = (item: T) => Array<GT> | undefined;
+type addGlyphFuncType<GT> = (glyph: GT) => JSX.Element;
 
-function _createAnyListPage(
+function _createAnyListPage<T, GT>(
   listName: string,
-  dict: Dict<any>,
-  addItemFunc: addItemFuncType,
-  getGlyphsFunc: getGlyphsFuncType,
-  addGlyphFunc: addGlyphFuncType,
+  dict: Dict<T>,
+  addItemFunc: addItemFuncType<T>,
+  getGlyphsFunc: getGlyphsFuncType<T, GT>,
+  addGlyphFunc: addGlyphFuncType<GT>,
 ): JSX.Element {
   function _hrefId(hrefName: string) {
     return listName + 'Container_' + hrefName;
@@ -157,9 +157,9 @@ function _createAnyListPage(
     return ret;
   }
 
-  const _createGlyphInfos = (item: any) => {
-    const glyphs = getGlyphsFunc(item);
-    return glyphs.map(function (glyphName: string, idx: number) {
+  const _createGlyphInfos = (item: T) => {
+    const glyphs = getGlyphsFunc(item) || [];
+    return glyphs.map((glyphName: GT, idx: number) => {
       // FIXME: glyphName may string or object. simplify key string but how to?
       const key = `${listName}_${idx}_${JSON.stringify(glyphName)}`;
       // console.log(key);

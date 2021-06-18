@@ -85,7 +85,7 @@ export type SFVOptRangeItem = SFVRangeItem & {
 };
 
 export class Data {
-  [key: string]: any;
+  [key: string]: unknown;
   fontMetadata_?: FontMetadata;
   glyphnames?: Glyphnames;
   classes?: Classes;
@@ -102,7 +102,7 @@ export class Database {
     this.data_ = new Data();
   }
 
-  init(options: { get(key: string): string }): Promise<any> {
+  init(options: { get(key: string): string }): Promise<unknown> {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const that = this;
     const urlKeys: Array<string> = ['fontMetadata', 'glyphnames', 'classes', 'ranges'];

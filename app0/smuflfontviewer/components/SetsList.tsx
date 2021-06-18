@@ -1,14 +1,15 @@
-import { Link } from '@material-ui/core';
-import { SyntheticEvent } from 'react';
-import { Database, Dict } from '../lib/SMuFLMetadata';
+// import { Link } from '@material-ui/core';
+// import { SyntheticEvent } from 'react';
+import { Database } from '../lib/SMuFLMetadata';
+import { Sets, SetItem, SetGlyphItem } from '../lib/SMuFLTypes';
 import { createGlyphname, _createAnyListPage, createCodepointOrText } from '../lib/RenderUtils';
 
-function SetsList(sMuFLMetadata: Database, sets: any) {
-  return _createAnyListPage(
+function SetsList(sMuFLMetadata: Database, sets: Sets): JSX.Element {
+  return _createAnyListPage<SetItem, SetGlyphItem>(
     'sets',
     sets,
     //addItemFunc
-    (item: any) => {
+    (item: SetItem) => {
       return (
         <>
           {`description: ${item.description}: \n`}
@@ -17,11 +18,11 @@ function SetsList(sMuFLMetadata: Database, sets: any) {
       );
     },
     // getGlyphsFunc
-    (item: any) => {
+    (item: SetItem) => {
       return item.glyphs;
     },
     // addGlyphFunc
-    (glyph: any) => {
+    (glyph: SetGlyphItem) => {
       return (
         <>
           {`description: ${glyph.description}\n`}
