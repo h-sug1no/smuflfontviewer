@@ -1,6 +1,6 @@
 import { Link } from '@material-ui/core';
 import { SyntheticEvent } from 'react';
-import { Dict } from '../lib/SMuFLTypes';
+import { Dict, Ranges } from '../lib/SMuFLTypes';
 import { Database } from '../lib/SMuFLMetadata';
 import { createGlyphname } from '../lib/RenderUtils';
 
@@ -14,7 +14,7 @@ function _createAnyListPage(
   addItemFunc: addItemFuncType,
   getGlyphsFunc: getGlyphsFuncType,
   addGlyphFunc: addGlyphFuncType,
-) {
+): JSX.Element | undefined {
   function _hrefId(hrefName: string) {
     return listName + 'Container_' + hrefName;
   }
@@ -88,10 +88,10 @@ function _createAnyListPage(
   return ret;
 }
 
-function RangesList(sMuFLMetadata: Database, ranges: any) {
+function RangesList(sMuFLMetadata: Database, ranges: Ranges | undefined) {
   return _createAnyListPage(
     'range',
-    ranges,
+    ranges || {},
     //addItemFunc
     (item: any) => {
       return (
