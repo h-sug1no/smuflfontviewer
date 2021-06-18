@@ -4,7 +4,7 @@ import { Database } from '../lib/SMuFLMetadata';
 import { Sets, SetItem, SetGlyphItem } from '../lib/SMuFLTypes';
 import { createGlyphname, _createAnyListPage, createCodepointOrText } from '../lib/RenderUtils';
 
-function SetsList(sMuFLMetadata: Database, sets: Sets): JSX.Element {
+function SetsList(sMuFLMetadata: Database, sets: Sets = {}): JSX.Element {
   return _createAnyListPage<SetItem, SetGlyphItem>(
     'sets',
     sets,

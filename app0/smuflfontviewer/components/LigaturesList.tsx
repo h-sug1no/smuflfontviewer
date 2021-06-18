@@ -1,11 +1,12 @@
 import { List, ListItem } from '@material-ui/core';
 import { Database } from '../lib/SMuFLMetadata';
+import { Ligatures, LigatureItem, GlyphnameStr } from '../lib/SMuFLTypes';
 import { createGlyphname } from '../lib/RenderUtils';
 
 function addLigatureInfo(
   sMuFLMetadata: Database,
   label: string | undefined,
-  ligature: any,
+  ligature: LigatureItem,
   glyphname: string,
 ): JSX.Element {
   let ret = <></>;
@@ -13,7 +14,10 @@ function addLigatureInfo(
     return ret;
   }
 
-  const createComponentGlyphs = (componentGlyphs: any, glyphname: string): JSX.Element => {
+  const createComponentGlyphs = (
+    componentGlyphs: Array<GlyphnameStr> | undefined,
+    glyphname: string,
+  ): JSX.Element => {
     if (!componentGlyphs) {
       return <></>;
     }
@@ -21,7 +25,7 @@ function addLigatureInfo(
       <>
         {'componentGlyphs:\n'}
         <div className="glyphsContainer">
-          {ligature.componentGlyphs.map(function (tGlyphname: string, idx: number) {
+          {componentGlyphs.map((tGlyphname: string, idx: number) => {
             return (
               <span key={`${glyphname}_componentGlyph_${tGlyphname}_${idx}`}>
                 {createGlyphname(sMuFLMetadata, tGlyphname, glyphname, undefined, true).jsxDom}
@@ -46,7 +50,7 @@ function addLigatureInfo(
   return ret;
 }
 
-function LigaturesList(sMuFLMetadata: Database, ligatures: any): JSX.Element {
+function LigaturesList(sMuFLMetadata: Database, ligatures: Ligatures = {}): JSX.Element {
   const ret: Array<JSX.Element> = [];
   try {
     Object.keys(ligatures).forEach(function (glyphname) {
