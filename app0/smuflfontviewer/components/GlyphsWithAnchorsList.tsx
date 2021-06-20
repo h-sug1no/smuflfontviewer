@@ -1,8 +1,12 @@
 import { List, ListItem } from '@material-ui/core';
 import { Database } from '../lib/SMuFLMetadata';
+import { GlyphsWithAnchors } from '../lib/SMuFLTypes';
 import { createGlyphname } from '../lib/RenderUtils';
 
-function GlyphsWithAnchorsList(sMuFLMetadata: Database, gwAnchors: any): JSX.Element {
+function GlyphsWithAnchorsList(
+  sMuFLMetadata: Database,
+  gwAnchors: GlyphsWithAnchors | undefined = {},
+): JSX.Element {
   const ret: Array<JSX.Element> = [];
   try {
     Object.keys(gwAnchors).forEach(function (glyphname: string) {

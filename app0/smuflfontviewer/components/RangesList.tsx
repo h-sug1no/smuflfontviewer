@@ -1,99 +1,13 @@
-import { Link } from '@material-ui/core';
-import { SyntheticEvent } from 'react';
-import { Dict, Ranges } from '../lib/SMuFLTypes';
+import { Ranges, SFVRangeItem } from '../lib/SMuFLTypes';
 import { Database } from '../lib/SMuFLMetadata';
-import { createGlyphname } from '../lib/RenderUtils';
+import { createGlyphname, _createAnyListPage } from '../lib/RenderUtils';
 
-type addItemFuncType = (item: any) => JSX.Element;
-type getGlyphsFuncType = (item: any) => Array<any>;
-type addGlyphFuncType = (glyphName: string) => JSX.Element;
-
-function _createAnyListPage(
-  listName: string,
-  dict: Dict<any>,
-  addItemFunc: addItemFuncType,
-  getGlyphsFunc: getGlyphsFuncType,
-  addGlyphFunc: addGlyphFuncType,
-): JSX.Element | undefined {
-  function _hrefId(hrefName: string) {
-    return listName + 'Container_' + hrefName;
-  }
-
-  function _createLink(hrefName: string, clazz: string) {
-    const disabled = hrefName ? false : true;
-    if (disabled) {
-      hrefName = '....';
-    }
-    let ret: JSX.Element;
-    const hrefId = _hrefId(hrefName);
-    if (disabled) {
-      ret = <span className={clazz}>{hrefName}</span>;
-    } else {
-      ret = (
-        <Link
-          className={clazz}
-          href={`#${hrefId}`}
-          onClick={(e: SyntheticEvent) => {
-            const targetElm = document.getElementById(hrefId);
-            if (targetElm) {
-              targetElm.scrollIntoView();
-              e.preventDefault();
-            }
-          }}
-        >
-          {hrefName}
-        </Link>
-      );
-    }
-    return ret;
-  }
-
-  const _createGlyphInfos = (item: any) => {
-    const glyphs = getGlyphsFunc(item);
-    return glyphs.map(function (glyphName: string) {
-      return (
-        <div className="glyphContainer" key={`${listName}_${glyphName}`}>
-          {addGlyphFunc(glyphName)}
-        </div>
-      );
-    });
-  };
-
-  let ret: JSX.Element | undefined;
-
-  try {
-    const dictKeys = Object.keys(dict);
-    if (!dictKeys.length) {
-      ret = <>{`no ${listName} items`}</>;
-      return ret;
-    }
-    const doms = dictKeys.map(function (itemName, idx, items) {
-      const item = dict[itemName];
-      const id = _hrefId(itemName);
-      return (
-        <div className={`${listName}Container`} id={id} key={id}>
-          {`${itemName}: `}
-          {_createLink(items[idx - 1], 'linkToPrev')}
-          {_createLink(items[idx + 1], 'linkToNext')}
-          {'\n'}
-          {addItemFunc(item)}
-          {_createGlyphInfos(item)}
-        </div>
-      );
-    });
-    ret = <>{doms}</>;
-  } catch (e) {
-    console.log(e);
-  }
-  return ret;
-}
-
-function RangesList(sMuFLMetadata: Database, ranges: Ranges | undefined) {
-  return _createAnyListPage(
+function RangesList(sMuFLMetadata: Database, ranges: Ranges | undefined): JSX.Element {
+  return _createAnyListPage<SFVRangeItem, string>(
     'range',
     ranges || {},
     //addItemFunc
-    (item: any) => {
+    (item: SFVRangeItem) => {
       return (
         <>
           {`range_start: ${item.range_start}, `}
@@ -103,7 +17,7 @@ function RangesList(sMuFLMetadata: Database, ranges: Ranges | undefined) {
       );
     },
     // getGlyphsFunc
-    (item) => {
+    (item: SFVRangeItem) => {
       return item.glyphs;
     },
     // addGlyphFunc
