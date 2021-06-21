@@ -459,7 +459,7 @@ export default function Viewer(): ReactElement {
     }
   }, []);
 
-  const [currentRange, _setCurrentRange] = useState<IUCSelectOption | null>(null);
+  const [currentRange, _setCurrentRange] = useState<IRangeSelectOption | null>(null);
   const currentRangeRef = React.useRef(currentRange);
   const setCurrentRange = (data: IRangeSelectOption | null) => {
     currentRangeRef.current = data || null;

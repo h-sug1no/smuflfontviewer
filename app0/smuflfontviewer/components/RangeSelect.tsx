@@ -11,7 +11,12 @@ const filter = createFilterOptions<IRangeSelectOption>({
   /* limit: 10 */
 });
 
-export default function RangeSelect(props: any): JSX.Element {
+export type RangeSelectProps = {
+  onChange(value: IRangeSelectOption): boolean;
+  value: string | IRangeSelectOption | null;
+};
+
+export default function RangeSelect(props: RangeSelectProps): JSX.Element {
   const { onChange, value } = props;
   // fixme: define type of values.
   // const [value, setValue] = React.useState<IRangeSelectOption | null>(null);
@@ -34,7 +39,7 @@ export default function RangeSelect(props: any): JSX.Element {
     <>
       <Autocomplete
         value={value}
-        onChange={(event, newValue: any) => {
+        onChange={(event, newValue: string | IRangeSelectOption | null) => {
           // console.log(`onChange: ${JSON.stringify(newValue)}`);
           if (typeof newValue === 'string') {
             /*
@@ -70,7 +75,7 @@ export default function RangeSelect(props: any): JSX.Element {
         handleHomeEndKeys
         id="ucodepoint-select"
         options={rangeSelectOptions}
-        getOptionLabel={(option: any) => {
+        getOptionLabel={(option: IRangeSelectOption) => {
           // Value selected with enter, right from the input
           if (typeof option === 'string') {
             return option;
