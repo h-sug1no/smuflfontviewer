@@ -1,9 +1,8 @@
 /* eslint-disable no-use-before-define */
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { IUCSelectOption } from './UCodepointSelect';
 import { Typography, Box, Slider } from '@material-ui/core';
 import TriStateCheckbox, { useTriState } from '../lib/TriStateCheckbox';
-import { EngravingDefaults } from '../lib/SMuFLTypes';
 import { FontMetadata } from '../lib/SMuFLMetadata';
 
 const initMouseHandlers = (
@@ -148,10 +147,9 @@ function _renderGlyph(
   tctx.fillText(str, x, y);
 }
 
-const drawSL = (gdc: GDCtx, slValue: number) => {
+const drawSL = (gdc: GDCtx, x: number, y: number, slValue: number) => {
   const { ctx, c, sbl, fontMetadata } = gdc;
   const { engravingDefaults = {} } = fontMetadata;
-  const y = 0;
   let slY = y;
   switch (slValue) {
     case 1:
@@ -192,7 +190,7 @@ const draw = (
 
   ctx.clearRect(0, 0, c.clientWidth, c.clientHeight);
 
-  drawSL(gdc, options.slValue);
+  drawSL(gdc, x, y, options.slValue);
   if (!value) {
     return;
   }

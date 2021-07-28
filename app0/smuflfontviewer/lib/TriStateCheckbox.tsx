@@ -4,8 +4,14 @@ import { Checkbox, CheckboxProps } from '@material-ui/core';
 const isChecked = (value: number) => !!(value === 2);
 const isIndeterminate = (value: number) => !!(value === 1);
 
-export const useTriState = (val: number) => {
-  const [value, setValue] = useState<number>(0);
+export type ITriState = {
+  value: number;
+  setValue: React.Dispatch<React.SetStateAction<number>>;
+  onInput: () => void;
+};
+
+export const useTriState = (val = 0): ITriState => {
+  const [value, setValue] = useState<number>(val);
 
   const onInput = (/*e*/) => {
     let newVal = value + 1;
