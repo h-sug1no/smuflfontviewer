@@ -1,7 +1,10 @@
 /* eslint-disable no-use-before-define */
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { IUCSelectOption } from './UCodepointSelect';
 import { Typography, Box, Slider } from '@material-ui/core';
+import TriStateCheckbox, { useTriState } from '../lib/TriStateCheckbox';
+import { EngravingDefaults } from '../lib/SMuFLTypes';
+import { FontMetadata } from '../lib/SMuFLMetadata';
 
 const initMouseHandlers = (
   elm: HTMLElement,
@@ -102,6 +105,37 @@ function resolveGlyphdata(cpStr: string): IGlyphData {
   };
 }
 
+class GDCtx {
+  ctx: CanvasRenderingContext2D;
+  c: HTMLCanvasElement;
+  fontSize: number;
+  sbl: number;
+  fontMetadata: FontMetadata;
+  constructor(ctx: CanvasRenderingContext2D, fontMetadata: FontMetadata, fontSize: number) {
+    this.ctx = ctx;
+    this.c = ctx.canvas;
+    this.fontSize = fontSize;
+    this.sbl = fontSize * 0.25;
+    this.fontMetadata = fontMetadata;
+  }
+
+  aCsToSCsY(val: number): number {
+    return GDCtx.anchorCsToScreenCsY(val, this.sbl);
+  }
+
+  aCsToSCsX(val: number): number {
+    return GDCtx.anchorCsToScreenCsX(val, this.sbl);
+  }
+
+  static anchorCsToScreenCsY(val: number, sbl: number): number {
+    return val * sbl * -1;
+  }
+
+  static anchorCsToScreenCsX(val: number, sbl: number): number {
+    return val * sbl;
+  }
+}
+
 function _renderGlyph(
   glyphData: IGlyphData,
   x: number,
@@ -114,12 +148,42 @@ function _renderGlyph(
   tctx.fillText(str, x, y);
 }
 
+const drawSL = (gdc: GDCtx, slValue: number) => {
+  const { ctx, c, sbl, fontMetadata } = gdc;
+  const { engravingDefaults = {} } = fontMetadata;
+  const y = 0;
+  let slY = y;
+  switch (slValue) {
+    case 1:
+      break;
+    case 2:
+      slY += sbl * 0.5;
+      break;
+    case 0:
+    default:
+      return;
+  }
+  ctx.save();
+  ctx.lineWidth = gdc.aCsToSCsX(engravingDefaults.staffLineThickness || 0);
+  for (let yi = -10; yi < 11; yi++) {
+    ctx.beginPath();
+    ctx.moveTo(0, slY + sbl * yi);
+    ctx.lineTo(c.width, slY + sbl * yi);
+
+    ctx.strokeStyle = yi % 4 === 0 ? '#aaaaaa' : '#cccccc';
+    ctx.stroke();
+  }
+  ctx.restore();
+};
+
 const draw = (
-  c: HTMLCanvasElement,
-  ctx: CanvasRenderingContext2D | null,
+  gdc: GDCtx,
   value: IUCSelectOption,
-  size: number,
+  options: {
+    slValue: number;
+  },
 ) => {
+  const { ctx, c, fontSize } = gdc;
   if (!ctx) {
     return;
   }
@@ -127,34 +191,53 @@ const draw = (
   const y = c.height * 0.5;
 
   ctx.clearRect(0, 0, c.clientWidth, c.clientHeight);
+
+  drawSL(gdc, options.slValue);
   if (!value) {
     return;
   }
 
   const glyphData = resolveGlyphdata(value.value);
-  _renderGlyph(glyphData, x, y, size, ctx);
+  _renderGlyph(glyphData, x, y, fontSize, ctx);
 };
 
-type IGlyphCanvasOptions = { value: IUCSelectOption | null };
+type IGlyphCanvasOptions = {
+  value: IUCSelectOption | null;
+  fontMetadata?: FontMetadata;
+};
 export default function GlyphCanvas(props: IGlyphCanvasOptions): JSX.Element {
-  const { value } = props;
+  const { value, fontMetadata = {} } = props;
   console.log(value);
 
   const [tick] = React.useState<number>(0);
   const refTick = React.useRef<number>();
+  const slTriState = useTriState(0);
 
   useEffect(() => {
     refTick.current = tick;
   });
 
   const [size, setSize] = React.useState<number>(40);
+
+  /*
+  function _anchorCsToScreenCs(scaledBBox, anchor, sbl, relativeToBBL) {
+    return {
+      x: (relativeToBBL ? scaledBBox.W : scaledBBox.x) + anchorCsToScreenCsX(Number(anchor[0]), sbl),
+      y: (relativeToBBL ? scaledBBox.S : scaledBBox.y) + anchorCsToScreenCsY(Number(anchor[1]), sbl)
+    };
+  }
+  */
+
   const drawGlyph = useCallback(
     (c: HTMLCanvasElement, ctx: RenderingContext | null) => {
       if (value) {
-        draw(c, ctx as CanvasRenderingContext2D, value, size);
+        const gdc = new GDCtx(ctx as CanvasRenderingContext2D, fontMetadata, size);
+        draw(gdc, value, {
+          slValue: slTriState.value,
+        });
       }
     },
-    [value, size],
+    [value, fontMetadata, size, slTriState.value],
   );
   const sizeRef = React.useRef(size);
   useEffect(() => {
@@ -221,6 +304,12 @@ export default function GlyphCanvas(props: IGlyphCanvasOptions): JSX.Element {
           valueLabelDisplay="auto"
           aria-labelledby="non-linear-slider-glyph-size"
         />
+      </Box>
+      <Box className="gcSizeBox">
+        <Typography id="non-linear-tri-state-sl" gutterBottom display="inline">
+          sl:
+        </Typography>
+        <TriStateCheckbox triValue={slTriState.value} triOnInput={slTriState.onInput} />
       </Box>
     </>
   );

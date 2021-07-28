@@ -657,7 +657,7 @@ export default function Viewer(): ReactElement {
             <RangeSelect onChange={rangeSelectOnChange} value={currentRange} />
           </div>
           <div>
-            <GlyphCanvas value={currentUCodepoint} />
+            <GlyphCanvas value={currentUCodepoint} fontMetadata={sMuFLMetadata?.fontMetadata()} />
           </div>
           {/*
           <Select

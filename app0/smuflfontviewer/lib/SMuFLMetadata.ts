@@ -19,6 +19,8 @@ import {
   UCodepointStr,
   Ligatures,
   GlyphsWithAnchors,
+  EngravingDefaults,
+  GlyphBBoxes,
 } from './SMuFLTypes';
 import { UCodePoint } from './UCodePoint';
 
@@ -31,6 +33,8 @@ export interface SearchOptions {
 export class FontMetadata {
   fontName?: string;
   fontVersion?: string;
+  engravingDefaults?: EngravingDefaults;
+  glyphBBoxes?: GlyphBBoxes;
   sets?: Sets;
   glyphsWithAlternates?: GlyphsWithAlternates;
   optionalGlyphs?: OptionalGlyphs;
