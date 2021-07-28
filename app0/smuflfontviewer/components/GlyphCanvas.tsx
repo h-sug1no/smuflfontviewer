@@ -1,7 +1,7 @@
 /* eslint-disable no-use-before-define */
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { IUCSelectOption } from './UCodepointSelect';
-import { Typography, Box, Slider } from '@material-ui/core';
+import { Typography, Box, Slider, Checkbox } from '@material-ui/core';
 import TriStateCheckbox, { useTriState } from '../lib/TriStateCheckbox';
 import { FontMetadata } from '../lib/SMuFLMetadata';
 
@@ -140,11 +140,18 @@ function _renderGlyph(
   x: number,
   y: number,
   fontSize: string | number,
-  tctx: CanvasRenderingContext2D,
+  ctx: CanvasRenderingContext2D,
+  showOrigin = false,
 ) {
-  tctx.font = fontSize + 'px SMuFLFont';
+  ctx.font = fontSize + 'px SMuFLFont';
   const str = String.fromCodePoint(glyphData.codepoint);
-  tctx.fillText(str, x, y);
+  ctx.fillText(str, x, y);
+
+  if (showOrigin) {
+    ctx.fillStyle = 'orange';
+    ctx.fillRect(x - 6, y - 0.5, 12, 1);
+    ctx.fillRect(x - 0.5, y - 6, 1, 12);
+  }
 }
 
 const drawSL = (gdc: GDCtx, x: number, y: number, slValue: number) => {
@@ -179,6 +186,7 @@ const draw = (
   value: IUCSelectOption,
   options: {
     slValue: number;
+    showOrigin: boolean;
   },
 ) => {
   const { ctx, c, fontSize } = gdc;
@@ -188,6 +196,7 @@ const draw = (
   const x = c.width * 0.5;
   const y = c.height * 0.5;
 
+  ctx.save();
   ctx.clearRect(0, 0, c.clientWidth, c.clientHeight);
 
   drawSL(gdc, x, y, options.slValue);
@@ -196,7 +205,8 @@ const draw = (
   }
 
   const glyphData = resolveGlyphdata(value.value);
-  _renderGlyph(glyphData, x, y, fontSize, ctx);
+  _renderGlyph(glyphData, x, y, fontSize, ctx, options.showOrigin);
+  ctx.restore();
 };
 
 type IGlyphCanvasOptions = {
@@ -210,6 +220,7 @@ export default function GlyphCanvas(props: IGlyphCanvasOptions): JSX.Element {
   const [tick] = React.useState<number>(0);
   const refTick = React.useRef<number>();
   const slTriState = useTriState(0);
+  const [showOrigin, setShowOrigin] = useState<boolean>(true);
 
   useEffect(() => {
     refTick.current = tick;
@@ -232,10 +243,11 @@ export default function GlyphCanvas(props: IGlyphCanvasOptions): JSX.Element {
         const gdc = new GDCtx(ctx as CanvasRenderingContext2D, fontMetadata, size);
         draw(gdc, value, {
           slValue: slTriState.value,
+          showOrigin,
         });
       }
     },
-    [value, fontMetadata, size, slTriState.value],
+    [value, fontMetadata, size, slTriState.value, showOrigin],
   );
   const sizeRef = React.useRef(size);
   useEffect(() => {
@@ -286,7 +298,24 @@ export default function GlyphCanvas(props: IGlyphCanvasOptions): JSX.Element {
       <div className="gcBox" ref={gcBoxRef}>
         <canvas ref={canvasRef} width="800" height="600" />
       </div>
-      <Box className="gcSizeBox">
+      <Box className="GCOptionBox">
+        <Typography id="non-linear-showOrigin" gutterBottom display="inline">
+          origin:
+        </Typography>
+        <Checkbox
+          checked={showOrigin}
+          onChange={(e) => {
+            setShowOrigin(e.target.checked);
+          }}
+        />
+      </Box>
+      <Box className="GCOptionBox">
+        <Typography id="non-linear-tri-state-sl" gutterBottom display="inline">
+          sl:
+        </Typography>
+        <TriStateCheckbox triValue={slTriState.value} triOnInput={slTriState.onInput} />
+      </Box>
+      <Box className="gcSizeBox GCOptionBox">
         <Typography id="non-linear-slider-glyph-size" gutterBottom>
           size: {size}
         </Typography>
@@ -302,12 +331,6 @@ export default function GlyphCanvas(props: IGlyphCanvasOptions): JSX.Element {
           valueLabelDisplay="auto"
           aria-labelledby="non-linear-slider-glyph-size"
         />
-      </Box>
-      <Box className="gcSizeBox">
-        <Typography id="non-linear-tri-state-sl" gutterBottom display="inline">
-          sl:
-        </Typography>
-        <TriStateCheckbox triValue={slTriState.value} triOnInput={slTriState.onInput} />
       </Box>
     </>
   );
