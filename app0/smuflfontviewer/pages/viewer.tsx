@@ -338,6 +338,7 @@ const createUCodepointSelectOptions = (sMuFLMetadata: Database) => {
           series: 'glyphnames',
           value: cp,
           name: cp + ': ' + gname,
+          glyphname: gname,
         });
       }
     }
@@ -352,6 +353,7 @@ const createUCodepointSelectOptions = (sMuFLMetadata: Database) => {
         series: 'optionalGlyphs',
         value: cp,
         name: cp + ': ' + gname,
+        glyphname: gname,
       });
     }
   });
@@ -657,7 +659,10 @@ export default function Viewer(): ReactElement {
             <RangeSelect onChange={rangeSelectOnChange} value={currentRange} />
           </div>
           <div>
-            <GlyphCanvas value={currentUCodepoint} fontMetadata={sMuFLMetadata?.fontMetadata()} />
+            <GlyphCanvas
+              value={currentUCodepoint}
+              sMuFLMetadata={sMuFLMetadata ?? new Database()}
+            />
           </div>
           {/*
           <Select

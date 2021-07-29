@@ -1,9 +1,11 @@
 /* eslint-disable no-use-before-define */
 import React, { useCallback, useEffect, useState } from 'react';
-import { IUCSelectOption } from './UCodepointSelect';
+import { IUCSelectOption, IUCSelectOption_value2Number } from './UCodepointSelect';
 import { Typography, Box, Slider, Checkbox } from '@material-ui/core';
 import TriStateCheckbox, { useTriState } from '../lib/TriStateCheckbox';
-import { FontMetadata } from '../lib/SMuFLMetadata';
+import { Database, FontMetadata } from '../lib/SMuFLMetadata';
+import { UCodePoint } from '../lib/UCodePoint';
+import { GlyphsWithAnchorItem } from '../lib/SMuFLTypes';
 
 const initMouseHandlers = (
   elm: HTMLElement,
@@ -95,12 +97,14 @@ function useCanvas(
 }
 
 type IGlyphData = {
-  codepoint: number;
+  codepoint?: number;
+  glyphname?: string;
+  anchors?: GlyphsWithAnchorItem;
 };
 
 function resolveGlyphdata(cpStr: string): IGlyphData {
   return {
-    codepoint: parseInt(cpStr, 16),
+    codepoint: IUCSelectOption_value2Number(cpStr),
   };
 }
 
@@ -109,13 +113,15 @@ class GDCtx {
   c: HTMLCanvasElement;
   fontSize: number;
   sbl: number;
+  sMuFLMetadata: Database;
   fontMetadata: FontMetadata;
-  constructor(ctx: CanvasRenderingContext2D, fontMetadata: FontMetadata, fontSize: number) {
+  constructor(ctx: CanvasRenderingContext2D, sMuFLMetadata: Database, fontSize: number) {
     this.ctx = ctx;
     this.c = ctx.canvas;
     this.fontSize = fontSize;
     this.sbl = fontSize * 0.25;
-    this.fontMetadata = fontMetadata;
+    this.sMuFLMetadata = sMuFLMetadata;
+    this.fontMetadata = sMuFLMetadata?.fontMetadata() || {};
   }
 
   aCsToSCsY(val: number): number {
@@ -133,6 +139,58 @@ class GDCtx {
   static anchorCsToScreenCsX(val: number, sbl: number): number {
     return val * sbl;
   }
+
+  measureGlyph(glyphData: IGlyphData, x: number, y: number, sbl: number) {
+    const glyphname = glyphData.glyphname;
+    let scaledBBox;
+    if (!glyphname) {
+      return scaledBBox;
+    }
+    const bbox = (this.fontMetadata?.glyphBBoxes || {})[glyphname];
+    if (bbox) {
+      if (bbox.bBoxNE && bbox.bBoxSW) {
+        const E = GDCtx.anchorCsToScreenCsX(bbox.bBoxNE[0], sbl);
+        const N = GDCtx.anchorCsToScreenCsY(bbox.bBoxNE[1], sbl);
+        const W = GDCtx.anchorCsToScreenCsX(bbox.bBoxSW[0], sbl);
+        const S = GDCtx.anchorCsToScreenCsY(bbox.bBoxSW[1], sbl);
+
+        scaledBBox = {
+          W: x + W,
+          N: y + N,
+          E: 0,
+          S: 0,
+          w: E - W,
+          h: S - N,
+          x: x,
+          y: y,
+          sbl: sbl,
+        };
+        scaledBBox.E = scaledBBox.W + scaledBBox.w;
+        scaledBBox.S = scaledBBox.N + scaledBBox.h;
+      }
+    }
+    return {
+      bbox: bbox,
+      scaledBBox: scaledBBox,
+    };
+  }
+
+  getGlyphData(glyphname: string): IGlyphData {
+    const { sMuFLMetadata, fontMetadata } = this;
+    const option0 = { searchOptional: true };
+    const uCp = sMuFLMetadata.glyphname2uCodepoint(glyphname, option0);
+    let codepoint;
+    if (uCp) {
+      UCodePoint.fromUString(uCp).toNumber();
+    }
+    const gwanchors = fontMetadata?.glyphsWithAnchors;
+    const anchors = gwanchors ? gwanchors[glyphname] : undefined;
+    return {
+      glyphname: glyphname,
+      codepoint: codepoint,
+      anchors: anchors,
+    };
+  }
 }
 
 function _renderGlyph(
@@ -141,16 +199,27 @@ function _renderGlyph(
   y: number,
   fontSize: string | number,
   ctx: CanvasRenderingContext2D,
-  showOrigin = false,
+  options: IGDOptions,
 ) {
+  const { codepoint = NaN } = glyphData;
+  if (isNaN(codepoint)) {
+    return;
+  }
+
+  const { showOrigin, showBBox } = options;
   ctx.font = fontSize + 'px SMuFLFont';
-  const str = String.fromCodePoint(glyphData.codepoint);
+
+  const str = String.fromCodePoint(codepoint);
   ctx.fillText(str, x, y);
 
   if (showOrigin) {
     ctx.fillStyle = 'orange';
     ctx.fillRect(x - 6, y - 0.5, 12, 1);
     ctx.fillRect(x - 0.5, y - 6, 1, 12);
+  }
+
+  if (showBBox) {
+    // fixme: resolve scaled BBox but where?
   }
 }
 
@@ -181,14 +250,13 @@ const drawSL = (gdc: GDCtx, x: number, y: number, slValue: number) => {
   ctx.restore();
 };
 
-const draw = (
-  gdc: GDCtx,
-  value: IUCSelectOption,
-  options: {
-    slValue: number;
-    showOrigin: boolean;
-  },
-) => {
+type IGDOptions = {
+  slValue: number;
+  showOrigin: boolean;
+  showBBox: boolean;
+};
+
+const draw = (gdc: GDCtx, value: IUCSelectOption, options: IGDOptions) => {
   const { ctx, c, fontSize } = gdc;
   if (!ctx) {
     return;
@@ -205,22 +273,23 @@ const draw = (
   }
 
   const glyphData = resolveGlyphdata(value.value);
-  _renderGlyph(glyphData, x, y, fontSize, ctx, options.showOrigin);
+  _renderGlyph(glyphData, x, y, fontSize, ctx, options);
   ctx.restore();
 };
 
 type IGlyphCanvasOptions = {
   value: IUCSelectOption | null;
-  fontMetadata?: FontMetadata;
+  sMuFLMetadata: Database;
 };
 export default function GlyphCanvas(props: IGlyphCanvasOptions): JSX.Element {
-  const { value, fontMetadata = {} } = props;
+  const { value, sMuFLMetadata } = props;
   console.log(value);
 
   const [tick] = React.useState<number>(0);
   const refTick = React.useRef<number>();
   const slTriState = useTriState(0);
   const [showOrigin, setShowOrigin] = useState<boolean>(true);
+  const [showBBox, setShowBBox] = useState<boolean>(true);
 
   useEffect(() => {
     refTick.current = tick;
@@ -240,14 +309,15 @@ export default function GlyphCanvas(props: IGlyphCanvasOptions): JSX.Element {
   const drawGlyph = useCallback(
     (c: HTMLCanvasElement, ctx: RenderingContext | null) => {
       if (value) {
-        const gdc = new GDCtx(ctx as CanvasRenderingContext2D, fontMetadata, size);
+        const gdc = new GDCtx(ctx as CanvasRenderingContext2D, sMuFLMetadata, size);
         draw(gdc, value, {
           slValue: slTriState.value,
           showOrigin,
+          showBBox,
         });
       }
     },
-    [value, fontMetadata, size, slTriState.value, showOrigin],
+    [value, sMuFLMetadata, size, slTriState.value, showOrigin, showBBox],
   );
   const sizeRef = React.useRef(size);
   useEffect(() => {
@@ -314,6 +384,17 @@ export default function GlyphCanvas(props: IGlyphCanvasOptions): JSX.Element {
           sl:
         </Typography>
         <TriStateCheckbox triValue={slTriState.value} triOnInput={slTriState.onInput} />
+      </Box>
+      <Box className="GCOptionBox">
+        <Typography id="non-linear-showBBox" gutterBottom display="inline">
+          bbox:
+        </Typography>
+        <Checkbox
+          checked={showBBox}
+          onChange={(e) => {
+            setShowBBox(e.target.checked);
+          }}
+        />
       </Box>
       <Box className="gcSizeBox GCOptionBox">
         <Typography id="non-linear-slider-glyph-size" gutterBottom>

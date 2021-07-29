@@ -187,6 +187,7 @@ export type IUCSelectOption = {
   series: string;
   value: string;
   name: string;
+  glyphname?: string; // for series: optionalGlyphs | glyphnames
 };
 
 let ucSelectOptions: IUCSelectOption[] = [];
@@ -252,6 +253,10 @@ export function formatCodepointNumber(codepointNumber: number): string {
 
   str = codepointNumber.toString(16).toUpperCase();
   return str.padStart(4, '0');
+}
+
+export function IUCSelectOption_value2Number(value: string): number {
+  return parseInt(value, 16);
 }
 
 export { initUCodepointSelectOptions };
