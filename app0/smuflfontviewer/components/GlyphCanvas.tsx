@@ -1,7 +1,7 @@
 /* eslint-disable no-use-before-define */
 import React, { useCallback, useEffect, useState } from 'react';
 import { IUCSelectOption, IUCSelectOption_value2Number } from './UCodepointSelect';
-import { Typography, Box, Slider, Checkbox } from '@material-ui/core';
+import { Typography, Box, Slider, Checkbox, FormControlLabel } from '@material-ui/core';
 import TriStateCheckbox, { useTriState } from '../lib/TriStateCheckbox';
 import { Database, FontMetadata } from '../lib/SMuFLMetadata';
 import { UCodePoint } from '../lib/UCodePoint';
@@ -363,37 +363,56 @@ export default function GlyphCanvas(props: IGlyphCanvasOptions): JSX.Element {
     };
   }, [SLIDER_RANGE.max, SLIDER_RANGE.min, gcBoxRef, resetScPos, updateSize]);
 
+  const glyphBBoxes = sMuFLMetadata?.fontMetadata()?.glyphBBoxes || {};
+  const glyphBBox = glyphBBoxes[value?.glyphname || ''];
+
   return (
     <>
       <div className="gcBox" ref={gcBoxRef}>
         <canvas ref={canvasRef} width="800" height="600" />
       </div>
       <Box className="GCOptionBox">
-        <Typography id="non-linear-showOrigin" gutterBottom display="inline">
-          origin:
-        </Typography>
-        <Checkbox
-          checked={showOrigin}
-          onChange={(e) => {
-            setShowOrigin(e.target.checked);
-          }}
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={showOrigin}
+              onChange={(e) => {
+                setShowOrigin(e.target.checked);
+              }}
+            />
+          }
+          label={
+            <Typography id="non-linear-showOrigin" gutterBottom display="inline">
+              origin
+            </Typography>
+          }
         />
       </Box>
       <Box className="GCOptionBox">
-        <Typography id="non-linear-tri-state-sl" gutterBottom display="inline">
-          sl:
-        </Typography>
-        <TriStateCheckbox triValue={slTriState.value} triOnInput={slTriState.onInput} />
+        <FormControlLabel
+          label={
+            <Typography id="non-linear-tri-state-sl" gutterBottom display="inline">
+              sl
+            </Typography>
+          }
+          control={<TriStateCheckbox triValue={slTriState.value} triOnInput={slTriState.onInput} />}
+        />
       </Box>
       <Box className="GCOptionBox">
-        <Typography id="non-linear-showBBox" gutterBottom display="inline">
-          bbox:
-        </Typography>
-        <Checkbox
-          checked={showBBox}
-          onChange={(e) => {
-            setShowBBox(e.target.checked);
-          }}
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={showBBox}
+              onChange={(e) => {
+                setShowBBox(e.target.checked);
+              }}
+            />
+          }
+          label={
+            <Typography id="non-linear-showBBox" gutterBottom display="inline">
+              bbox: {JSON.stringify(glyphBBox)}
+            </Typography>
+          }
         />
       </Box>
       <Box className="gcSizeBox GCOptionBox">
