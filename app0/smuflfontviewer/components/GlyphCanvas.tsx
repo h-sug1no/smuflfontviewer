@@ -5,7 +5,7 @@ import { Typography, Box, Slider, Checkbox, FormControlLabel } from '@material-u
 import TriStateCheckbox, { useTriState } from '../lib/TriStateCheckbox';
 import { Database, FontMetadata } from '../lib/SMuFLMetadata';
 import { UCodePoint } from '../lib/UCodePoint';
-import { GlyphsWithAnchorItem } from '../lib/SMuFLTypes';
+import { glyphBBoxItem, GlyphsWithAnchorItem } from '../lib/SMuFLTypes';
 
 const initMouseHandlers = (
   elm: HTMLElement,
@@ -97,15 +97,43 @@ function useCanvas(
 }
 
 type IGlyphData = {
-  codepoint?: number;
+  codepoint: number;
   glyphname?: string;
   anchors?: GlyphsWithAnchorItem;
+  uCodePoint?: UCodePoint;
 };
 
-function resolveGlyphdata(cpStr: string): IGlyphData {
-  return {
+function resolveGlyphdataByGlyphname(
+  fontMetadata: FontMetadata,
+  glyphname: string,
+  ret: IGlyphData,
+): IGlyphData {
+  const { glyphsWithAnchors } = fontMetadata;
+  if (glyphsWithAnchors) {
+    ret.anchors = glyphsWithAnchors[glyphname];
+  }
+  return ret;
+}
+
+function resolveGlyphdata(
+  sMuFLMetadata: Database,
+  fontMetadata: FontMetadata,
+  cpStr: string,
+): IGlyphData {
+  const ret: IGlyphData = {
     codepoint: IUCSelectOption_value2Number(cpStr),
   };
+  ret.uCodePoint = UCodePoint.fromCpNumber(ret.codepoint);
+  const searchOptions = {
+    searchOptional: true,
+  };
+  ret.glyphname = sMuFLMetadata.uCodepoint2Glyphname(ret.uCodePoint, searchOptions);
+  const { glyphname } = ret;
+  if (glyphname) {
+    resolveGlyphdataByGlyphname(fontMetadata, glyphname, ret);
+  }
+
+  return ret;
 }
 
 class GDCtx {
@@ -144,7 +172,7 @@ class GDCtx {
     const glyphname = glyphData.glyphname;
     let scaledBBox;
     if (!glyphname) {
-      return scaledBBox;
+      return {};
     }
     const bbox = (this.fontMetadata?.glyphBBoxes || {})[glyphname];
     if (bbox) {
@@ -179,17 +207,19 @@ class GDCtx {
     const { sMuFLMetadata, fontMetadata } = this;
     const option0 = { searchOptional: true };
     const uCp = sMuFLMetadata.glyphname2uCodepoint(glyphname, option0);
-    let codepoint;
+    let codepoint = NaN;
+    let uCodePoint: UCodePoint | undefined;
     if (uCp) {
-      UCodePoint.fromUString(uCp).toNumber();
+      uCodePoint = UCodePoint.fromUString(uCp);
+      codepoint = uCodePoint.toNumber();
     }
-    const gwanchors = fontMetadata?.glyphsWithAnchors;
-    const anchors = gwanchors ? gwanchors[glyphname] : undefined;
-    return {
-      glyphname: glyphname,
-      codepoint: codepoint,
-      anchors: anchors,
+    const ret = {
+      uCodePoint,
+      codepoint,
+      glyphname,
     };
+    resolveGlyphdataByGlyphname(fontMetadata, glyphname, ret);
+    return ret;
   }
 }
 
@@ -199,28 +229,16 @@ function _renderGlyph(
   y: number,
   fontSize: string | number,
   ctx: CanvasRenderingContext2D,
-  options: IGDOptions,
 ) {
   const { codepoint = NaN } = glyphData;
   if (isNaN(codepoint)) {
     return;
   }
 
-  const { showOrigin, showBBox } = options;
   ctx.font = fontSize + 'px SMuFLFont';
 
   const str = String.fromCodePoint(codepoint);
   ctx.fillText(str, x, y);
-
-  if (showOrigin) {
-    ctx.fillStyle = 'orange';
-    ctx.fillRect(x - 6, y - 0.5, 12, 1);
-    ctx.fillRect(x - 0.5, y - 6, 1, 12);
-  }
-
-  if (showBBox) {
-    // fixme: resolve scaled BBox but where?
-  }
 }
 
 const drawSL = (gdc: GDCtx, x: number, y: number, slValue: number) => {
@@ -272,8 +290,28 @@ const draw = (gdc: GDCtx, value: IUCSelectOption, options: IGDOptions) => {
     return;
   }
 
-  const glyphData = resolveGlyphdata(value.value);
-  _renderGlyph(glyphData, x, y, fontSize, ctx, options);
+  const glyphData = resolveGlyphdata(gdc.sMuFLMetadata, gdc.fontMetadata, value.value);
+
+  _renderGlyph(glyphData, x, y, fontSize, ctx);
+
+  const gm = gdc.measureGlyph(glyphData, x, y, gdc.sbl);
+  const { scaledBBox, bbox } = gm;
+  const { showOrigin, showBBox } = options;
+
+  if (showOrigin) {
+    ctx.fillStyle = 'orange';
+    ctx.fillRect(x - 6, y - 0.5, 12, 1);
+    ctx.fillRect(x - 0.5, y - 6, 1, 12);
+  }
+
+  if (showBBox && bbox && scaledBBox) {
+    // fixme: resolve scaled BBox but where?
+    ctx.strokeStyle = 'green';
+    if (bbox.bBoxNE && bbox.bBoxSW) {
+      ctx.strokeRect(scaledBBox.W, scaledBBox.N, scaledBBox.w, scaledBBox.h);
+    }
+  }
+
   ctx.restore();
 };
 

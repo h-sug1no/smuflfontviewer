@@ -325,18 +325,17 @@ export class Database {
     return fontInfo ? fontInfo.fontMetadata_ : undefined;
   }
 
-  ensureUCodepoint(uCodepoint: string): string {
-    return UCodePoint.fromUString(uCodepoint).toUString();
+  ensureUCodepointUString(uCodepointStr: string): string {
+    return UCodePoint.fromUString(uCodepointStr).toUString();
   }
 
-  uCodepoint2Glyphname(uCodepoint: string, options: SearchOptions = {}): string | undefined {
+  uCodepoint2Glyphname(uCodepoint: UCodePoint, options: SearchOptions = {}): string | undefined {
     const fontInfo = this.getFontInfo(options.fontName);
     let ret: string | undefined;
     if (!fontInfo || !fontInfo.glyphsByUCodepoint) {
       return ret;
     }
-    uCodepoint = this.ensureUCodepoint(uCodepoint);
-    const glyph = fontInfo.glyphsByUCodepoint[uCodepoint];
+    const glyph = fontInfo.glyphsByUCodepoint[uCodepoint.toUString()];
     if (glyph) {
       ret = glyph.glyphname;
       if (glyph.isOptionalGlyph && !options.searchOptional) {

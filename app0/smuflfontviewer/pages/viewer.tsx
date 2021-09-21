@@ -574,7 +574,7 @@ export default function Viewer(): ReactElement {
     while ((cpNumber += d) >= 0 && cpNumber < 0x10ffff && !codepointStr) {
       const tCodepointStr = formatCodepointNumber(cpNumber);
       if (checkHasGlyph && glyphsByUCodepoint) {
-        if (glyphsByUCodepoint[sMuFLMetadata.ensureUCodepoint(tCodepointStr)]) {
+        if (glyphsByUCodepoint[sMuFLMetadata.ensureUCodepointUString(tCodepointStr)]) {
           codepointStr = tCodepointStr;
         }
       } else {
