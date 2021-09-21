@@ -1,11 +1,19 @@
 /* eslint-disable no-use-before-define */
 import React, { useCallback, useEffect, useState } from 'react';
 import { IUCSelectOption, IUCSelectOption_value2Number } from './UCodepointSelect';
-import { Typography, Box, Slider, Checkbox, FormControlLabel } from '@material-ui/core';
+import {
+  Typography,
+  Box,
+  Slider,
+  Checkbox,
+  FormControlLabel,
+  Button,
+  Tooltip,
+} from '@material-ui/core';
 import TriStateCheckbox, { useTriState } from '../lib/TriStateCheckbox';
 import { Database, FontMetadata } from '../lib/SMuFLMetadata';
 import { UCodePoint } from '../lib/UCodePoint';
-import { glyphBBoxItem, GlyphsWithAnchorItem } from '../lib/SMuFLTypes';
+import { GlyphsWithAnchorItem } from '../lib/SMuFLTypes';
 
 const initMouseHandlers = (
   elm: HTMLElement,
@@ -319,6 +327,10 @@ type IGlyphCanvasOptions = {
   value: IUCSelectOption | null;
   sMuFLMetadata: Database;
 };
+
+const DEFAULTS = {
+  size: 200,
+};
 export default function GlyphCanvas(props: IGlyphCanvasOptions): JSX.Element {
   const { value, sMuFLMetadata } = props;
   console.log(value);
@@ -333,7 +345,7 @@ export default function GlyphCanvas(props: IGlyphCanvasOptions): JSX.Element {
     refTick.current = tick;
   });
 
-  const [size, setSize] = React.useState<number>(40);
+  const [size, setSize] = React.useState<number>(DEFAULTS.size);
 
   /*
   function _anchorCsToScreenCs(scaledBBox, anchor, sbl, relativeToBBL) {
@@ -469,6 +481,24 @@ export default function GlyphCanvas(props: IGlyphCanvasOptions): JSX.Element {
           valueLabelDisplay="auto"
           aria-labelledby="non-linear-slider-glyph-size"
         />
+        <Tooltip title="reset font size">
+          <Button
+            onClick={() => {
+              setSize(DEFAULTS.size);
+            }}
+          >
+            s
+          </Button>
+        </Tooltip>
+        <Tooltip title="reset scroll position">
+          <Button
+            onClick={() => {
+              resetScPos();
+            }}
+          >
+            p
+          </Button>
+        </Tooltip>
       </Box>
     </>
   );
