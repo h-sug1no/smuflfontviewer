@@ -116,7 +116,7 @@ export type GlyphsWithAlternateItem = {
 /**
  * @see https://w3c.github.io/smufl/latest/specification/glyphbboxes.html
  */
-export type glyphBBoxItem = {
+export type GlyphBBoxItem = {
   bBoxNE?: Array<number>;
   bBoxSW?: Array<number>;
 };
@@ -235,7 +235,7 @@ export type GlyphsWithAlternates = Dict<GlyphsWithAlternateItem>;
 /**
  * SMuFL glyphBBoxes dict. key is GlyphnameStr.
  */
-export type GlyphBBoxes = Dict<glyphBBoxItem>;
+export type GlyphBBoxes = Dict<GlyphBBoxItem>;
 
 /**
  * SMuFL ligatures dict. key is GlyphnameStr.
