@@ -285,3 +285,7 @@ body.fakeDialogVisible #rootContainer.fakeDialog div#infoDialog {
 .gcSizeBox {
   width: 100px;
 }
+
+.gcGlyphHintInputContainer {
+  display: inline;
+}

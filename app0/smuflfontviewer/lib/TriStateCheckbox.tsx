@@ -4,19 +4,28 @@ import { Checkbox, CheckboxProps } from '@material-ui/core';
 const isChecked = (value: number) => !!(value === 2);
 const isIndeterminate = (value: number) => !!(value === 1);
 
+export enum TriValues {
+  checked = 2,
+  indeterminate = 1,
+  initial = 0,
+}
+
 export type ITriState = {
-  value: number;
-  setValue: React.Dispatch<React.SetStateAction<number>>;
-  onInput: () => void;
+  value: TriValues;
+  setValue: React.Dispatch<React.SetStateAction<TriValues>>;
+  onInput: (e: unknown, mode: string) => void;
 };
 
-export const useTriState = (val = 0): ITriState => {
-  const [value, setValue] = useState<number>(val);
+export const useTriState = (val: TriValues = TriValues.initial): ITriState => {
+  const [value, setValue] = useState<TriValues>(val);
 
-  const onInput = (/*e*/) => {
-    let newVal = value + 1;
-    if (newVal > 2) {
-      newVal = 0;
+  const onInput = (e: unknown, mode: string) => {
+    let newVal = value ? TriValues.initial : TriValues.checked;
+    if (mode === 'tri') {
+      newVal = value + 1;
+      if (newVal > TriValues.checked) {
+        newVal = TriValues.initial;
+      }
     }
     setValue(newVal);
   };
@@ -28,20 +37,21 @@ export const useTriState = (val = 0): ITriState => {
   };
 };
 
-type IOnInput = (e: unknown) => void;
+type IOnInput = (e: unknown, mode: string) => void;
 type ITriStateProps = CheckboxProps & {
   triOnInput: IOnInput;
-  triValue: number;
+  triValue?: number;
+  mode?: string;
 };
 
 const TriStateCheckbox = (props: ITriStateProps): JSX.Element => {
-  const { triOnInput, triValue } = props;
+  const { triOnInput, triValue = TriValues.initial, mode = 'tri' } = props;
 
   return (
     <Checkbox
       checked={isChecked(triValue)}
       indeterminate={isIndeterminate(triValue)}
-      onInput={triOnInput}
+      onInput={(e) => triOnInput(e, mode)}
     />
   );
 };
