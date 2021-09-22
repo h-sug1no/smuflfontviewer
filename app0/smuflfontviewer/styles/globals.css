@@ -277,13 +277,19 @@ body.fakeDialogVisible #rootContainer.fakeDialog div#infoDialog {
 }
 
 .gcBox {
-  width: 50vw;
-  height: 50vw;
+  width: 40vw;
+  height: 40vw;
   overflow: auto;
 }
 
 .gcSizeBox {
-  width: 100px;
+  display: flex;
+  align-items: top;
+}
+
+.gcSizeBox .MuiSlider-root {
+  width: 150px;
+  margin-left: 0.5rem;
 }
 
 .gcGlyphHintInputContainer {
