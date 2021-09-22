@@ -422,7 +422,11 @@ const ANCHOR_INPUTS: {
     title:
       "The Cartesian coordinates in staff spaces of the top left corner of a nominal rectangle that intersects the bottom right corner of the glyph's bounding box.",
   },
-
+  cutOutOrigin_BBL: {
+    title: `cutOut anchor points are relative to the:
+    unchecked: glyph origin.
+    checked: bottom left-hand corner of the glyph bounding box(old spec)`,
+  },
   graceNoteSlashSW: {
     title:
       'The Cartesian coordinates in staff spaces of the position at which the glyph graceNoteSlashStemUp should be positioned relative to the stem-up flag of an unbeamed grace note; alternatively, the bottom left corner of a diagonal line drawn instead of using the above glyph.',
@@ -492,9 +496,18 @@ const TriStateInput = ({
 };
 
 const AnchorInputs = ({ anchors = {} }: { anchors: Dict<unknown> }): JSX.Element => {
+  let hasCutOut = false;
   return (
     <>
       {ANCHOR_INPUTS_NAMES.map((name): JSX.Element => {
+        let anchor = anchors[name];
+        if (name === 'cutOutOrigin_BBL') {
+          anchor = hasCutOut ? {} : undefined;
+        } else {
+          if (!hasCutOut) {
+            hasCutOut = !!(name.startsWith('cutOut') && anchor);
+          }
+        }
         const v = ANCHOR_INPUTS[name];
         const mode = v.triState ? 'tri' : 'check';
 
@@ -503,7 +516,7 @@ const AnchorInputs = ({ anchors = {} }: { anchors: Dict<unknown> }): JSX.Element
         return (
           <Box
             key={name}
-            style={!anchors[name] ? { display: 'none' } : {}}
+            style={!anchor ? { display: 'none' } : {}}
             className="gcGlyphHintInputContainer"
           >
             <TriStateInput name={name} title={v.title} mode={mode} triVal={TriValues.initial} />
