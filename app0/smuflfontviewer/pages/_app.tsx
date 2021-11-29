@@ -1,8 +1,15 @@
 import React, { ReactElement } from 'react';
 import '../styles/globals.css';
 import { AppProps } from 'next/app';
-import { CssBaseline, ThemeProvider } from '@material-ui/core';
+import { CssBaseline, ThemeProvider, Theme, StyledEngineProvider } from '@mui/material';
 import theme from '../styles/theme';
+
+
+declare module '@mui/styles/defaultTheme' {
+  // eslint-disable-next-line @typescript-eslint/no-empty-interface
+  interface DefaultTheme extends Theme {}
+}
+
 
 export default function MyApp({ Component, pageProps }: AppProps): ReactElement {
   React.useEffect(() => {
@@ -17,11 +24,13 @@ export default function MyApp({ Component, pageProps }: AppProps): ReactElement 
   }, []);
   return (
     <React.Fragment>
-      <ThemeProvider theme={theme}>
-        {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
-        <CssBaseline />
-        <Component {...pageProps} />
-      </ThemeProvider>
+      <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={theme}>
+          {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
+          <CssBaseline />
+          <Component {...pageProps} />
+        </ThemeProvider>
+      </StyledEngineProvider>
     </React.Fragment>
   );
 }

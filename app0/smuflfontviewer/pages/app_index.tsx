@@ -3,10 +3,10 @@ import Head from 'next/head';
 import { /* NextRouter, Router, */ useRouter } from 'next/router';
 // import { route } from 'next/dist/next-server/server/router';
 
-import Container from '@material-ui/core/Container';
-import Typography from '@material-ui/core/Typography';
-import Box from '@material-ui/core/Box';
-import Button from '@material-ui/core/Button';
+import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import {
   Select,
   MenuItem,
@@ -15,7 +15,7 @@ import {
   FormControlLabel,
   Checkbox,
   Tooltip,
-} from '@material-ui/core';
+} from '@mui/material';
 import React, { useState, useEffect, ReactElement } from 'react';
 import { Options, Settings } from '../lib/Viewer';
 // import { route } from 'next/dist/next-server/server/router';

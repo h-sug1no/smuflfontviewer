@@ -1,4 +1,4 @@
-import { List, ListItem } from '@material-ui/core';
+import { List, ListItem } from '@mui/material';
 import { Database } from '../lib/SMuFLMetadata';
 import {
   GlyphsWithAlternates,

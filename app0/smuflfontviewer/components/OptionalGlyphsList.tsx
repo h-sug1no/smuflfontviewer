@@ -3,7 +3,7 @@
  */
 // import { Props } from 'react';
 
-import { List } from '@material-ui/core';
+import { List } from '@mui/material';
 import { OptionalGlyphs } from '../lib/SMuFLTypes';
 import { Database } from '../lib/SMuFLMetadata';
 import { createGlyphnameInfo } from '../lib/RenderUtils';

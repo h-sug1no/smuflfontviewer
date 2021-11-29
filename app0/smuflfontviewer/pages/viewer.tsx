@@ -3,23 +3,23 @@ import Head from 'next/head';
 import { /* NextRouter, Router, */ useRouter } from 'next/router';
 // import { route } from 'next/dist/next-server/server/router';
 
-import Container from '@material-ui/core/Container';
-import Typography from '@material-ui/core/Typography';
-import Box from '@material-ui/core/Box';
-import Button from '@material-ui/core/Button';
-import NoteIcon from '@material-ui/icons/Note';
+import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import NoteIcon from '@mui/icons-material/Note';
 import {
   MenuItem,
   Tooltip,
   CircularProgress,
   Link,
   Toolbar,
-  makeStyles,
   IconButton,
   Drawer,
   AppBar,
-} from '@material-ui/core';
-import MenuIcon from '@material-ui/icons/Menu';
+} from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
+import MenuIcon from '@mui/icons-material/Menu';
 import React, { useState, useEffect, ReactElement, useRef } from 'react';
 import AnyListDialogRef, { IHandlers } from '../components/AnyListDialog';
 import { Dict, GlyphnameItem, UCodepointStr } from '../lib/SMuFLTypes';
@@ -233,7 +233,7 @@ function HeaderMenu() {
               'aria-haspopup': 'true',
               onClick: handleDrawerOpen,
             }}
-          >
+            size="large">
             <MenuIcon />
           </IconButton>
 
@@ -595,177 +595,175 @@ export default function Viewer(): ReactElement {
     BShowScratchpad: 'toggle Scratchpad',
   };
 
-  return (
-    <>
-      <Head>
-        <title>smuflfontviewer</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-      <Container maxWidth="xl">
-        <Box my={4}>
-          <HeaderMenu />
-          <UCodepointSelect onChange={ucodepointSelectOnChange} value={currentUCodepoint} />
-          <div>
-            <Typography variant="h4" component="h1" gutterBottom>
-              <span className="smufl">{'render glyph'}</span>
-              text: FIXME
-            </Typography>
+  return <>
+    <Head>
+      <title>smuflfontviewer</title>
+      <link rel="icon" href="/favicon.ico" />
+    </Head>
+    <Container maxWidth="xl">
+      <Box my={4}>
+        <HeaderMenu />
+        <UCodepointSelect onChange={ucodepointSelectOnChange} value={currentUCodepoint} />
+        <div>
+          <Typography variant="h4" component="h1" gutterBottom>
+            <span className="smufl">{'render glyph'}</span>
+            text: FIXME
+          </Typography>
 
-            <Tooltip title={messages.BPrev}>
-              <Button
-                className={classes.button}
-                onClick={() => {
-                  seekToCodepoint(getCodepointNumber(), -1, false);
-                }}
-              >
-                ←
-              </Button>
-            </Tooltip>
-            <Tooltip
-              title={messages.BNextGlyph}
+          <Tooltip title={messages.BPrev}>
+            <Button
+              className={classes.button}
               onClick={() => {
-                seekToCodepoint(getCodepointNumber(), 1, false);
+                seekToCodepoint(getCodepointNumber(), -1, false);
               }}
             >
-              <Button className={classes.button}>↓</Button>
-            </Tooltip>
-            <Tooltip title={messages.BPrevGlyph}>
-              <Button
-                className={classes.button}
-                onClick={() => {
-                  seekToCodepoint(getCodepointNumber(), -1, true);
-                }}
-              >
-                ↑
-              </Button>
-            </Tooltip>
-            <Tooltip title={messages.BNextGlyph}>
-              <Button
-                className={classes.button}
-                onClick={() => {
-                  seekToCodepoint(getCodepointNumber(), 1, true);
-                }}
-              >
-                →
-              </Button>
-            </Tooltip>
-            <Tooltip title={messages.BShowScratchpad}>
-              <IconButton className={classes.button}>
-                <NoteIcon />
-              </IconButton>
-            </Tooltip>
-          </div>
-          <div>
-            <RangeSelect onChange={rangeSelectOnChange} value={currentRange} />
-          </div>
-          <div>
-            <GlyphCanvas
-              value={currentUCodepoint}
-              sMuFLMetadata={sMuFLMetadata ?? new Database()}
-            />
-          </div>
-          {/*
-          <Select
-            id="presetSelect"
-            value={presetValue}
-            onChange={(e) => {
-              const val = Number(e.target.value);
-              setPresetValue(val);
-              setPreset(val);
-            }}
-          >
-            {createOptions(isDevMode)}
-          </Select>
-          <Divider />
-          <Typography variant="h4" component="h1" gutterBottom>
-            font:
-          </Typography>
-          <TextField
-            fullWidth
-            id="fontUrl"
-            label="fontUrl"
-            value={fontUrl}
-            onChange={(e) => {
-              setFontUrl(e.target.value);
-            }}
-          />
-          <TextField
-            fullWidth
-            id="fontMetadataUrl"
-            label="fontMetadataUrl"
-            value={fontMetadataUrl}
-            onChange={(e) => {
-              setFontMetadataUrl(e.target.value);
-            }}
-          />
-          <Divider />
-          <Typography variant="h4" component="h1" gutterBottom>
-            SMuFL metadata:
-          </Typography>
-          <TextField
-            fullWidth
-            id="glyphnamesUrl"
-            label="glyphnamesUrl"
-            value={glyphnamesUrl}
-            onChange={(e) => {
-              setGlyphnamesUrl(e.target.value);
-            }}
-          />
-          <TextField
-            fullWidth
-            id="classesUrl"
-            label="classesUrl"
-            value={classesUrl}
-            onChange={(e) => {
-              setClassesUrl(e.target.value);
-            }}
-          />
-          <TextField
-            fullWidth
-            id="rangesUrl"
-            label="rangesUrl"
-            value={rangesUrl}
-            onChange={(e) => {
-              setRangesUrl(e.target.value);
-            }}
-          />
-          <Divider />
-          <TextField
-            fullWidth
-            id="glyph"
-            label="glyph"
-            value={glyph}
-            onChange={(e) => {
-              setGlyph(e.target.value);
-            }}
-            placeholder="codepoint(ex..:E0A3) or glyphname(ex...:noteheadHalf)"
-          />
-          <Divider />
-          <Tooltip
-            title="cutOut anchor points are relative to the:
-    unchecked: glyph origin.
-    checked: bottom left-hand corner of the glyph bounding box(old spec)."
-          >
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={cutOutOrigin_BBL}
-                  onChange={(e) => {
-                    setCutOutOrigin_BBL(e.target.checked);
-                  }}
-                  name="cutOutOrigin_BBL"
-                />
-              }
-              label="cutOutOrigin_BBL"
-            />
+              ←
+            </Button>
           </Tooltip>
-          <Divider />
-          <Button fullWidth onClick={openViewer}>
-            open
-          </Button>
-          */}
-        </Box>
-      </Container>
-    </>
-  );
+          <Tooltip
+            title={messages.BNextGlyph}
+            onClick={() => {
+              seekToCodepoint(getCodepointNumber(), 1, false);
+            }}
+          >
+            <Button className={classes.button}>↓</Button>
+          </Tooltip>
+          <Tooltip title={messages.BPrevGlyph}>
+            <Button
+              className={classes.button}
+              onClick={() => {
+                seekToCodepoint(getCodepointNumber(), -1, true);
+              }}
+            >
+              ↑
+            </Button>
+          </Tooltip>
+          <Tooltip title={messages.BNextGlyph}>
+            <Button
+              className={classes.button}
+              onClick={() => {
+                seekToCodepoint(getCodepointNumber(), 1, true);
+              }}
+            >
+              →
+            </Button>
+          </Tooltip>
+          <Tooltip title={messages.BShowScratchpad}>
+            <IconButton className={classes.button} size="large">
+              <NoteIcon />
+            </IconButton>
+          </Tooltip>
+        </div>
+        <div>
+          <RangeSelect onChange={rangeSelectOnChange} value={currentRange} />
+        </div>
+        <div>
+          <GlyphCanvas
+            value={currentUCodepoint}
+            sMuFLMetadata={sMuFLMetadata ?? new Database()}
+          />
+        </div>
+        {/*
+        <Select
+          id="presetSelect"
+          value={presetValue}
+          onChange={(e) => {
+            const val = Number(e.target.value);
+            setPresetValue(val);
+            setPreset(val);
+          }}
+        >
+          {createOptions(isDevMode)}
+        </Select>
+        <Divider />
+        <Typography variant="h4" component="h1" gutterBottom>
+          font:
+        </Typography>
+        <TextField
+          fullWidth
+          id="fontUrl"
+          label="fontUrl"
+          value={fontUrl}
+          onChange={(e) => {
+            setFontUrl(e.target.value);
+          }}
+        />
+        <TextField
+          fullWidth
+          id="fontMetadataUrl"
+          label="fontMetadataUrl"
+          value={fontMetadataUrl}
+          onChange={(e) => {
+            setFontMetadataUrl(e.target.value);
+          }}
+        />
+        <Divider />
+        <Typography variant="h4" component="h1" gutterBottom>
+          SMuFL metadata:
+        </Typography>
+        <TextField
+          fullWidth
+          id="glyphnamesUrl"
+          label="glyphnamesUrl"
+          value={glyphnamesUrl}
+          onChange={(e) => {
+            setGlyphnamesUrl(e.target.value);
+          }}
+        />
+        <TextField
+          fullWidth
+          id="classesUrl"
+          label="classesUrl"
+          value={classesUrl}
+          onChange={(e) => {
+            setClassesUrl(e.target.value);
+          }}
+        />
+        <TextField
+          fullWidth
+          id="rangesUrl"
+          label="rangesUrl"
+          value={rangesUrl}
+          onChange={(e) => {
+            setRangesUrl(e.target.value);
+          }}
+        />
+        <Divider />
+        <TextField
+          fullWidth
+          id="glyph"
+          label="glyph"
+          value={glyph}
+          onChange={(e) => {
+            setGlyph(e.target.value);
+          }}
+          placeholder="codepoint(ex..:E0A3) or glyphname(ex...:noteheadHalf)"
+        />
+        <Divider />
+        <Tooltip
+          title="cutOut anchor points are relative to the:
+  unchecked: glyph origin.
+  checked: bottom left-hand corner of the glyph bounding box(old spec)."
+        >
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={cutOutOrigin_BBL}
+                onChange={(e) => {
+                  setCutOutOrigin_BBL(e.target.checked);
+                }}
+                name="cutOutOrigin_BBL"
+              />
+            }
+            label="cutOutOrigin_BBL"
+          />
+        </Tooltip>
+        <Divider />
+        <Button fullWidth onClick={openViewer}>
+          open
+        </Button>
+        */}
+      </Box>
+    </Container>
+  </>;
 }

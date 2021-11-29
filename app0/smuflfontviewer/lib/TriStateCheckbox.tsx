@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Checkbox, CheckboxProps } from '@material-ui/core';
+import { Checkbox, CheckboxProps } from '@mui/material';
 
 const isChecked = (value: number) => !!(value === 2);
 const isIndeterminate = (value: number) => !!(value === 1);

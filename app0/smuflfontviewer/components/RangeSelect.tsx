@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect } from 'react';
-import TextField from '@material-ui/core/TextField';
-import { Autocomplete, createFilterOptions } from '@material-ui/lab';
+import TextField from '@mui/material/TextField';
+import { Autocomplete } from '@mui/material';
+import { createFilterOptions } from '@mui/material/useAutocomplete';
 import parse from 'autosuggest-highlight/parse';
 
 import { Dict } from '../lib/SMuFLTypes';

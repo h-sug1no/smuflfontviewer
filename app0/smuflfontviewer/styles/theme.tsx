@@ -1,9 +1,8 @@
-// https://github.com/mui-org/material-ui/blob/master/examples/create-react-app-with-typescript/src/theme.tsx
-import red from '@material-ui/core/colors/red';
-import { createMuiTheme } from '@material-ui/core/styles';
+import { createTheme, adaptV4Theme } from '@mui/material/styles';
+import { red } from '@mui/material/colors';
 
 // A custom theme for this app
-const theme = createMuiTheme({
+const theme = createTheme(adaptV4Theme({
   palette: {
     primary: {
       main: '#556cd6',
@@ -18,6 +17,6 @@ const theme = createMuiTheme({
       default: '#ffe',
     },
   },
-});
+}));
 
 export default theme;

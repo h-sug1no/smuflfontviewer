@@ -1,7 +1,8 @@
 /* eslint-disable no-use-before-define */
 import React, { useCallback, useEffect } from 'react';
-import TextField from '@material-ui/core/TextField';
-import { Autocomplete, createFilterOptions } from '@material-ui/lab';
+import TextField from '@mui/material/TextField';
+import { Autocomplete } from '@mui/material';
+import { createFilterOptions } from '@mui/material/useAutocomplete';
 import parse from 'autosuggest-highlight/parse';
 // import match from 'autosuggest-highlight/match';
 /*
@@ -11,7 +12,7 @@ const filterOptions = (options: string[], state: FilterOptionsState) =>
 */
 
 import { Dict } from '../lib/SMuFLTypes';
-// import { ContactsTwoTone } from '@material-ui/icons';
+// import { ContactsTwoTone } from '@mui/icons-material';
 const filter = createFilterOptions<IUCSelectOption>({
   /* limit: 10 */
 });
@@ -50,136 +51,134 @@ export default function UCodepointSelect(props: IUCodepointSelectOptions): JSX.E
   useEffect(() => {
     refTick.current = tick;
   });
-  return (
-    <>
-      <Autocomplete
-        value={value}
-        onChange={(event, newValue: IUCSelectOption | null | string) => {
-          // console.log(`onChange: ${JSON.stringify(newValue)}`);
-          if (typeof newValue === 'string') {
-            /*
-            setValue({
-              value: newValue,
-              name: newValue,
-              series: 'unknown new string',
-            });
-            */
-            setValue(null);
-          } else if (newValue && newValue.inputValue) {
-            if (newValue.value) {
-              setValue(newValue);
-            } else {
-              // Create a new value from the user input
-              setValue({
-                value: newValue.inputValue,
-                name: newValue.inputValue,
-                series: 'unknown input string',
-              });
-            }
-          } else {
-            setValue(newValue);
-          }
-        }}
-        filterOptions={(options, params) => {
-          const filtered = filter(options, params);
-
-          // Suggest the creation of a new value
-          if (params.inputValue !== '') {
-            /*
-            filtered.push({
-              inputValue: params.inputValue,
-              name: `Add "${params.inputValue}"`,
-              value: `${params.inputValue}`,
-              series: 'tmp...',
-            });
-            */
-
-            let str = params.inputValue;
-            str = str.toUpperCase();
-            if (str.match(/^[A-F0-9]+$/)) {
-              let cpNumber = NaN;
-              try {
-                cpNumber = parseInt(str, 16);
-                // check cpNumber is valid unicode codepoint.
-                String.fromCodePoint(cpNumber);
-              } catch (e) {
-                // RangeError: xxxxxxx is not a valid code point
-                // console.log(e);
-                return filtered;
-              }
-              if (isNaN(cpNumber)) {
-                return filtered;
-              }
-
-              str = formatCodepointNumber(cpNumber);
-              // console.log(`${str}: ${cpNumber}`);
-              if (!ucSelectOptionsMap[str]) {
-                ucSelectOptionsMap[str] = {
-                  inputValue: params.inputValue,
-                  name: `${str}`,
-                  value: `${str}`,
-                  series: 'codepoint',
-                };
-                ucSelectOptions.unshift(ucSelectOptionsMap[str]);
-                filtered.unshift(ucSelectOptionsMap[str]);
-              }
-            }
-          }
-
-          return filtered;
-        }}
-        selectOnFocus
-        clearOnBlur
-        handleHomeEndKeys
-        id="range-select"
-        options={ucSelectOptions}
-        getOptionLabel={(option: IUCSelectOption | string) => {
-          // Value selected with enter, right from the input
-          if (typeof option === 'string') {
-            return option;
-          }
-          // Add "xxx" option created dynamically
-          if (option.inputValue) {
-            // return option.inputValue;
-          }
-          // Regular option
-          return option.name;
-        }}
-        groupBy={(option: IUCSelectOption) => (option.series || '').toString()}
-        /* agetOptionLabel={(option: IUCSelectOption) => option.name} */
-        // renderOption={(option: IUCSelectOption) => option.name}
-        style={{ width: 300 }}
-        freeSolo
-        renderInput={(params) => (
-          <TextField {...params} label="glyphname or (c)odepoint" variant="outlined" />
-        )}
-        renderOption={(option, { inputValue }) => {
-          const matches = match(option.name, inputValue);
-          const parts = parse(option.name, matches);
-
+  return <>
+    <Autocomplete
+      value={value}
+      onChange={(event, newValue: IUCSelectOption | null | string) => {
+        // console.log(`onChange: ${JSON.stringify(newValue)}`);
+        if (typeof newValue === 'string') {
           /*
-          if (inputValue.length) {
-            console.log(JSON.stringify(parts), inputValue);
+          setValue({
+            value: newValue,
+            name: newValue,
+            series: 'unknown new string',
+          });
+          */
+          setValue(null);
+        } else if (newValue && newValue.inputValue) {
+          if (newValue.value) {
+            setValue(newValue);
+          } else {
+            // Create a new value from the user input
+            setValue({
+              value: newValue.inputValue,
+              name: newValue.inputValue,
+              series: 'unknown input string',
+            });
           }
+        } else {
+          setValue(newValue);
+        }
+      }}
+      filterOptions={(options, params) => {
+        const filtered = filter(options, params);
+
+        // Suggest the creation of a new value
+        if (params.inputValue !== '') {
+          /*
+          filtered.push({
+            inputValue: params.inputValue,
+            name: `Add "${params.inputValue}"`,
+            value: `${params.inputValue}`,
+            series: 'tmp...',
+          });
           */
 
-          return (
-            <div>
-              {parts.map((part, index) => (
-                <span
-                  key={index}
-                  style={{ backgroundColor: part.highlight ? 'orange' : 'transparent' }}
-                >
-                  {part.text}
-                </span>
-              ))}
-            </div>
-          );
-        }}
-      />
-      {JSON.stringify(value)}
-    </>
-  );
+          let str = params.inputValue;
+          str = str.toUpperCase();
+          if (str.match(/^[A-F0-9]+$/)) {
+            let cpNumber = NaN;
+            try {
+              cpNumber = parseInt(str, 16);
+              // check cpNumber is valid unicode codepoint.
+              String.fromCodePoint(cpNumber);
+            } catch (e) {
+              // RangeError: xxxxxxx is not a valid code point
+              // console.log(e);
+              return filtered;
+            }
+            if (isNaN(cpNumber)) {
+              return filtered;
+            }
+
+            str = formatCodepointNumber(cpNumber);
+            // console.log(`${str}: ${cpNumber}`);
+            if (!ucSelectOptionsMap[str]) {
+              ucSelectOptionsMap[str] = {
+                inputValue: params.inputValue,
+                name: `${str}`,
+                value: `${str}`,
+                series: 'codepoint',
+              };
+              ucSelectOptions.unshift(ucSelectOptionsMap[str]);
+              filtered.unshift(ucSelectOptionsMap[str]);
+            }
+          }
+        }
+
+        return filtered;
+      }}
+      selectOnFocus
+      clearOnBlur
+      handleHomeEndKeys
+      id="range-select"
+      options={ucSelectOptions}
+      getOptionLabel={(option: IUCSelectOption | string) => {
+        // Value selected with enter, right from the input
+        if (typeof option === 'string') {
+          return option;
+        }
+        // Add "xxx" option created dynamically
+        if (option.inputValue) {
+          // return option.inputValue;
+        }
+        // Regular option
+        return option.name;
+      }}
+      groupBy={(option: IUCSelectOption) => (option.series || '').toString()}
+      /* agetOptionLabel={(option: IUCSelectOption) => option.name} */
+      // renderOption={(option: IUCSelectOption) => option.name}
+      style={{ width: 300 }}
+      freeSolo
+      renderInput={(params) => (
+        <TextField {...params} label="glyphname or (c)odepoint" variant="outlined" />
+      )}
+      renderOption={(option, { inputValue }) => {
+        const matches = match(option.name, inputValue);
+        const parts = parse(option.name, matches);
+
+        /*
+        if (inputValue.length) {
+          console.log(JSON.stringify(parts), inputValue);
+        }
+        */
+
+        return (
+          <div>
+            {parts.map((part, index) => (
+              <span
+                key={index}
+                style={{ backgroundColor: part.highlight ? 'orange' : 'transparent' }}
+              >
+                {part.text}
+              </span>
+            ))}
+          </div>
+        );
+      }}
+    />
+    {JSON.stringify(value)}
+  </>;
 }
 
 export type IUCSelectOption = {

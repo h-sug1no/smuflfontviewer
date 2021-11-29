@@ -9,7 +9,7 @@ import {
   FormControlLabel,
   Button,
   Tooltip,
-} from '@material-ui/core';
+} from '@mui/material';
 import TriStateCheckbox, { useTriState, TriValues } from '../lib/TriStateCheckbox';
 import { Database, FontMetadata, EngravingDefaults } from '../lib/SMuFLMetadata';
 import { UCodePoint } from '../lib/UCodePoint';

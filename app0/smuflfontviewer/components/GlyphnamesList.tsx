@@ -3,7 +3,7 @@
  */
 import { Glyphnames } from '../lib/SMuFLTypes';
 import { Database } from '../lib/SMuFLMetadata';
-import { List } from '@material-ui/core';
+import { List } from '@mui/material';
 import { createGlyphnameInfo } from '../lib/RenderUtils';
 
 function GlyphnamesList(sMuFLMetadata: Database, glyphnames?: Glyphnames): JSX.Element {

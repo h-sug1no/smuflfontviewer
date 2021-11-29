@@ -1,4 +1,4 @@
-// import { Link } from '@material-ui/core';
+// import { Link } from '@mui/material';
 // import { SyntheticEvent } from 'react';
 import { Database } from '../lib/SMuFLMetadata';
 import { Sets, SetItem, SetGlyphItem } from '../lib/SMuFLTypes';

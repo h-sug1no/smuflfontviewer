@@ -1,5 +1,5 @@
-import { Link } from '@material-ui/core';
-import { ListItem } from '@material-ui/core';
+import { Link } from '@mui/material';
+import { ListItem } from '@mui/material';
 import { SyntheticEvent, ReactNode } from 'react';
 import { Dict, GlyphnameItem } from '../lib/SMuFLTypes';
 import { Database, SearchOptions } from '../lib/SMuFLMetadata';

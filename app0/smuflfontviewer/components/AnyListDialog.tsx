@@ -1,12 +1,12 @@
 import React, { MutableRefObject, ReactNode } from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import Dialog from '@material-ui/core/Dialog';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import IconButton from '@material-ui/core/IconButton';
-import Typography from '@material-ui/core/Typography';
-import CloseIcon from '@material-ui/icons/Close';
-import { Slide, SlideProps, DialogProps } from '@material-ui/core';
+import makeStyles from '@mui/styles/makeStyles';
+import Dialog from '@mui/material/Dialog';
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
+import CloseIcon from '@mui/icons-material/Close';
+import { Slide, SlideProps, DialogProps } from '@mui/material';
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
@@ -67,7 +67,12 @@ const AnyListDialogRef = React.forwardRef<IHandlers>(function AnyListDialog(prop
       <Dialog fullScreen open={open} onClose={handleClose} TransitionComponent={Transition}>
         <AppBar className={classes.appBar}>
           <Toolbar>
-            <IconButton edge="start" color="inherit" onClick={handleClose} aria-label="close">
+            <IconButton
+              edge="start"
+              color="inherit"
+              onClick={handleClose}
+              aria-label="close"
+              size="large">
               <CloseIcon />
             </IconButton>
             <Typography variant="h6" className={classes.title}></Typography>
