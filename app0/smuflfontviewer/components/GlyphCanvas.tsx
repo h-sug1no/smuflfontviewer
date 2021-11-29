@@ -11,9 +11,21 @@ import {
   Tooltip,
 } from '@material-ui/core';
 import TriStateCheckbox, { useTriState, TriValues } from '../lib/TriStateCheckbox';
-import { Database, FontMetadata } from '../lib/SMuFLMetadata';
+import { Database, FontMetadata, EngravingDefaults } from '../lib/SMuFLMetadata';
 import { UCodePoint } from '../lib/UCodePoint';
 import { Dict, GlyphsWithAnchorItem } from '../lib/SMuFLTypes';
+
+type ISCaledBBox = {
+  W: number;
+  N: number;
+  E: number;
+  S: number;
+  w: number;
+  h: number;
+  x: number;
+  y: number;
+  sbl: number;
+};
 
 const initMouseHandlers = (
   elm: HTMLElement,
@@ -176,6 +188,21 @@ class GDCtx {
     return val * sbl;
   }
 
+  static anchorCsToScreenCs(
+    scaledBBox: ISCaledBBox,
+    anchor: number[],
+    sbl: number,
+    relativeToBBL = false,
+  ) {
+    return {
+      x:
+        (relativeToBBL ? scaledBBox.W : scaledBBox.x) +
+        GDCtx.anchorCsToScreenCsX(Number(anchor[0]), sbl),
+      y:
+        (relativeToBBL ? scaledBBox.S : scaledBBox.y) +
+        GDCtx.anchorCsToScreenCsY(Number(anchor[1]), sbl),
+    };
+  }
   measureGlyph(glyphData: IGlyphData, x: number, y: number, sbl: number) {
     const glyphname = glyphData.glyphname;
     let scaledBBox;
@@ -525,6 +552,119 @@ const AnchorInputs = ({ anchors = {} }: { anchors: Dict<unknown> }): JSX.Element
       })}
     </>
   );
+};
+
+const renderAnchor = (
+  akey: string,
+  anchor: number[],
+  types: string[],
+  scaledBBox: ISCaledBBox,
+  engravingDefaults: EngravingDefaults,
+  isIndeterminate: boolean,
+  bbs,
+  isCutOutOriginBBL: boolean,
+) => {
+  if (!anchor) {
+    console.warn('fixme !anchor');
+    return;
+  }
+  let x;
+  let y;
+  let w;
+  let h;
+  const sbl = scaledBBox.sbl;
+  const isCutOut = akey.startsWith('cutOut');
+  const vals = GDCtx.anchorCsToScreenCs(scaledBBox, anchor, sbl, isCutOut && isCutOutOriginBBL);
+
+  // eslint-disable-next-line no-unused-vars
+  let halign = 'L';
+  let vdir = 'TTB';
+  types.forEach(function (type) {
+    switch (type) {
+      case 'S':
+        y = vals.y;
+        h = scaledBBox.S - y;
+        vdir = 'BTT';
+        break;
+      case 'N':
+        h = vals.y - scaledBBox.N;
+        y = scaledBBox.N;
+        break;
+      case 'E':
+        w = scaledBBox.E - vals.x;
+        x = vals.x;
+        halign = 'R';
+        break;
+      case 'W':
+        w = vals.x - scaledBBox.W;
+        x = scaledBBox.W;
+        break;
+      case 'Width':
+      case 'Top':
+      case 'Bottom':
+      case 'Offset':
+      case 'Origin':
+      case 'Center':
+        break;
+      default:
+        console.warn('FIXME: ' + type);
+        break;
+    }
+  });
+  bbs[akey].vals = vals;
+  ctx.save();
+  if (isCutOut) {
+    if (isCutOutOriginBBL) {
+      ctx.fillStyle = '#ccccd5cc';
+    } else {
+      ctx.fillStyle = '#cccccccc';
+    }
+    ctx.fillRect(x, y, w, h);
+    ctx.fillStyle = '#44aaffcc';
+    _renderCross(vals.x, vals.y);
+  } else if (
+    akey.startsWith('splitStem') ||
+    akey.startsWith('stem') ||
+    akey.startsWith('numeral') ||
+    akey.startsWith('graceNoteSlash') ||
+    akey === 'repeatOffset' ||
+    akey === 'noteheadOrigin' ||
+    akey === 'opticalCenter'
+  ) {
+    x = vals.x;
+    y = vals.y;
+
+    if (!isIndeterminate) {
+      if (akey.startsWith('splitStem') || akey.startsWith('stem')) {
+        _renderStem(
+          x,
+          y,
+          Math.max(scaledBBox.h, anchorCsToScreenCsX(3.5, sbl)),
+          halign,
+          vdir,
+          sbl,
+          engravingDefaults,
+          akey.startsWith('splitStem'),
+          scaledBBox,
+          akey,
+          bbs[akey],
+        );
+      } else if (akey.startsWith('numeral')) {
+        _renderNumeral(x, y, sbl, bbs[akey]);
+      } else if (akey === 'opticalCenter') {
+        _renderSampleNoteheadAlignToOpticalCenter(x, y, scaledBBox, engravingDefaults, bbs[akey]);
+      } else if (akey === 'noteheadOrigin') {
+        _renderSampleNoteheadAlignToNoteheadOrigin(x, y, scaledBBox, engravingDefaults, bbs[akey]);
+      }
+    }
+
+    ctx.fillStyle = '#ff4444cc';
+    if (akey.startsWith('stem')) {
+      ctx.fillStyle = '#4444ffcc';
+    }
+    _renderCross(x, y);
+  }
+  ctx.restore();
 };
 
 export default function GlyphCanvas(props: IGlyphCanvasOptions): JSX.Element {
