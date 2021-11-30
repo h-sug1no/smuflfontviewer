@@ -77,30 +77,64 @@ export type Ranges = Dict<SFVRangeItem>;
  * @see https://w3c.github.io/smufl/latest/specification/glyphswithanchors.html
  */
 
-export type GlyphsWithAnchorItem = {
-  splitStemUpSE?: Array<number>;
-  splitStemUpSW?: Array<number>;
-  splitStemDownNE?: Array<number>;
-  splitStemDownNW?: Array<number>;
-  stemUpSE?: Array<number>;
-  stemDownNW?: Array<number>;
-  stemUpNW?: Array<number>;
-  stemDownSW?: Array<number>;
-  nominalWidth?: number;
-  numeralTop?: Array<number>;
-  numeralBottom?: Array<number>;
-  cutOutNE?: Array<number>;
-  cutOutSE?: Array<number>;
-  cutOutSW?: Array<number>;
-  cutOutNW?: Array<number>;
-  graceNoteSlashSW?: Array<number>;
-  graceNoteSlashNE?: Array<number>;
-  graceNoteSlashNW?: Array<number>;
-  graceNoteSlashSE?: Array<number>;
-  repeatOffset?: Array<number>;
-  noteheadOrigin?: Array<number>;
-  opticalCenter?: Array<number>;
-};
+export type GlyphsWithAnchorItem = Dict<number[] | number>;
+
+export const AnchorNames: string[] = [
+  'splitStemUpSE',
+  'splitStemUpSW',
+  'splitStemDownNE',
+  'splitStemDownNW',
+  'stemUpSE',
+  'stemDownNW',
+  'stemUpNW',
+  'stemDownSW',
+  'nominalWidth',
+  'numeralTop',
+  'numeralBottom',
+  'cutOutNE',
+  'cutOutSE',
+  'cutOutSW',
+  'cutOutNW',
+  'graceNoteSlashSW',
+  'graceNoteSlashNE',
+  'graceNoteSlashNW',
+  'graceNoteSlashSE',
+  'repeatOffset',
+  'noteheadOrigin',
+  'opticalCenter',
+];
+
+export const AnchorDefs: Dict<string[]> = (() => {
+  const ret: Dict<string[]> = {};
+  AnchorNames.every((akey) => {
+    let anchorDef;
+    if (akey.endsWith('SE')) {
+      anchorDef = ['S', 'E'];
+    } else if (akey.endsWith('SW')) {
+      anchorDef = ['S', 'W'];
+    } else if (akey.endsWith('NE')) {
+      anchorDef = ['N', 'E'];
+    } else if (akey.endsWith('NW')) {
+      anchorDef = ['N', 'W'];
+    } else if (akey.endsWith('Width')) {
+      anchorDef = ['Width'];
+    } else if (akey.endsWith('Top')) {
+      anchorDef = ['Top'];
+    } else if (akey.endsWith('Bottom')) {
+      anchorDef = ['Bottom'];
+    } else if (akey.endsWith('Offset')) {
+      anchorDef = ['Offset'];
+    } else if (akey.endsWith('Origin')) {
+      anchorDef = ['Origin'];
+    } else if (akey.endsWith('Center')) {
+      anchorDef = ['Center'];
+    }
+    if (anchorDef) {
+      ret[akey] = anchorDef;
+    }
+  });
+  return ret;
+})();
 
 /**
  * @see https://w3c.github.io/smufl/latest/specification/glyphswithalternates.html

@@ -1,5 +1,5 @@
 /* eslint-disable no-use-before-define */
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { MutableRefObject, useCallback, useEffect, useState } from 'react';
 import { IUCSelectOption, IUCSelectOption_value2Number } from './UCodepointSelect';
 import {
   Typography,
@@ -10,12 +10,13 @@ import {
   Button,
   Tooltip,
 } from '@mui/material';
-import TriStateCheckbox, { useTriState, TriValues } from '../lib/TriStateCheckbox';
-import { Database, FontMetadata, EngravingDefaults } from '../lib/SMuFLMetadata';
+import TriStateCheckbox, { useTriState, ITriState, TriValues } from '../lib/TriStateCheckbox';
+import { Database, FontMetadata } from '../lib/SMuFLMetadata';
 import { UCodePoint } from '../lib/UCodePoint';
 import { Dict, GlyphsWithAnchorItem } from '../lib/SMuFLTypes';
+import { EngravingDefaults, AnchorDefs } from '../lib/SMuFLTypes';
 
-type ISCaledBBox = {
+type IScaledBBox = {
   W: number;
   N: number;
   E: number;
@@ -189,7 +190,7 @@ class GDCtx {
   }
 
   static anchorCsToScreenCs(
-    scaledBBox: ISCaledBBox,
+    scaledBBox: IScaledBBox,
     anchor: number[],
     sbl: number,
     relativeToBBL = false,
@@ -347,6 +348,33 @@ const draw = (gdc: GDCtx, value: IUCSelectOption, options: IGDOptions) => {
     }
   }
 
+  const { anchors } = glyphData;
+  if (anchors) {
+    const bbs = {};
+    for (const akey in anchors) {
+      const anchorDef = AnchorDefs[akey];
+      /*
+      const $anchorCheckbox = $smuflGlyphHints.find('#' + toHintlabelIdStr(akey) + ' input');
+      _setValValue($anchorCheckbox, anchor[akey]);
+      const isIndeterminate = $anchorCheckbox.prop('indeterminate');
+      if ((!$anchorCheckbox.prop('checked') && !isIndeterminate) ||
+        $anchorCheckbox.parent().is(':hidden')) {
+        continue;
+      }
+
+      bbs[akey] = {
+        scaledBBox: scaledBBox,
+        isIndeterminate: isIndeterminate,
+        anchor: anchor,
+        anchorDef: anchorDef,
+        fontSizeInfo: fontSizeInfo,
+        glyphData: glyphData
+      };
+      renderAnchor(akey, anchor[akey], anchorDef, scaledBBox, engravingDefaults, isIndeterminate, bbs);
+      */
+    }
+    // _renderGraceNoteSlash(bbs, engravingDefaults, sbl);
+  }
   ctx.restore();
 };
 
@@ -498,13 +526,18 @@ const TriStateInput = ({
   title,
   mode,
   triVal,
+  anchorInputValRef,
+  triOnInput,
 }: {
   name: string;
   title: string;
   mode: string;
   triVal: TriValues;
+  anchorInputValRef: { triState: ITriState | undefined };
+  triOnInput: () => void;
 }): JSX.Element => {
   const triState = useTriState(triVal);
+  anchorInputValRef.triState = triState;
 
   return (
     <Tooltip title={title}>
@@ -515,15 +548,32 @@ const TriStateInput = ({
           </Typography>
         }
         control={
-          <TriStateCheckbox triValue={triState.value} triOnInput={triState.onInput} mode={mode} />
+          <TriStateCheckbox
+            triValue={triState.value}
+            triOnInput={(e: unknown, mode: string) => {
+              triState.onInput(e, mode);
+              triOnInput();
+            }}
+            mode={mode}
+          />
         }
       />
     </Tooltip>
   );
 };
 
-const AnchorInputs = ({ anchors = {} }: { anchors: Dict<unknown> }): JSX.Element => {
+type IonInput = () => void;
+
+const AnchorInputs = ({
+  anchors = {},
+  anchorInputsRef,
+}: {
+  anchors: Dict<unknown>;
+  anchorInputsRef: MutableRefObject<IAnchorInputsRef>;
+}): JSX.Element => {
   let hasCutOut = false;
+  const anchorInputVal = anchorInputsRef.current;
+  const aiVals = anchorInputVal.values;
   return (
     <>
       {ANCHOR_INPUTS_NAMES.map((name): JSX.Element => {
@@ -539,14 +589,21 @@ const AnchorInputs = ({ anchors = {} }: { anchors: Dict<unknown> }): JSX.Element
         const mode = v.triState ? 'tri' : 'check';
 
         testTriState(name, v.triState ?? false);
-
+        aiVals[name] = { triState: undefined };
         return (
           <Box
             key={name}
             style={!anchor ? { display: 'none' } : {}}
             className="gcGlyphHintInputContainer"
           >
-            <TriStateInput name={name} title={v.title} mode={mode} triVal={TriValues.initial} />
+            <TriStateInput
+              name={name}
+              title={v.title}
+              mode={mode}
+              triVal={TriValues.initial}
+              triOnInput={anchorInputVal.onInput}
+              anchorInputValRef={aiVals[name]}
+            />
           </Box>
         );
       })}
@@ -555,13 +612,14 @@ const AnchorInputs = ({ anchors = {} }: { anchors: Dict<unknown> }): JSX.Element
 };
 
 const renderAnchor = (
+  ctx: CanvasRenderingContext2D,
   akey: string,
   anchor: number[],
   types: string[],
-  scaledBBox: ISCaledBBox,
+  scaledBBox: IScaledBBox,
   engravingDefaults: EngravingDefaults,
   isIndeterminate: boolean,
-  bbs,
+  bbs: any, // FIXME: define type.
   isCutOutOriginBBL: boolean,
 ) => {
   if (!anchor) {
@@ -619,9 +677,11 @@ const renderAnchor = (
     } else {
       ctx.fillStyle = '#cccccccc';
     }
-    ctx.fillRect(x, y, w, h);
+    if (x !== undefined && y !== undefined && w !== undefined && h !== undefined) {
+      ctx.fillRect(x, y, w, h);
+    }
     ctx.fillStyle = '#44aaffcc';
-    _renderCross(vals.x, vals.y);
+    // _renderCross(vals.x, vals.y);
   } else if (
     akey.startsWith('splitStem') ||
     akey.startsWith('stem') ||
@@ -635,6 +695,7 @@ const renderAnchor = (
     y = vals.y;
 
     if (!isIndeterminate) {
+      /*
       if (akey.startsWith('splitStem') || akey.startsWith('stem')) {
         _renderStem(
           x,
@@ -656,24 +717,36 @@ const renderAnchor = (
       } else if (akey === 'noteheadOrigin') {
         _renderSampleNoteheadAlignToNoteheadOrigin(x, y, scaledBBox, engravingDefaults, bbs[akey]);
       }
+      */
     }
 
     ctx.fillStyle = '#ff4444cc';
     if (akey.startsWith('stem')) {
       ctx.fillStyle = '#4444ffcc';
     }
-    _renderCross(x, y);
+    // _renderCross(x, y);
   }
   ctx.restore();
+};
+
+type IAnchorInputsRef = {
+  onInput: () => void;
+  values: Dict<{ triState: ITriState | undefined }>;
 };
 
 export default function GlyphCanvas(props: IGlyphCanvasOptions): JSX.Element {
   const { value, sMuFLMetadata } = props;
   console.log(value);
 
-  const [tick] = React.useState<number>(0);
-  const refTick = React.useRef<number>();
+  const [tick, setTick] = React.useState<number>(0);
+  const refTick = React.useRef<number>(tick);
   const slTriState = useTriState(0);
+  const anchorInputsRef = React.useRef<IAnchorInputsRef>({
+    onInput: () => {
+      setTick(refTick.current + 1);
+    },
+    values: {},
+  });
   const [showOrigin, setShowOrigin] = useState<boolean>(true);
   const [showBBox, setShowBBox] = useState<boolean>(true);
 
@@ -844,7 +917,7 @@ export default function GlyphCanvas(props: IGlyphCanvasOptions): JSX.Element {
         </Tooltip>
       </Box>
       <Box id="smuflGlyphHints">
-        <AnchorInputs anchors={glyphWithAnchors} />
+        <AnchorInputs anchors={glyphWithAnchors} anchorInputsRef={anchorInputsRef} />
       </Box>
     </>
   );
