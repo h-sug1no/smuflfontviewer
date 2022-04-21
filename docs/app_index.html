@@ -160,31 +160,76 @@
           //   https://github.com/steinbergmedia/bravura
           //   https://github.com/steinbergmedia/petaluma
           //
-          addDemolistItem('local Bravura(debug)', _createDemolistOptions(
-            './packages/bravura/redist',
-            './packages/smufl/metadata',
-            '/woff/Bravura.woff2', '/bravura_metadata.json'
-          ));
-          addDemolistItem('local Petaluma(debug)', _createDemolistOptions(
-            './packages/petaluma/redist',
-            './packages/smufl/metadata',
-            '/woff/Petaluma.woff2', '/petaluma_metadata.json',
-            oldFontSettings
-          ));
+          function _create_demo_bravura_options(woff) {
+            return _createDemolistOptions(
+              './packages/bravura/redist',
+              './packages/smufl/metadata',
+              `/woff/${woff}.woff2`, '/bravura_metadata.json'
+            );
+          }
+
+          addDemolistItem('local Bravura(debug)',
+            _create_demo_bravura_options('Bravura'));
+
+          addDemolistItem('local BravuraText(debug)',
+            _create_demo_bravura_options('BravuraText'));
+
+          function _create_demo_petaluma_options(woff) {
+            return _createDemolistOptions(
+              './packages/petaluma/redist',
+              './packages/smufl/metadata',
+              `/woff/${woff}.woff2`, '/petaluma_metadata.json',
+              oldFontSettings
+            );
+          }
+
+          addDemolistItem('local Petaluma(debug)',
+            _create_demo_petaluma_options('Petaluma'));
+
+          addDemolistItem('local PetalumaText(debug)',
+            _create_demo_petaluma_options('PetalumaText'));
         }
 
-        addDemolistItem('steinbergmedia/bravura/master + w3c/smufl', _createDemolistOptions(
-          'https://raw.githubusercontent.com/steinbergmedia/bravura/master/redist',
-          'https://raw.githubusercontent.com/w3c/smufl/gh-pages/metadata',
-          '/woff/Bravura.woff2', '/bravura_metadata.json'
-        ));
+        function _create_bravura_options(woff) {
+          return _createDemolistOptions(
+           'https://raw.githubusercontent.com/steinbergmedia/bravura/master/redist',
+            'https://raw.githubusercontent.com/w3c/smufl/gh-pages/metadata',
+            `/woff/${woff}.woff2`, '/bravura_metadata.json'
+          );
+        }
+        addDemolistItem('steinbergmedia/bravura/master + w3c/smufl',
+        _create_bravura_options('Bravura'));
 
-        addDemolistItem('steinbergmedia/petaluma/master + w3c/smufl', _createDemolistOptions(
-          'https://raw.githubusercontent.com/steinbergmedia/petaluma/master/redist',
-          'https://raw.githubusercontent.com/w3c/smufl/gh-pages/metadata',
-          '/woff/Petaluma.woff2', '/petaluma_metadata.json',
-          oldFontSettings
-        ));
+        addDemolistItem('steinbergmedia/bravura/master(BravuraText) + w3c/smufl',
+        _create_bravura_options('BravuraText'));
+
+        function _create_petaluma_options(woff) {
+          return _createDemolistOptions(
+            'https://raw.githubusercontent.com/steinbergmedia/petaluma/master/redist',
+            'https://raw.githubusercontent.com/w3c/smufl/gh-pages/metadata',
+            `/woff/${woff}.woff2`, '/petaluma_metadata.json',
+            oldFontSettings
+          );
+        }
+
+        addDemolistItem('steinbergmedia/petaluma/master + w3c/smufl',
+          _create_petaluma_options('Petaluma'));
+        addDemolistItem('steinbergmedia/petaluma/master(PetalumaText) + w3c/smufl',
+          _create_petaluma_options('PetalumaText'));
+
+          function _create_Leland_options(otf) {
+          return _createDemolistOptions(
+            'https://raw.githubusercontent.com/MuseScoreFonts/Leland/main',
+            'https://raw.githubusercontent.com/w3c/smufl/gh-pages/metadata',
+            `/${otf}.otf`, '/metadata.json'
+          );
+        }
+
+        addDemolistItem('MuseScoreFonts/Leland/main(Leland) + w3c/smufl',
+          _create_Leland_options('Leland'));
+
+        addDemolistItem('MuseScoreFonts/Leland/main(LelandText) + w3c/smufl',
+        _create_Leland_options('LelandText'));
 
         var evt = new Event("change", {"bubbles":true, "cancelable":true});
         demolistElm.dispatchEvent(evt);

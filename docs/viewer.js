@@ -10,6 +10,7 @@ class SMuFLFontViewer {
   constructor() {
     // eslint-disable-next-line no-undef
     this.sMuFLMetadata = new SMuFLMetadata();
+    // eslint-disable-next-line no-undef
     this.sSRenderer = new SSRenderer();
   }
 
@@ -49,6 +50,11 @@ class SMuFLFontViewer {
       smuflFontFace.load().then(function (loaded_face) {
         // loaded_face holds the loaded FontFace
         document.fonts.add(loaded_face);
+        let fontUrlItems = fontFace.fontUrl.split('/');
+        if (fontUrlItems.length < 1) {
+          fontUrlItems = ['?'];
+        }
+        document.title = `${fontUrlItems[fontUrlItems.length - 1]}: ${document.title}`;
         window.setTimeout(function () {
           that._handle_onResourceReady('smuflFontFace');
         });
@@ -62,6 +68,8 @@ class SMuFLFontViewer {
 
     const $codepointSelect = $('#codepointSelect');
     let $codepointSelect_selectize;
+
+    let rosgCpSelect;  // repeatOffset sample glyph cp select.
 
     sMuFLMetadata.init(options).then(function (/* obj */) {
       if (sMuFLMetadata.initErrors.length) {
@@ -84,7 +92,8 @@ class SMuFLFontViewer {
         });
 
         const optionalGlyphs = sMuFLMetadata.fontMetadata().optionalGlyphs;
-        Object.keys(optionalGlyphs).forEach((gname) => {
+        console.warn('no optionalGlyphs');
+        Object.keys(optionalGlyphs||{}).forEach((gname) => {
           const cp = optionalGlyphs[gname].codepoint.replace('U+', '');
           soptions.push({
             series: 'optionalGlyphs',
@@ -93,57 +102,103 @@ class SMuFLFontViewer {
           });
         });
 
-        $codepointSelect.selectize({
-          options: soptions,
-          optgroups: [
-            { value: 'glyphnames', label: 'glyphnames' },
-            { value: 'optionalGlyphs', label: 'optionalGlyphs' },
-            { value: 'codepoint', label: 'codepoint' },
-          ],
-          optgroupField: 'series',
-          labelField: 'name',
-          searchField: ['name'],
-          placeholder: 'enter glyphname or (c)odepoint',
-          maxItems: 1,
-          create: false,
-          onType: function (str) {
-            // console.log(str);
+        const initCpSelect = ($codepointSelect, onChangeCB, onBlurCB) => {
+          $codepointSelect.selectize({
+            options: soptions,
+            optgroups: [
+              { value: 'glyphnames', label: 'glyphnames' },
+              { value: 'optionalGlyphs', label: 'optionalGlyphs' },
+              { value: 'codepoint', label: 'codepoint' },
+            ],
+            optgroupField: 'series',
+            labelField: 'name',
+            searchField: ['name'],
+            placeholder: 'enter glyphname or (c)odepoint',
+            maxItems: 1,
+            create: false,
+            onType: function (str) {
+              // console.log(str);
+              $codepointSelect_selectize.onType(str);
+            },
+            onChange: function (value) {
+              onChangeCB(value);
+            },
+            onBlur: function () {
+              onBlurCB($codepointSelect_selectize);
+            }
+            //openOnFocus: false,
+            //plugins: ['optgroup_columns']
+          });
+
+          const $codepointSelect_selectize = $codepointSelect[0].selectize;
+          $codepointSelect_selectize.onType = function(str, keepOptions) {
             str = str.toUpperCase();
             if (str.match(/^[A-F0-9]+$/)) {
+              let cpNumber = NaN;
               try {
-                String.fromCodePoint(parseInt(str, 16));
-                $codepointSelect_selectize.addCodePointItem(str);
-                $codepointSelect_selectize.refreshOptions(true);
-              } catch (e) { }
-            }
-          },
-          onChange: function (value) {
-            if (value.length) {
-              setCodepointByString(value);
-            }
-          },
-          onBlur: function () {
-            if (!$codepointSelect_selectize.getValue().length) {
-              $codepointSelect_selectize.setValue(history.currentUCodepoint, true);
-            }
-          }
-          //openOnFocus: false,
-          //plugins: ['optgroup_columns']
-        });
+                cpNumber = parseInt(str, 16);
+                // check cpNumber is valid unicode codepoint.
+                String.fromCodePoint(cpNumber);
+              } catch (e) {
+                // RangeError: xxxxxxx is not a valid code point
+                // console.log(e);
+                return;
+              }
+              if (isNaN(cpNumber)) {
+                return;
+              }
 
-        $codepointSelect_selectize = $codepointSelect[0].selectize;
-        $codepointSelect_selectize.addCodePointItem = function (cp) {
-          cp = cp.toUpperCase();
-          $codepointSelect_selectize.addOption({
-            series: 'codepoint',
-            value: cp,
-            name: cp
-          });
-          return cp;
+              str = formatCodepointNumber(cpNumber);
+              /* const cpData = */$codepointSelect_selectize.addCodePointItem(str);
+              $codepointSelect_selectize.refreshOptions(!keepOptions);
+              return str;
+            }
+          };
+          $codepointSelect_selectize.addCodePointItem = function (cp) {
+            cp = cp.toUpperCase();
+            const cpData = {
+              series: 'codepoint',
+              value: cp,
+              name: cp
+            };
+            $codepointSelect_selectize.addOption(cpData);
+            return cpData;
+          };
+          return {
+            $codepointSelect: $codepointSelect,
+            $codepointSelect_selectize: $codepointSelect_selectize,
+          };
         };
+        const cpSelect0 = initCpSelect($codepointSelect, (value) => {
+          if (value.length) {
+            setCodepointByString(value);
+          }
+        },
+        ($codepointSelect_selectize) => {
+          if (!$codepointSelect_selectize.getValue().length) {
+            $codepointSelect_selectize.setValue(history.currentUCodepoint, true);
+          }
+        });
+        $codepointSelect_selectize = cpSelect0.$codepointSelect_selectize;
+
+        const $rosgCpSelect = $('<selct class="rosgCpSelect"></selct>');
+        $smuflGlyphHints_repatOffset3StateBox[0].parentElement.parentElement.appendChild($rosgCpSelect[0]);
+        rosgCpSelect = initCpSelect($rosgCpSelect, (value) => {
+          if (value.length) {
+            // repaint repeatOffset sample glyph.
+            // renderGlyph(currentGlyphData);
+          }
+        },
+        (/*$codepointSelect_selectize*/) => {
+          // fixme: onBlurCB.
+        });
+        rosgCpSelect.$codepointSelect_selectize.$control.prop('title',
+          'Select a glyph to use as an example drawing for the repeatOffset property');
+
         that._handle_onResourceReady('smuflMetadata');
       }
     });
+
 
     const params = new URLSearchParams(window.location.search);
 
@@ -201,6 +256,7 @@ class SMuFLFontViewer {
 
     const $smuflGlyphHints_repatOffset3StateBox =
       $smuflGlyphHints.find('#' + toHintlabelIdStr('repeatOffset') + ' input');
+    const smuflGlyphHints_repatOffset3StateBoxElm = $smuflGlyphHints_repatOffset3StateBox[0];
 
     const $smuflGlyphHints_cutOutOrigin_BBL =
       $smuflGlyphHints.find('#' + toHintlabelIdStr('cutOutOrigin_BBL') + ' input');
@@ -237,6 +293,7 @@ class SMuFLFontViewer {
         }
       });
     });
+    const $smuflRenderGlyphOptionsResetGlyphSize = $('#smuflRenderGlyphOptionsResetGlyphSize');
 
     const $smuflRenderGlyphOptionsSl = $('#smuflRenderGlyphOptionsSl');
     input_make3State($smuflRenderGlyphOptionsSl.get(0), false, true);
@@ -252,6 +309,11 @@ class SMuFLFontViewer {
 
     $smuflRenderGlyphOptionsResetScrollPosition.on('click', function() {
       _resetScPosition();
+    });
+
+    const initialGlyphSize = $smuflRenderGlyphOptionsGlyphSize.val();
+    $smuflRenderGlyphOptionsResetGlyphSize.on('click', function() {
+      $smuflRenderGlyphOptionsGlyphSize.val(initialGlyphSize).trigger('input');
     });
 
     const $scratchpadDialog = $('#scratchpadDialog');
@@ -280,8 +342,10 @@ class SMuFLFontViewer {
     };
 
     function updateCurrentUCharInfo() {
-      const docSelection = document.getSelection();
-      // console.log(e, docSelection);
+      /*
+       const docSelection = document.getSelection();
+       console.log(e, docSelection);
+      */
       const elm = $scratchpadDialogTextarea[0];
       const value = $scratchpadDialogTextarea.val();
       if (prevTASelection.start === elm.selectionStart &&
@@ -307,11 +371,15 @@ class SMuFLFontViewer {
       $uCodeSpan.text(text);
     }
 
-    $scratchpadDialogTextarea.on('input', (e) => {
+    $scratchpadDialogTextarea.on('keyup', (/*e*/) => {
       updateCurrentUCharInfo();
     });
 
-    $(document).on('selectionchange', (e) => {
+    $scratchpadDialogTextarea.on('mouseup', (/*e*/) => {
+      updateCurrentUCharInfo();
+    });
+
+    $(document).on('selectionchange', (/*e*/) => {
       updateCurrentUCharInfo();
     });
 
@@ -372,6 +440,14 @@ class SMuFLFontViewer {
 
       _setIsActive(false);
 
+      $smuflGlyphCanvasContainer.off('wheel');
+      $smuflGlyphCanvasContainer.on('wheel', function (ev) {
+        ev.preventDefault();
+        $smuflRenderGlyphOptionsGlyphSize.val(Number($smuflRenderGlyphOptionsGlyphSize.val()) -
+          ((ev.originalEvent.deltaY < 0 ? -1 : 1) * 20));
+        $smuflRenderGlyphOptionsGlyphSize.trigger('input');
+      });
+
       $smuflGlyphCanvasContainer.on('mousedown', function (ev) {
         if (ev.button !== 0) { return; }
         _setIsActive(true);
@@ -396,7 +472,7 @@ class SMuFLFontViewer {
         if (ev.button !== 0) { return; }
         _setIsActive(false);
       });
-      $smuflGlyphCanvasContainer.on('mouseleave', function (ev) {
+      $smuflGlyphCanvasContainer.on('mouseleave', function (/*ev*/) {
         _setIsActive(false);
       });
 
@@ -408,6 +484,7 @@ class SMuFLFontViewer {
     const $body = $('body');
     const $rootContainer = $('#rootContainer');
     const $infoDialog = $('#infoDialog');
+    const $infoDialog_closeButton = $infoDialog.find('input.closeButton');
     const infoDialogElm = $infoDialog.get(0);
     const $contentContainer = $('#contentContainer');
     const _$infoDialog_defaultDescription = 'use browser\'s search to find glyphname, smufl properties, codepoint, etc...';
@@ -458,27 +535,29 @@ class SMuFLFontViewer {
       }
 
       str = codepointNumber.toString(16).toUpperCase();
-      if (str.len < 4) {
-        str = ('000' + str).slice(-3);
-      }
-      return str;
+      return str.padStart(4, '0');
     }
 
-    function getCodepointNumber() {
-      return Number('0x' + getCodepoint(), 16);
+    function getCodepointNumber(cpStr) {
+      return Number('0x' + (cpStr || getCodepoint()), 16);
     }
 
+    // eslint-disable-next-line no-unused-vars
     function setCodepointByNumber(codepointNumber) {
       setCodepointByString(formatCodepointNumber(codepointNumber));
     }
 
-    function appendCodepoint($c, uCodepointStr) {
-      $c.append($(`<span class="smuflCodepoint">${uCodepointStr}</span>`));
+    function appendCodepoint($c, uCodepointStr, currentUCodepoint) {
+      let currentGlyph = '';
+      if (uCodepointStr && (uCodepointStr === currentUCodepoint)) {
+        currentGlyph = ' currentGlyph';
+      }
+      $c.append($(`<span class="smuflCodepoint${currentGlyph}">${uCodepointStr}</span>`));
     }
 
-    function appendCodepointOrText($c, uCodepointStr) {
+    function appendCodepointOrText($c, uCodepointStr, currentUCodepoint) {
       if (uCodepointStr.startsWith && uCodepointStr.startsWith('U+')) {
-        appendCodepoint($c, uCodepointStr);
+        appendCodepoint($c, uCodepointStr, currentUCodepoint);
       }
       else {
         _$c_appendText($c, uCodepointStr);
@@ -515,7 +594,7 @@ class SMuFLFontViewer {
 
     }
 
-    function appendGlyphname($c, glyphname, currentGlyphName, uCodepoint) {
+    function appendGlyphname($c, glyphname, currentGlyphName, uCodepoint, showUCodepoint) {
       const option = { searchOptional: true };
       let tUCodepoint = sMuFLMetadata.glyphname2uCodepoint(glyphname, option);
       if ((uCodepoint || tUCodepoint) !== tUCodepoint) {
@@ -529,17 +608,30 @@ class SMuFLFontViewer {
       if (uCodepoint) {
         charStr = sMuFLMetadata.uCodepoint2CharString(uCodepoint);
       }
+      const nCodepoint = sMuFLMetadata.uCodepoint2Codepoint(uCodepoint);
 
-      const $t = $(`<span class="smuflGlyphname">${glyphname || '?'}:<span class="smufl">${charStr}</span></span>`);
+      const $uCodepoint = showUCodepoint ?
+        `<span class="uCodepoint">(${uCodepoint})</span> `: '';
+      const $t = $(`${$uCodepoint}<span class="smuflGlyphname">${glyphname || '?'}:<span class="smufl">${charStr}</span></span>`);
       if (option.isOptionalGlyph) {
         $t.addClass('optionalGlyph');
       }
-      if (currentGlyphName === glyphname) {
+      if (option.isUnknownOptionalGlyph) {
+        if (0xF400 <= nCodepoint && nCodepoint <= 0xFFFF) {
+          $t.addClass('unknownOptionalGlyph');
+        }
+      }
+      const tGlyphname = glyphname || uCodepoint;
+      if (tGlyphname && currentGlyphName === tGlyphname) {
         $t.addClass('currentGlyph');
       }
 
       $t.prop('uCodepoint', uCodepoint);
       $c.append($t);
+
+      return {
+        uCodepoint: uCodepoint
+      };
     }
 
     const history = {
@@ -558,6 +650,10 @@ class SMuFLFontViewer {
       history.prevUCodepoint = history.currentUCodepoint;
       $codepointSelect.val(codepointStr);
       history.currentUCodepoint = getCodepoint();
+      if (rosgCpSelect && rosgCpSelect.$codepointSelect_selectize) {
+        rosgCpSelect.$codepointSelect_selectize.setValue(history.currentUCodepoint,
+          true /*silent: no changed event*/);
+      }
       _postDraw();
     }
 
@@ -593,42 +689,42 @@ class SMuFLFontViewer {
         return;
       }
       switch (ev.key) {
-        case 'w':
-          //case 'Escape':
-          if ($body.hasClass('fakeDialogVisible')) {
-            $infoDialog.find('input').click();
-          }
-          break;
-        case 'g':
-          window.setTimeout(function () {
-            $('#BGlyphnames').focus();
-          });
-          break;
-        case 'k':
-          $('#BPrevGlyph').click();
-          break;
-        case 'h':
-          $('#BPrev').click();
-          break;
-        case 'l':
-          $('#BNext').click();
-          break;
-        case 'p':
-          $('#BShowPrev').click();
-          break;
-        case 'c':
-          window.setTimeout(function () {
-            $codepointSelect_selectize.focus();
-          });
-          break;
-        case 'j':
-          $('#BNextGlyph').click();
-          break;
-        case 'r':
-          window.setTimeout(function () {
-            $rangeSelect_selectize.focus();
-          });
-          break;
+      case 'w':
+        //case 'Escape':
+        if ($body.hasClass('fakeDialogVisible')) {
+          $infoDialog_closeButton.click();
+        }
+        break;
+      case 'g':
+        window.setTimeout(function () {
+          $('#BGlyphnames').focus();
+        });
+        break;
+      case 'k':
+        $('#BPrevGlyph').click();
+        break;
+      case 'h':
+        $('#BPrev').click();
+        break;
+      case 'l':
+        $('#BNext').click();
+        break;
+      case 'p':
+        $('#BShowPrev').click();
+        break;
+      case 'c':
+        window.setTimeout(function () {
+          $codepointSelect_selectize.focus();
+        });
+        break;
+      case 'j':
+        $('#BNextGlyph').click();
+        break;
+      case 'r':
+        window.setTimeout(function () {
+          $rangeSelect_selectize.focus();
+        });
+        break;
       }
     });
 
@@ -659,7 +755,7 @@ class SMuFLFontViewer {
     });
 
     function selectCodepointByString(cp) {
-      cp = $codepointSelect_selectize.addCodePointItem(cp);
+      cp = $codepointSelect_selectize.addCodePointItem(cp).value;
       $codepointSelect_selectize.setValue(cp);
     }
 
@@ -675,7 +771,7 @@ class SMuFLFontViewer {
       }
 
       let codepointStr;
-      while ((cpNumber += d) && cpNumber > 0 && cpNumber < 0x10FFFF & !codepointStr) {
+      while ((cpNumber += d) >= 0 && cpNumber < 0x10FFFF & !codepointStr) {
         const tCodepointStr = formatCodepointNumber(cpNumber);
         if (checkHasGlyph && glyphsByUCodepoint) {
           if (glyphsByUCodepoint[sMuFLMetadata.ensureUCodepoint(tCodepointStr)]) {
@@ -715,6 +811,9 @@ class SMuFLFontViewer {
       $contentContainer.append($('<br>'));
     }
 
+    const $aStatickLink = $('#AStaticLink');
+    const $aUULink = $('#AUULink');
+
     const _$infoDialog_contentDoms = {};
     function _$infoDialog_showModal(keyIn, func) {
       const key = keyIn.keyText || keyIn;
@@ -749,7 +848,7 @@ class SMuFLFontViewer {
       filenames.forEach(function(filename) {
         const aDom = document.createElement('a');
         aDom.classList.add('specLink');
-        aDom.href = `https://w3c.github.io/smufl/gitbook/specification/${filename}.html`;
+        aDom.href = `https://w3c.github.io/smufl/latest/specification/${filename}.html`;
         aDom.text = filename;
         aDom.target = `_smuflfontvierer_${filename}_`;
         aDom.title = `${filename} spec`;
@@ -787,19 +886,20 @@ class SMuFLFontViewer {
 
     $('#BOptionalGlyphs').on('click', function () {
       _$infoDialog_showModal(specLinkDoms['font metadata optionalGlyphs'],
-      function ($contentContainer) {
-        const optionalGlyphs = sMuFLMetadata.fontMetadata().optionalGlyphs;
-        if (!optionalGlyphs) {
-          return;
-        }
-        for (const key in optionalGlyphs) {
-          addGlyphnameInfo($contentContainer, optionalGlyphs[key], key);
-        }
-      });
+        function ($contentContainer) {
+          const optionalGlyphs = sMuFLMetadata.fontMetadata().optionalGlyphs;
+          if (!optionalGlyphs) {
+            return;
+          }
+          for (const key in optionalGlyphs) {
+            addGlyphnameInfo($contentContainer, optionalGlyphs[key], key);
+          }
+        });
     });
 
     $('#BFontMetadata').on('click', function () {
       _$infoDialog_showModal(specLinkDoms['font metadata'], function($contentContainer) {
+        $contentContainer.addClass('fontMetadataContainer')
         function add_engravingDefaults(name, engravingDefaults) {
           _$c_appendText($contentContainer, `${name}: `);
           const $tdContaienr = $('<div class="engravingDefaultsContainer"></div>');
@@ -813,7 +913,7 @@ class SMuFLFontViewer {
         function add_sets(name, sets) {
           const setsKeys = Object.keys(sMuFLMetadata.fontMetadata().sets);
           _$c_appendText($contentContainer, `${name}: ${setsKeys.length ? setsKeys.join(', ') : 'none'
-            }`);
+          }`);
         }
 
         const urls = sMuFLMetadata.urls;
@@ -838,26 +938,30 @@ class SMuFLFontViewer {
         for (const key in fontMetadata) {
           let addBr = true;
           switch (key) {
-            case 'fontName':
-            case 'fontVersion':
-              _$c_appendText($contentContainer, `${key}: ${fontMetadata[key]}`);
-              break;
-            case 'engravingDefaults':
-              add_engravingDefaults(key, fontMetadata[key]);
-              addBr = false;
-              break;
-            case 'glyphBBoxes':
-            case 'glyphsWithAlternates':
-            case 'glyphsWithAnchors':
-            case 'ligatures':
-            case 'optionalGlyphs':
-              _$c_appendText($contentContainer, `${key}: ...`);
-              break;
-            case 'sets':
-              add_sets(key, fontMetadata[key]);
-              break;
-            default:
-              break;
+          case 'fontName':
+          case 'fontVersion':
+            _$c_appendText($contentContainer, `${key}: ${fontMetadata[key]}`);
+            break;
+          case 'engravingDefaults':
+            add_engravingDefaults(key, fontMetadata[key]);
+            addBr = false;
+            break;
+          case 'glyphBBoxes':
+          case 'glyphsWithAlternates':
+          case 'glyphsWithAnchors':
+          case 'ligatures':
+          case 'optionalGlyphs':
+            _$c_appendText($contentContainer, `${key}: ...`);
+            break;
+          case 'glyphAdvanceWidths':
+            _$c_appendText($contentContainer, `${key}: FIXME:...`);
+            break;
+          case 'sets':
+            add_sets(key, fontMetadata[key]);
+            break;
+          default:
+            _$c_appendText($contentContainer, `${key}: unsupported property.`);
+            break;
           }
           if (addBr) {
             $contentContainer.append($('<br>'));
@@ -885,6 +989,55 @@ class SMuFLFontViewer {
           $ssOptionsGlyphSize.on('input.ssUI', function () {
             drawSs();
           });
+
+          (() => {
+            $gmCanvas.off('wheel');
+            $gmCanvas.on('wheel', function (ev) {
+              ev.preventDefault();
+              $ssOptionsGlyphSize.val(Number($ssOptionsGlyphSize.val()) -
+                ((ev.originalEvent.deltaY < 0 ? -1 : 1) * 20));
+              $ssOptionsGlyphSize.trigger('input');
+            });
+
+            const scrollElm = document.body;
+            let isActive = false;
+            let startPos;
+
+            function _setIsActive(v) {
+              isActive = v;
+              $gmCanvas.css('cursor', isActive ? 'move' : '');
+            }
+
+            _setIsActive(false);
+
+            $gmCanvas.on('mousedown', function (ev) {
+              if (ev.button !== 0) { return; }
+              _setIsActive(true);
+              startPos = {
+                clientX: ev.clientX,
+                clientY: ev.clientY,
+                scrollLeft: scrollElm.scrollLeft,
+                scrollTop: scrollElm.scrollTop
+              };
+            });
+
+            $gmCanvas.on('mousemove', function (ev) {
+              if (isActive) {
+                scrollElm.scrollTop = (startPos.scrollTop -
+                  (ev.clientY - startPos.clientY));
+                scrollElm.scrollLeft = (startPos.scrollLeft -
+                  (ev.clientX - startPos.clientX));
+              }
+            });
+
+            $gmCanvas.on('mouseup', function (ev) {
+              if (ev.button !== 0) { return; }
+              _setIsActive(false);
+            });
+            $gmCanvas.on('mouseleave', function (/*ev*/) {
+              _setIsActive(false);
+            });
+          })();
         };
 
         const $gmCanvas = $('<canvas id="gm_canvas"></canvas>');
@@ -915,12 +1068,12 @@ class SMuFLFontViewer {
       });
     });
 
-    function addLigatureInfo($ligaturesInfo, label, ligature, glyphname) {
+    function addLigatureInfo($ligaturesInfo, label, ligature, glyphname, currentGlyphName) {
       if (ligature) {
         if (label) {
           _$c_appendText($ligaturesInfo, label);
         }
-        appendGlyphname($ligaturesInfo, glyphname);
+        appendGlyphname($ligaturesInfo, glyphname, currentGlyphName, undefined, true);
         _$c_appendText($ligaturesInfo, '\ndescription: ');
         _$c_appendText($ligaturesInfo, (ligature.description || '') + '\n');
         if (ligature.componentGlyphs) {
@@ -928,7 +1081,7 @@ class SMuFLFontViewer {
           const $glyphsContainer = $('<div class="glyphsContainer"></div>');
           $ligaturesInfo.append($glyphsContainer);
           ligature.componentGlyphs.forEach(function (tGlyphname) {
-            appendGlyphname($glyphsContainer, tGlyphname, glyphname);
+            appendGlyphname($glyphsContainer, tGlyphname, glyphname, undefined, true);
             _$c_appendText($glyphsContainer, ', ');
           });
         }
@@ -1017,7 +1170,7 @@ class SMuFLFontViewer {
             _$c_appendText($glyphContainer, ', ');
             appendGlyphname($glyphContainer, glyph.name);
             _$c_appendText($glyphContainer, ', alternateFor: ');
-            appendGlyphname($glyphContainer, glyph.alternateFor);
+            appendGlyphname($glyphContainer, glyph.alternateFor, undefined, undefined, true);
           });
       });
     });
@@ -1028,6 +1181,8 @@ class SMuFLFontViewer {
           sMuFLMetadata.data.ranges,
           //addItemFunc
           ($itemContainer, item) => {
+            _$c_appendText($itemContainer, `range_start: ${item.range_start}, `);
+            _$c_appendText($itemContainer, `range_end: ${item.range_end}: \n`);
             _$c_appendText($itemContainer, `description: ${item.description}: \n`);
           },
           // getGlyphsFunc
@@ -1036,7 +1191,7 @@ class SMuFLFontViewer {
           },
           // addGlyphFunc
           ($glyphContainer, glyphName) => {
-            appendGlyphname($glyphContainer, glyphName);
+            appendGlyphname($glyphContainer, glyphName, undefined, undefined, true);
           });
       });
     });
@@ -1047,7 +1202,7 @@ class SMuFLFontViewer {
         _createAnyListPage($contentContainer, 'class',
           sMuFLMetadata.getFontInfo().computedClasses.classes,
           //addItemFunc
-          ($itemContainer, item) => {
+          (/*$itemContainer, item*/) => {
           },
           // getGlyphsFunc
           (item) => {
@@ -1055,22 +1210,22 @@ class SMuFLFontViewer {
           },
           // addGlyphFunc
           ($glyphContainer, glyphName) => {
-            appendGlyphname($glyphContainer, glyphName);
+            appendGlyphname($glyphContainer, glyphName, undefined, undefined, true);
           });
       });
     });
 
 
-    function addAlternatesInfo($alternatesInfo, alternates, baseGlyphname, glyphname) {
+    function addAlternatesInfo($alternatesInfo, alternates, baseGlyphname, glyphname, currentUCodepoint) {
       if (alternates && alternates.alternates) {
         _$c_appendText($alternatesInfo, 'alternates: ');
-        appendGlyphname($alternatesInfo, baseGlyphname, glyphname);
+        appendGlyphname($alternatesInfo, baseGlyphname, glyphname, undefined, true);
         _$c_appendText($alternatesInfo, '\n');
         alternates.alternates.forEach(function (v) {
           _$c_appendText($alternatesInfo, 'codepoint: ');
-          appendCodepoint($alternatesInfo, v.codepoint);
+          appendCodepoint($alternatesInfo, v.codepoint, currentUCodepoint);
           _$c_appendText($alternatesInfo, `, name: `);
-          appendGlyphname($alternatesInfo, v.name, glyphname);
+          appendGlyphname($alternatesInfo, v.name, glyphname, v.codepoint);
           _$c_appendText($alternatesInfo, `\n`);
         });
       }
@@ -1094,33 +1249,111 @@ class SMuFLFontViewer {
 
     $('#BFontMetadataGlyphsWithAnchors').on('click', function () {
       _$infoDialog_showModal(specLinkDoms['font metadata glyphsWithAnchors'], function ($contentContainer) {
+        const btns = [];
+        const checkboxes = [];
+        const $options = $(`<div class="options"></div>`);
+
         try {
+          const $gwaOptionContainer = $(`<div class="gwanchorsOptionContainer">filter: </div>`);
+          $contentContainer.append($gwaOptionContainer);
+          $gwaOptionContainer.prop('title', 'check anchors to show items with a specific anchors');
+
+          ['check all', 'toggle all'].forEach((bName) => {
+            const $btn =
+              $(`<button class="gwanchorOptionButton">${bName}</button>`);
+            $gwaOptionContainer.append($btn);
+            btns.push($btn);
+          });
+
+          $gwaOptionContainer.append($options);
+
+          const styleEl = document.createElement('style');
+          document.head.appendChild(styleEl);
+          const styleSheet = styleEl.sheet;
+
+          ['splitStemUpSE',
+            'splitStemUpSW',
+            'splitStemDownNE',
+            'splitStemDownNW',
+            'stemUpSE',
+            'stemDownNW',
+            'stemUpNW',
+            'stemDownSW',
+            'nominalWidth',
+            'numeralTop',
+            'numeralBottom',
+            'cutOutNE',
+            'cutOutSE',
+            'cutOutSW',
+            'cutOutNW',
+            'graceNoteSlashSW',
+            'graceNoteSlashNE',
+            'graceNoteSlashNW',
+            'graceNoteSlashSE',
+            'repeatOffset',
+            'noteheadOrigin',
+            'opticalCenter'].forEach((aName) => {
+            const sIdx = styleSheet.insertRule(`.${aName} {display: block}`, styleSheet.cssRules.length);
+            const $cbLabel = $(`<label class="gwanchorOption"><input type="checkbox" name="${aName}"
+                checked/>${aName}</label>`);
+            const $checkbox = $cbLabel.find('input');
+            checkboxes.push({
+              $checkbox,
+              onChange: () => {
+                styleSheet.cssRules[sIdx].style.display = $checkbox.prop('checked') ? 'block' : '';
+              },
+            });
+            $options.append($cbLabel);
+          });
+
           const glyphsWithAnchors = sMuFLMetadata.getFontInfo().fontMetadata.glyphsWithAnchors;
           Object.keys(glyphsWithAnchors).forEach(function (glyphname) {
             const glyph = glyphsWithAnchors[glyphname];
             const $gwaContainer = $(`<div class="gwanchorsContainer"></div>`);
             $contentContainer.append($gwaContainer);
             const $glyphContainer = $('<div class="glyphContainer"></div>');
-            appendGlyphname($glyphContainer, glyphname);
+            appendGlyphname($glyphContainer, glyphname, undefined, undefined, true);
             const $nbsp = '&nbsp;';
             $glyphContainer.append($nbsp);
             _$c_appendText($glyphContainer, Object.keys(glyph).join(', '));
             $gwaContainer.append($glyphContainer);
+            $gwaContainer.prop('class', Object.keys(glyph).concat('gwanchorsContainer').join(' '));
           });
         } catch (e) {
           console.log(e);
         }
+
+        $contentContainer.onAttachedToDom = () => {
+          btns.forEach(($btn, idx) => {
+            $btn.off('click');
+            $btn.on('click', () => {
+              $options.find('input').each((eIdx, elm) => {
+                if (!idx) {
+                  elm.checked = true;
+                } else {
+                  elm.checked = !elm.checked;
+                }
+                $(elm).change();
+              });
+            });
+          });
+
+          checkboxes.forEach(({$checkbox, onChange}) => {
+            $checkbox.off('change');
+            $checkbox.on('change', onChange);
+          });
+        };
       });
     });
 
-    $('#BStaticLink').on('click', function () {
+    $('#BCCStaticLink').on('click', function () {
       const key = 'static link';
       _$infoDialog_showModal(key, function ($contentContainer) {
         try {
           const $stlinkContainer = $(`<div class="stlinkContainer"></div>`);
           $contentContainer.append($stlinkContainer);
 
-          const $urlText = $(`<textarea class="urlText" readonly></textarea>`);
+          const $urlText = $(`<textarea class="urlText" readonly title=""></textarea>`);
           $stlinkContainer.append($urlText);
           $contentContainer.$urlText = $urlText;
 
@@ -1131,6 +1364,20 @@ class SMuFLFontViewer {
         }
       });
 
+      const $dom = _$infoDialog_contentDoms[key];
+      $dom.$urlText.text($aStatickLink.prop('href'));
+      $dom.$urlText.select();
+      document.execCommand('copy');
+    });
+
+    $infoDialog_closeButton.on('click', function () {
+      $infoDialog.get(0).close();
+      $contentContainer.empty();
+    });
+
+    let aStaticLinkTitle;
+    function updateStatickLink() {
+      aStaticLinkTitle = aStaticLinkTitle || $aStatickLink.prop('title');
       const params = new URLSearchParams(window.location.search);
       params.set('glyph', $codepointSelect.val());
       params.delete('showFontMetadata');
@@ -1146,17 +1393,24 @@ class SMuFLFontViewer {
       else {
         t.searchParams.delete('settings.cutOutOrigin_BBL');
       }
+      $aStatickLink.prop('href', t.href);
+      $aStatickLink.prop('title', `${aStaticLinkTitle}: ${params.get('glyph')}`);
+    }
 
-      const $dom = _$infoDialog_contentDoms[key];
-      $dom.$urlText.text(t.href);
-      $dom.$urlText.select();
-      document.execCommand('copy');
-    });
+    let aUULinkTitle;
+    function updateUUkLink() {
+      aUULinkTitle = aUULinkTitle || $aUULink.prop('title');
+      const params = new URLSearchParams();
+      params.set('a', $codepointSelect.val());
 
-    $infoDialog.find('input').on('click', function () {
-      $infoDialog.get(0).close();
-      $contentContainer.empty();
-    });
+      var t = new URL('https://util.unicode.org/UnicodeJsps/character.jsp');
+      params.forEach((value, key) => {
+        t.searchParams.set(key, value);
+      });
+
+      $aUULink.prop('href', t.href);
+      $aUULink.prop('title', `${aUULinkTitle}: ${params.get('a')}`);
+    }
 
     function anchorCsToScreenCsY(val, sbl) {
       return val * sbl * -1;
@@ -1193,34 +1447,34 @@ class SMuFLFontViewer {
       let vdir = 'TTB';
       types.forEach(function (type) {
         switch (type) {
-          case 'S':
-            y = vals.y;
-            h = scaledBBox.S - y;
-            vdir = 'BTT';
-            break;
-          case 'N':
-            h = vals.y - scaledBBox.N;
-            y = scaledBBox.N;
-            break;
-          case 'E':
-            w = scaledBBox.E - vals.x;
-            x = vals.x;
-            halign = 'R';
-            break;
-          case 'W':
-            w = vals.x - scaledBBox.W;
-            x = scaledBBox.W;
-            break;
-          case 'Width':
-          case 'Top':
-          case 'Bottom':
-          case 'Offset':
-          case 'Origin':
-          case 'Center':
-            break;
-          default:
-            console.warn('FIXME: ' + type);
-            break;
+        case 'S':
+          y = vals.y;
+          h = scaledBBox.S - y;
+          vdir = 'BTT';
+          break;
+        case 'N':
+          h = vals.y - scaledBBox.N;
+          y = scaledBBox.N;
+          break;
+        case 'E':
+          w = scaledBBox.E - vals.x;
+          x = vals.x;
+          halign = 'R';
+          break;
+        case 'W':
+          w = vals.x - scaledBBox.W;
+          x = scaledBBox.W;
+          break;
+        case 'Width':
+        case 'Top':
+        case 'Bottom':
+        case 'Offset':
+        case 'Origin':
+        case 'Center':
+          break;
+        default:
+          console.warn('FIXME: ' + type);
+          break;
         }
       });
       bbs[akey].vals = vals;
@@ -1404,7 +1658,7 @@ class SMuFLFontViewer {
       ctx.beginPath();
       ctx.rect(x, y, w, h);
       ctx.fill();
-      const cm = ctx.getTransform();
+      // const cm = ctx.getTransform();
       ctx.restore();
     }
 
@@ -1473,7 +1727,7 @@ class SMuFLFontViewer {
 
     function _renderSampleNoteheadAlignToNoteheadOrigin(noX, noY, noScaledBBox, engravingDefaults, bb) {
       const glyphData = _getGlyphData('noteheadWhole');
-      const m = _measureGlyph(glyphData, 0, 0, noScaledBBox.sbl);
+      // const m = _measureGlyph(glyphData, 0, 0, noScaledBBox.sbl);
 
       ctx.save();
       ctx.fillStyle = '#aaaaaaaa';
@@ -1539,8 +1793,10 @@ class SMuFLFontViewer {
     }
 
     function renderGlyph(glyphData) {
+      /*
       const codepoint = glyphData.codepoint;
       const glyphname = glyphData.glyphname;
+      */
       const anchor = glyphData.anchor;
       const repeatOffset = anchor ? anchor.repeatOffset : undefined;
       const engravingDefaults = sMuFLMetadata.fontMetadata().engravingDefaults;
@@ -1577,11 +1833,26 @@ class SMuFLFontViewer {
       ctx.fillStyle = '#444444cc';
       _renderGlyph(glyphData, x, y, fontSize);
 
+      if (rosgCpSelect) {
+        if ($(smuflGlyphHints_repatOffset3StateBoxElm).parent().is(':hidden')) {
+          rosgCpSelect.$codepointSelect_selectize.$control.hide();
+        } else {
+          if (smuflGlyphHints_repatOffset3StateBoxElm._3state == 2) {
+            rosgCpSelect.$codepointSelect_selectize.$control.show();
+          } else {
+            rosgCpSelect.$codepointSelect_selectize.$control.hide();
+          }
+        }
+      }
+
       if (_shouldDrawProp($smuflGlyphHints_repatOffset3StateBox.prop('checked'))) {
         ctx.save();
         if (repeatOffset) {
           ctx.fillStyle = '#44444477';
-          _renderGlyph(glyphData, x + (anchorCsToScreenCsX(repeatOffset[0], sbl)),
+          const tGlyphData = {
+            codepoint: getCodepointNumber(rosgCpSelect.$codepointSelect.val()),
+          };
+          _renderGlyph(tGlyphData, x + (anchorCsToScreenCsX(repeatOffset[0], sbl)),
             y + (anchorCsToScreenCsY(repeatOffset[1], sbl)), fontSize);
         }
         ctx.restore();
@@ -1728,7 +1999,7 @@ class SMuFLFontViewer {
       var codepoint = getCodepointNumber();
       if (isNaN(codepoint)) {
         const cval = getCodepoint();
-        const glyphData = _getGlyphData(cval);
+        // const glyphData = _getGlyphData(cval);
         const option0 = { searchOptional: true };
         const uCp = sMuFLMetadata.glyphname2uCodepoint(cval, option0);
         if (uCp) {
@@ -1742,7 +2013,7 @@ class SMuFLFontViewer {
       const glyphname = sMuFLMetadata.uCodepoint2Glyphname(uCodepoint, option1);
 
       $smuflGlyphInfoText.empty();
-      appendGlyphname($smuflGlyphInfoText, glyphname, glyphname, uCodepoint);
+      appendGlyphname($smuflGlyphInfoText, glyphname, glyphname || uCodepoint, uCodepoint);
       _$c_appendText($smuflGlyphInfoText, '\n');
       let glyphnameData = sMuFLMetadata.data.glyphnames[glyphname];
       const optionalGlyphs = sMuFLMetadata.fontMetadata().optionalGlyphs;
@@ -1750,7 +2021,7 @@ class SMuFLFontViewer {
 
       if (!glyphnameData) {
         _$c_appendText($smuflGlyphInfoText, 'codepoint: ');
-        appendCodepointOrText($smuflGlyphInfoText, uCodepoint);
+        appendCodepointOrText($smuflGlyphInfoText, uCodepoint, uCodepoint);
         appendAlternateCodepointFors($smuflGlyphInfoText, uCodepoint);
       }
       else {
@@ -1759,7 +2030,7 @@ class SMuFLFontViewer {
           if (key !== 'classes') {
             _$c_appendText($smuflGlyphInfoText,
               key + ': ');
-            appendCodepointOrText($smuflGlyphInfoText, glyphnameData[key]);
+            appendCodepointOrText($smuflGlyphInfoText, glyphnameData[key], uCodepoint);
             _$c_appendText($smuflGlyphInfoText, '\n');
           }
         }
@@ -1784,6 +2055,7 @@ class SMuFLFontViewer {
       }
 
       if (!tRange) {
+        // eslint-disable-next-line no-undef
         const tGlyph = smuFLFontViewer.sMuFLMetadata.getFontInfo().glyphsByUCodepoint[uCodepoint];
         if (tGlyph && tGlyph.isOptionalGlyph) {
           tRange = {
@@ -1812,8 +2084,8 @@ class SMuFLFontViewer {
           _$c_appendText($rangeInfo, tRange.key);
         }
         else {
-          const $aDom = $(`<a href="https://w3c.github.io/smufl/gitbook/tables/${filename}.html"
-  target="_smuflfontvierer_rangeItem_" title="${tRange.key} range spec">${tRange.key}</a>`);
+          const $aDom = $(`<a href="https://w3c.github.io/smufl/latest/tables/${filename}.html"
+ title="${tRange.key} range spec">${tRange.key}</a>`);
           $rangeInfo.append($aDom);
         }
 
@@ -1846,11 +2118,16 @@ class SMuFLFontViewer {
       $alternatesInfo.empty();
       let alternates = sMuFLMetadata.fontMetadata().glyphsWithAlternates;
       let baseGlyphnames = [];
-      if (option1.isOptionalGlyph) {
+      if (option1.isOptionalGlyph || !glyphname) {
         if (fontInfo) {
           const glyph = fontInfo.glyphsByUCodepoint[uCodepoint];
           if (glyph || fontInfo.glyphsWithAlternates) {
             const alternateFors = fontInfo.alternateFors[glyph.glyphname];
+            if (alternateFors) {
+              baseGlyphnames = alternateFors;
+            }
+          } else if (fontInfo.alternateFors) {
+            const alternateFors = fontInfo.alternateFors[uCodepoint];
             if (alternateFors) {
               baseGlyphnames = alternateFors;
             }
@@ -1863,7 +2140,7 @@ class SMuFLFontViewer {
 
       baseGlyphnames.forEach(function (baseGlyphname) {
         const tAalternates = alternates ? alternates[baseGlyphname] : undefined;
-        addAlternatesInfo($alternatesInfo, tAalternates, baseGlyphname, glyphname);
+        addAlternatesInfo($alternatesInfo, tAalternates, baseGlyphname, glyphname, uCodepoint);
       });
 
       const classes = sMuFLMetadata.getFontInfo().computedClasses.classes;
@@ -1899,7 +2176,7 @@ class SMuFLFontViewer {
       const ligatures = sMuFLMetadata.fontMetadata().ligatures;
       const ligature = ligatures ? ligatures[glyphname] : undefined;
 
-      addLigatureInfo($ligaturesInfo, `ligatures: `, ligature, glyphname);
+      addLigatureInfo($ligaturesInfo, `ligatures: `, ligature, glyphname, glyphname);
 
       $setsInfo.empty();
       if (fontInfo) {
@@ -1928,7 +2205,7 @@ class SMuFLFontViewer {
             _$c_appendText($setInfo, `, alternateFor: `);
             appendGlyphname($setInfo, item.glyph.alternateFor, glyphname);
             _$c_appendText($setInfo, `, codepoint: `);
-            appendCodepointOrText($setInfo, item.glyph.codepoint);
+            appendCodepointOrText($setInfo, item.glyph.codepoint, uCodepoint);
             _$c_appendText($setInfo, `, description: ${item.glyph.description}`);
             _$c_appendText($setInfo, `, name: `);
             appendGlyphname($setInfo, item.glyph.name, glyphname);
@@ -1969,6 +2246,9 @@ class SMuFLFontViewer {
       window.setTimeout(function () {
         document.firstElementChild.scrollIntoView(true);
       });
+
+      updateStatickLink();
+      updateUUkLink();
     }
 
     const resources = {
@@ -1998,12 +2278,14 @@ class SMuFLFontViewer {
       rangeItems.push(dictItem);
 
       const optRange = sMuFLMetadata.getFontInfo().optRange;
-      dictItem = rangeItemDic[optRange.description] = {
-        value: optRange.description,
-        name: optRange.description,
-        codepoint: sMuFLMetadata.uCodepoint2Codepoint(optRange.range_start)
-      };
-      rangeItems.push(dictItem);
+      if (optRange.range_start) {
+        dictItem = rangeItemDic[optRange.description] = {
+          value: optRange.description,
+          name: optRange.description,
+          codepoint: sMuFLMetadata.uCodepoint2Codepoint(optRange.range_start)
+        };
+        rangeItems.push(dictItem);
+      }
 
       for (const rk in ranges) {
         const range = ranges[rk];
@@ -2029,7 +2311,8 @@ class SMuFLFontViewer {
         },
         onBlur: function () {
           if (!$rangeSelect_selectize.getValue().length) {
-            $rangeSelect_selectize.setValue($rangeSelect_selectize.currentValue_, true);
+            $rangeSelect_selectize.setValue($rangeSelect_selectize.currentValue_,
+              true /*silent: no changed event*/);
           }
         }
       });
@@ -2038,21 +2321,31 @@ class SMuFLFontViewer {
       const settings_cutOutOrigin_BBL = params.get('settings.cutOutOrigin_BBL') === 'true';
       $smuflGlyphHints_cutOutOrigin_BBL.prop('checked', settings_cutOutOrigin_BBL);
 
-      let glyph = params.get('glyph') || 'E0A3';
+      const fontMetadata = sMuFLMetadata.fontMetadata();
+
+      $('#BOptionalGlyphs').prop('disabled', !fontMetadata.optionalGlyphs);
+      $('#BFontMetadataLigatures').prop('disabled', !fontMetadata.ligatures);
+      $('#BFontMetadataSets').prop('disabled', !fontMetadata.sets);
+      $('#BFontMetadataGlyphsWithAnchors').prop('disabled', !fontMetadata.glyphsWithAnchors);
+      $('#BFontMetadataGlyphsWithAlternates').prop('disabled', !fontMetadata.glyphsWithAlternates);
+
+      let glyph = params.get('glyph');
       if (glyph) {
         var gd = _getGlyphData(glyph);
         if (!isNaN(gd.codepoint)) {
           glyph = formatCodepointNumber(gd.codepoint);
         }
         else {
-          glyph = glyph.toUpperCase();
+          glyph = $codepointSelect_selectize.onType(glyph, true);
         }
-        $codepointSelect_selectize.setValue(glyph);
       }
+      $codepointSelect_selectize.setValue(glyph || 'E0A3');
 
       _postDraw();
       if (options.has('showFontMetadata')) {
         $('#BFontMetadata').click();
+      } else if (options.has('showGlyphsWithAnchors')) {
+        $('#BFontMetadataGlyphsWithAnchors').click();
       }
     };
 

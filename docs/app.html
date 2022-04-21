@@ -104,8 +104,12 @@
       line-height: 1.5em;
     }
 
-    span.optionalGlyph {
+    span.optionalGlyph, span.unknownOptionalGlyph {
       background-color: eef9ee;
+    }
+
+    span.unknownOptionalGlyph {
+      text-decoration: line-through;
     }
 
     span.currentGlyph {
@@ -221,8 +225,12 @@
       padding: 1em;
     }
 
+    .fontMetadataContainer {
+      width: calc(100vw - 50px);
+    }
+
     #gm_canvas {
-      width: 100%;
+      width: 2500px;
       height: 1900px;
     }
 
@@ -262,11 +270,53 @@
 
     #scratchpadDialog textarea {
       margin-top: 0.5em;
+      color: rgba(0, 0, 0, 0.6);
+    }
+
+    .aLinkContainer {
+      border: solid 1px gray;
+      padding: 0.1em;
+      border-radius: 0.2em;
+      display: inline-block;
+    }
+
+    .gwanchorsContainer {
+      display: none;
+    }
+
+    .gwanchorsOptionContainer {
+      padding: 5px 10px;
+      margin-top: 10px;
+      position: fixed;
+      overflow: hidden;
+      top: 0;
+      z-index: 102;
+      border-radius: 1em;
+      background-color: #e0e0e0;
+    }
+    .gwanchorsOptionContainer:hover {
+      padding: 10px;
+      height: auto;
+      width: calc(100vw - 70px);
+      margin: 10px;
+      margin-left: auto;
+      box-shadow: 10px 10px 10px rgba(0,0,0,0.4);
+    }
+
+    .gwanchorsOptionContainer * {
+      display: none;
+    }
+    .gwanchorsOptionContainer:hover * {
+      display: inline-block;
+    }
+
+    .gwanchorOption {
+      white-space: nowrap;
     }
   </style>
 
   <style type="text/css" media="print">
-    #dialogUi {
+    #dialogUi, .gwanchorsOptionContainer {
       display: none;
     }
 
@@ -308,7 +358,13 @@
       <input id="BFontMetadataGlyphsWithAlternates" type="button" title="Show font metadata glyphsWithAlternates"
         value="glyphsWithAlternates">
       <input id="BFontMetadataGlyphsWithAnchors" type="button" title="Show font metadata glyphsWithAnchors" value="glyphsWithAnchors">
-      <input id="BStaticLink" type="button" title="copy static link url to clipboard" value="static link">
+      <div id="staticLinkContainer" class="aLinkContainer">
+        <a id="AStaticLink" href="#" title="static link to the current glyph">static link</a>
+        <input id="BCCStaticLink" type="button" title="Copy the URL of the static link to the clipboard" value="cc">
+      </div>
+      <div id="UULinkContainer" class="aLinkContainer">
+        <a id="AUULink" href="#" title="link to the current glyph in util.unicode.org: Character Properties">Unicode Character Properties</a>
+      </div>
     </div>
     <div id="smuflGlyphContainer">
       <div id="glyphContainer">
@@ -323,7 +379,7 @@
           <div class="controls">
             <input type="button" value="insert" title="insert current glyph"></input>
             <label id="scrachpadGlyphSizeSliderContainer"><input id="scrachpadGlyphSizeSlider"
-            type="range" min="10" max="200" value="100"><span><span></label>
+            type="range" min="10" max="600" value="100"><span><span></label>
           </div>
           <textarea class="smufl"></textarea>
           <div>
@@ -348,6 +404,10 @@
         <label title="staff lines: All glyphs should be drawn at a scale consistent with the key measurement that one staff space = 0.25 em"><input id="smuflRenderGlyphOptionsSl" type="checkbox" checked />sl</label>
         <label title="glyph bounding box"><input id="smuflRenderGlyphOptionsBbox" type="checkbox" checked />bbox<span
             class="val"></span></label>
+        <label id="smuflRenderGlyphOptionsGlyphSizeContainer">glyph size: <input id="smuflRenderGlyphOptionsGlyphSize"
+            type="range" min="30" max="1000" value="200"><span><span></label>
+        <button id="smuflRenderGlyphOptionsResetGlyphSize" type="button" title="reset glyhp size">s</button>
+        <button id="smuflRenderGlyphOptionsResetScrollPosition" type="button" title="reset scroll position">p</button>
       </div>
       <div id="smuflGlyphHints">
         <label title="The exact position at which the bottom left-hand (south-west) corner of an angled upward-pointing stem connecting the left-hand side of a notehead to a vertical stem to its right should start, relative to the glyph origin, expressed as Cartesian coordinates in staff spaces."><input
@@ -415,7 +475,7 @@
 
   <div id="referencesContainer">References:
     <ul>
-      <li><a href="https://w3c.github.io/smufl/gitbook/">w3c.github.io/smufl/gitbook</a></li>
+      <li><a href="https://w3c.github.io/smufl/latest/">w3c.github.io/smufl/latest</a></li>
       <li><a href="https://github.com/steinbergmedia/smufl">github.com/steinbergmedia/smufl</a></li>
     </ul>
   </div>
