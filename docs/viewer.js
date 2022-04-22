@@ -321,7 +321,9 @@ class SMuFLFontViewer {
 
         if (this._on3StateChange) {
           if (isNaN(this._autoToggleValue)) {
-            this._autoToggleValue = this._3state;
+            if (this._3state) {
+              this._autoToggleValue = this._3state;
+            }
             this._3state = this._3state ? 0 : 1;
           } else {
             this._3state = this._3state ? 0 : this._autoToggleValue;
