@@ -414,6 +414,11 @@
           <label title="hide all properties"><input class="manualToggle" id="smuflRenderGlyphOptionsHideAll"
               type="checkbox" />hide</label>
           <button id="smuflRenderGlyphOptionsToggleAll" title="tollge all properties" type="checkbox">toggle</button>
+          <label title="cutOut anchor points are relative to the:
+        unchecked: glyph origin.
+        checked: bottom left-hand corner of the glyph bounding box(old spec).
+        "><input class="propOption" class="manualToggle" type="checkbox" />cutOutOrigin_BBL<span
+              class="val"></span></label>
         </div>
       </div>
       <div id="smuflGlyphUIContainer">
@@ -471,11 +476,6 @@
           <label
             title="The Cartesian coordinates in staff spaces of the top left corner of a nominal rectangle that intersects the bottom right corner of the glyph's bounding box."><input
               type="checkbox" />cutOutSE<span class="val"></span></label>
-          <label title="cutOut anchor points are relative to the:
-        unchecked: glyph origin.
-        checked: bottom left-hand corner of the glyph bounding box(old spec).
-        "><input class="propOption" class="manualToggle" type="checkbox" />cutOutOrigin_BBL<span
-              class="val"></span></label>
           <label
             title="The Cartesian coordinates in staff spaces of the position at which the glyph graceNoteSlashStemUp should be positioned relative to the stem-up flag of an unbeamed grace note; alternatively, the bottom left corner of a diagonal line drawn instead of using the above glyph."><input
               type="checkbox" />graceNoteSlashSW<span class="val"></span></label>
