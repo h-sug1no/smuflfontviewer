@@ -53,8 +53,13 @@
       display: inline-block;
     }
 
-    #smuflGlyphUIContainer.hideall {
+    #smuflGlyphUIContainer.hideall label:not(.nohideall) {
       opacity: 0.5;
+    }
+
+    #smuflGlyphUIContainer .cutOutOrigin_BBL {
+      display: block;
+      margin-top: 1em;
     }
 
     #smuflGlyphInfo {
@@ -414,11 +419,6 @@
           <label title="hide all properties"><input class="manualToggle" id="smuflRenderGlyphOptionsHideAll"
               type="checkbox" />hide</label>
           <button id="smuflRenderGlyphOptionsToggleAll" title="tollge all properties" type="checkbox">toggle</button>
-          <label title="cutOut anchor points are relative to the:
-        unchecked: glyph origin.
-        checked: bottom left-hand corner of the glyph bounding box(old spec).
-        "><input class="propOption" class="manualToggle" type="checkbox" />cutOutOrigin_BBL<span
-              class="val"></span></label>
         </div>
       </div>
       <div id="smuflGlyphUIContainer">
@@ -497,6 +497,11 @@
           <label
             title="The Cartesian coordinates in staff spaces of the optical center of the glyph, to assist in the correct horizontal alignment of the glyph relative to a notehead or stem. Currently recommended for use with glyphs in the Dynamics range."><input
               type="checkbox" />opticalCenter<span class="val"></span></label>
+          <label class="nohideall cutOutOrigin_BBL" title="cutOut anchor points are relative to the:
+              unchecked: glyph origin.
+              checked: bottom left-hand corner of the glyph bounding box(old spec).
+              "><input class="propOption manualToggle" type="checkbox" />cutOutOrigin_BBL<span
+              class="val"></span></label>
         </div>
         <div id="smuflGlyphHintsOptions">
         </div>
