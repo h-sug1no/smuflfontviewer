@@ -271,6 +271,7 @@ class SMuFLFontViewer {
 
     const $smuflRenderGlyphOptionsResetScrollPosition = $('#smuflRenderGlyphOptionsResetScrollPosition');
     const $smuflRenderGlyphOptionsHideAll = $('#smuflRenderGlyphOptionsHideAll');
+    const $smuflGlyphUIContainer = $('#smuflGlyphUIContainer');
     const $smuflRenderGlyphOptionsToggleAll = $('#smuflRenderGlyphOptionsToggleAll');
 
     $smuflRenderGlyphOptionsToggleAll.on('click', function() {
@@ -667,7 +668,8 @@ class SMuFLFontViewer {
       renderGlyph(currentGlyphData);
     });
 
-    $smuflRenderGlyphOptionsHideAll.on('change', function() {
+    $smuflRenderGlyphOptionsHideAll.on('change', function(e) {
+      $smuflGlyphUIContainer.toggleClass('hideall', e.target.checked);
       renderGlyph(currentGlyphData);;
     })
 
