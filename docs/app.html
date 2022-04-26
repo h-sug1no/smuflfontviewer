@@ -3,10 +3,9 @@
 <head>
   <meta name="copyright" content="Copyright (c) 2019 h-sug1no">
   <title>SMuFL font viewer</title>
-  <link rel="icon"
-      type="image/png"
-      href="images/favicon.png">
-  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.default.css">
+  <link rel="icon" type="image/png" href="images/favicon.png">
+  <link rel="stylesheet" type="text/css"
+    href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.default.css">
   <style>
     /*
     @font-face {
@@ -54,23 +53,49 @@
       display: inline-block;
     }
 
+    #smuflGlyphUIContainer.hideall label:not(.nohideall) {
+      opacity: 0.5;
+    }
+
+    .generalUI {
+      margin-top: 0.5em;
+      margin-bottom: 0.5em;
+      padding-bottom: 0.5em;
+      border-bottom: solid 1px black;
+    }
+
+    .propsUI {
+      display: inline-block;
+      margin-left: 0.5em;
+    }
+
+    #smuflGlyphUIContainer .cutOutOrigin_BBL {
+      display: block;
+      border-top: solid 1px black;
+      padding-top: 0.5em;
+      margin-top: 0.5em;
+    }
+
     #smuflGlyphInfo {
       width: 40%;
       float: left;
       padding-left: 2em;
     }
 
-    #smuflGlyphInfo > div{
+    #smuflGlyphInfo>div {
       white-space: pre-wrap;
       margin-top: 1em;
     }
 
-    .setContainer, .rangeContainer, .classContainer {
+    .setContainer,
+    .rangeContainer,
+    .classContainer {
       white-space: pre-wrap;
       padding-top: 1em;
     }
 
-    .ligatureContainer, .gwalternatesContainer {
+    .ligatureContainer,
+    .gwalternatesContainer {
       white-space: pre-wrap;
     }
 
@@ -104,7 +129,8 @@
       line-height: 1.5em;
     }
 
-    span.optionalGlyph, span.unknownOptionalGlyph {
+    span.optionalGlyph,
+    span.unknownOptionalGlyph {
       background-color: eef9ee;
     }
 
@@ -129,7 +155,8 @@
       clear: both;
     }
 
-    #smuflGlyphInfo div, .glyphContainer {
+    #smuflGlyphInfo div,
+    .glyphContainer {
       background-color: #eeeef0;
       border-radius: 1em;
       padding: 0.5em;
@@ -144,7 +171,7 @@
       vertical-align: middle;
     }
 
-    #setsInfo .setInfosContainer{
+    #setsInfo .setInfosContainer {
       overflow: scroll;
       height: 11em;
     }
@@ -165,7 +192,7 @@
       display: none;
     }
 
-    body.fakeDialogVisible #rootContainer.fakeDialog > * {
+    body.fakeDialogVisible #rootContainer.fakeDialog>* {
       display: none;
     }
 
@@ -294,18 +321,20 @@
       border-radius: 1em;
       background-color: #e0e0e0;
     }
+
     .gwanchorsOptionContainer:hover {
       padding: 10px;
       height: auto;
       width: calc(100vw - 70px);
       margin: 10px;
       margin-left: auto;
-      box-shadow: 10px 10px 10px rgba(0,0,0,0.4);
+      box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.4);
     }
 
     .gwanchorsOptionContainer * {
       display: none;
     }
+
     .gwanchorsOptionContainer:hover * {
       display: inline-block;
     }
@@ -316,10 +345,10 @@
   </style>
 
   <style type="text/css" media="print">
-    #dialogUi, .gwanchorsOptionContainer {
+    #dialogUi,
+    .gwanchorsOptionContainer {
       display: none;
     }
-
   </style>
 
   <script src="https://code.jquery.com/jquery-2.1.0.js"></script>
@@ -338,12 +367,13 @@
 </head>
 
 <body onload="javascript:smuFLFontViewer.init(searchParams)">
-  
+
   <div id="rootContainer">
 
     <div id="infoDialog">
       <div id="dialogUi">
-        <input type="button" class="closeButton" title="close(w)" value="close"><div id="dialogTitle"></div>
+        <input type="button" class="closeButton" title="close(w)" value="close">
+        <div id="dialogTitle"></div>
       </div>
       <div id="contentContainer"></div>
     </div>
@@ -357,13 +387,15 @@
       <input id="BFontMetadataSets" type="button" title="Show font metadata sets" value="sets">
       <input id="BFontMetadataGlyphsWithAlternates" type="button" title="Show font metadata glyphsWithAlternates"
         value="glyphsWithAlternates">
-      <input id="BFontMetadataGlyphsWithAnchors" type="button" title="Show font metadata glyphsWithAnchors" value="glyphsWithAnchors">
+      <input id="BFontMetadataGlyphsWithAnchors" type="button" title="Show font metadata glyphsWithAnchors"
+        value="glyphsWithAnchors">
       <div id="staticLinkContainer" class="aLinkContainer">
         <a id="AStaticLink" href="#" title="static link to the current glyph">static link</a>
         <input id="BCCStaticLink" type="button" title="Copy the URL of the static link to the clipboard" value="cc">
       </div>
       <div id="UULinkContainer" class="aLinkContainer">
-        <a id="AUULink" href="#" title="link to the current glyph in util.unicode.org: Character Properties">Unicode Character Properties</a>
+        <a id="AUULink" href="#" title="link to the current glyph in util.unicode.org: Character Properties">Unicode
+          Character Properties</a>
       </div>
     </div>
     <div id="smuflGlyphContainer">
@@ -378,8 +410,8 @@
         <div id="scratchpadDialog" class="hidden">
           <div class="controls">
             <input type="button" value="insert" title="insert current glyph"></input>
-            <label id="scrachpadGlyphSizeSliderContainer"><input id="scrachpadGlyphSizeSlider"
-            type="range" min="10" max="600" value="100"><span><span></label>
+            <label id="scrachpadGlyphSizeSliderContainer"><input id="scrachpadGlyphSizeSlider" type="range" min="10"
+                max="600" value="100"><span><span></label>
           </div>
           <textarea class="smufl"></textarea>
           <div>
@@ -392,66 +424,101 @@
         <canvas id="smuflGlyphCanvas" width="2048" height="2048">
         </canvas>
       </div>
-      <div id="smuflRenderGlyphOptions">
-        <label title="glyph origin"><input id="smuflRenderGlyphOptionsOrigin" type="checkbox" checked />origin</label>
-        <label title="staff lines: All glyphs should be drawn at a scale consistent with the key measurement that one staff space = 0.25 em"><input id="smuflRenderGlyphOptionsSl" type="checkbox" checked />sl</label>
-        <label title="glyph bounding box"><input id="smuflRenderGlyphOptionsBbox" type="checkbox" checked />bbox<span
-            class="val"></span></label>
+      <div class="generalUI">
         <label id="smuflRenderGlyphOptionsGlyphSizeContainer">glyph size: <input id="smuflRenderGlyphOptionsGlyphSize"
             type="range" min="30" max="1000" value="200"><span><span></label>
-        <button id="smuflRenderGlyphOptionsResetGlyphSize" type="button" title="reset glyhp size">s</button>
+        <button id="smuflRenderGlyphOptionsResetGlyphSize" type="button" title="reset glyph size">s</button>
         <button id="smuflRenderGlyphOptionsResetScrollPosition" type="button" title="reset scroll position">p</button>
+        <div class="propsUI">
+          <label title="hide all properties"><input class="manualToggle" id="smuflRenderGlyphOptionsHideAll"
+              type="checkbox" />hide</label>
+          <button id="smuflRenderGlyphOptionsToggleAll" title="toggle all properties" type="checkbox">t</button>
+        </div>
       </div>
-      <div id="smuflGlyphHints">
-        <label title="The exact position at which the bottom left-hand (south-west) corner of an angled upward-pointing stem connecting the left-hand side of a notehead to a vertical stem to its right should start, relative to the glyph origin, expressed as Cartesian coordinates in staff spaces."><input
-            type="checkbox" />splitStemUpSW<span class="val"></span></label>
-        <label title="The exact position at which the bottom right-hand (south-east) corner of an angled upward-pointing stem connecting the right-hand side of a notehead to a vertical stem to its left should start, relative to the glyph origin, expressed as Cartesian coordinates in staff spaces."><input
-            type="checkbox" />splitStemUpSE<span class="val"></span></label>
-        <label title="The exact position at which the top left-hand (north-west) corner of an angled downward-pointing stem connecting the left-hand side of a notehead to a vertical stem to its right should start, relative to the glyph origin, expressed as Cartesian coordinates in staff spaces."><input
-            type="checkbox" />splitStemDownNW<span class="val"></span></label>
-        <label title="The exact position at which the top right-hand (north-east) corner of an angled downward-pointing stem connecting the right-hand side of a notehead to a vertical stem to its left should start, relative to the glyph origin, expressed as Cartesian coordinates in staff spaces."><input
-            type="checkbox" />splitStemDownNE<span class="val"></span></label>
-        <label title="The amount by which an up-stem should be lengthened from its nominal unmodified length in order to ensure a good connection with a flag, in spaces.11"><input
-            type="checkbox" />stemUpNW<span class="val"></span></label>
-        <label title="The exact position at which the top left-hand (north-west) corner of a downward-pointing stem rectangle should start, relative to the glyph origin, expressed as Cartesian coordinates in staff spaces."><input
-            type="checkbox" />stemDownNW<span class="val"></span></label>
-        <label title="The exact position at which the bottom right-hand (south-east) corner of an upward-pointing stem rectangle should start, relative to the glyph origin, expressed as Cartesian coordinates in staff spaces."><input
-            type="checkbox" />stemUpSE<span class="val"></span></label>
-        <label title="The amount by which a down-stem should be lengthened from its nominal unmodified length in order to ensure a good connection with a flag, in spaces."><input
-            type="checkbox" />stemDownSW<span class="val"></span></label>
-        <label title="The width in staff spaces of a given glyph that should be used for e.g. positioning leger lines correctly.12"><input
-            type="checkbox" />nominalWidth<span class="val"></span></label>
-        <label title="The position in staff spaces that should be used to position numerals relative to clefs with ligated numbers where those numbers hang from the bottom of the clef, corresponding horizontally to the center of the numeral's bounding box."><input
-            type="checkbox" />numeralTop<span class="val"></span></label>
-        <label title="The position in staff spaces that should be used to position numerals relative to clefs with ligatured numbers where those numbers sit on the baseline or at the north-east corner of the G clef, corresponding horizontally to the center of the numeral's bounding box."><input
-            type="checkbox" />numeralBottom<span class="val"></span></label>
-        <label title="The Cartesian coordinates in staff spaces of the bottom right corner of a nominal rectangle that intersects the top left corner of the glyph's bounding box."><input
-            type="checkbox" />cutOutNW<span class="val"></span></label>
-        <label title="The Cartesian coordinates in staff spaces of the bottom left corner of a nominal rectangle that intersects the top right corner of the glyph's bounding box. This rectangle, together with those in the other four corners of the glyph's bounding box, can be cut out to produce a more detailed bounding box (of abutting rectangles), useful for kerning or interlocking symbols such as accidentals."><input
-            type="checkbox" />cutOutNE<span class="val"></span></label>
-        <label title="The Cartesian coordinates in staff spaces of the top right corner of a nominal rectangle that intersects the bottom left corner of the glyph's bounding box."><input
-            type="checkbox" />cutOutSW<span class="val"></span></label>
-        <label title="The Cartesian coordinates in staff spaces of the top left corner of a nominal rectangle that intersects the bottom right corner of the glyph's bounding box."><input
-            type="checkbox" />cutOutSE<span class="val"></span></label>
-        <label title="cutOut anchor points are relative to the:
-        unchecked: glyph origin.
-        checked: bottom left-hand corner of the glyph bounding box(old spec).
-        "><input
-            type="checkbox" />cutOutOrigin_BBL<span class="val"></span></label>
-        <label title="The Cartesian coordinates in staff spaces of the position at which the glyph graceNoteSlashStemUp should be positioned relative to the stem-up flag of an unbeamed grace note; alternatively, the bottom left corner of a diagonal line drawn instead of using the above glyph."><input
-            type="checkbox" />graceNoteSlashSW<span class="val"></span></label>
-        <label title="The Cartesian coordinates in staff spaces of the top right corner of a diagonal line drawn instead of using the glyph graceNoteSlashStemUp for a stem-up flag of an unbeamed grace note."><input
-            type="checkbox" />graceNoteSlashNE<span class="val"></span></label>
-        <label title="The Cartesian coordinates in staff spaces of the position at which the glyph graceNoteSlashStemDown should be positioned relative to the stem-down flag of an unbeamed grace note; alternatively, the top left corner of a diagonal line drawn instead of using the above glyph."><input
-            type="checkbox" />graceNoteSlashNW<span class="val"></span></label>
-        <label title="The Cartesian coordinates in staff spaces of the bottom right corner of a diagonal line drawn instead of using the glyph graceNoteSlashStemDown for a stem-down flag of an unbeamed grace note."><input
-            type="checkbox" />graceNoteSlashSE<span class="val"></span></label>
-        <label title="The Cartesian coordinates in staff spaces of the horizontal position at which a glyph repeats, i.e. the position at which the same glyph or another of the same group should be positioned to ensure correct tessellation. This is used for e.g. multi-segment lines and the component glyphs that make up trills and mordents."><input
-            type="checkbox" />repeatOffset<span class="val"></span></label>
-        <label title="The Cartesian coordinates in staff spaces of the left-hand edge of a notehead with a non-zero left-hand side bearing (e.g. a double whole, or breve, notehead with two vertical lines at each side), to assist in the correct horizontal alignment of these noteheads with other noteheads with zero-width left-side bearings."><input
-            type="checkbox" />noteheadOrigin<span class="val"></span></label>
-        <label title="The Cartesian coordinates in staff spaces of the optical center of the glyph, to assist in the correct horizontal alignment of the glyph relative to a notehead or stem. Currently recommended for use with glyphs in the Dynamics range."><input
-            type="checkbox" />opticalCenter<span class="val"></span></label>
+      <div id="smuflGlyphUIContainer">
+        <div id="smuflRenderGlyphOptions">
+          <label title="glyph origin"><input id="smuflRenderGlyphOptionsOrigin" type="checkbox" checked />origin</label>
+          <label
+            title="staff lines: All glyphs should be drawn at a scale consistent with the key measurement that one staff space = 0.25 em"><input
+              id="smuflRenderGlyphOptionsSl" type="checkbox" checked />sl</label>
+          <label title="glyph bounding box"><input id="smuflRenderGlyphOptionsBbox" type="checkbox" checked />bbox<span
+              class="val"></span></label>
+        </div>
+        <div id="smuflGlyphHints">
+          <label
+            title="The exact position at which the bottom left-hand (south-west) corner of an angled upward-pointing stem connecting the left-hand side of a notehead to a vertical stem to its right should start, relative to the glyph origin, expressed as Cartesian coordinates in staff spaces."><input
+              type="checkbox" />splitStemUpSW<span class="val"></span></label>
+          <label
+            title="The exact position at which the bottom right-hand (south-east) corner of an angled upward-pointing stem connecting the right-hand side of a notehead to a vertical stem to its left should start, relative to the glyph origin, expressed as Cartesian coordinates in staff spaces."><input
+              type="checkbox" />splitStemUpSE<span class="val"></span></label>
+          <label
+            title="The exact position at which the top left-hand (north-west) corner of an angled downward-pointing stem connecting the left-hand side of a notehead to a vertical stem to its right should start, relative to the glyph origin, expressed as Cartesian coordinates in staff spaces."><input
+              type="checkbox" />splitStemDownNW<span class="val"></span></label>
+          <label
+            title="The exact position at which the top right-hand (north-east) corner of an angled downward-pointing stem connecting the right-hand side of a notehead to a vertical stem to its left should start, relative to the glyph origin, expressed as Cartesian coordinates in staff spaces."><input
+              type="checkbox" />splitStemDownNE<span class="val"></span></label>
+          <label
+            title="The amount by which an up-stem should be lengthened from its nominal unmodified length in order to ensure a good connection with a flag, in spaces.11"><input
+              type="checkbox" />stemUpNW<span class="val"></span></label>
+          <label
+            title="The exact position at which the top left-hand (north-west) corner of a downward-pointing stem rectangle should start, relative to the glyph origin, expressed as Cartesian coordinates in staff spaces."><input
+              type="checkbox" />stemDownNW<span class="val"></span></label>
+          <label
+            title="The exact position at which the bottom right-hand (south-east) corner of an upward-pointing stem rectangle should start, relative to the glyph origin, expressed as Cartesian coordinates in staff spaces."><input
+              type="checkbox" />stemUpSE<span class="val"></span></label>
+          <label
+            title="The amount by which a down-stem should be lengthened from its nominal unmodified length in order to ensure a good connection with a flag, in spaces."><input
+              type="checkbox" />stemDownSW<span class="val"></span></label>
+          <label
+            title="The width in staff spaces of a given glyph that should be used for e.g. positioning leger lines correctly.12"><input
+              type="checkbox" />nominalWidth<span class="val"></span></label>
+          <label
+            title="The position in staff spaces that should be used to position numerals relative to clefs with ligated numbers where those numbers hang from the bottom of the clef, corresponding horizontally to the center of the numeral's bounding box."><input
+              type="checkbox" />numeralTop<span class="val"></span></label>
+          <label
+            title="The position in staff spaces that should be used to position numerals relative to clefs with ligatured numbers where those numbers sit on the baseline or at the north-east corner of the G clef, corresponding horizontally to the center of the numeral's bounding box."><input
+              type="checkbox" />numeralBottom<span class="val"></span></label>
+          <label
+            title="The Cartesian coordinates in staff spaces of the bottom right corner of a nominal rectangle that intersects the top left corner of the glyph's bounding box."><input
+              type="checkbox" />cutOutNW<span class="val"></span></label>
+          <label
+            title="The Cartesian coordinates in staff spaces of the bottom left corner of a nominal rectangle that intersects the top right corner of the glyph's bounding box. This rectangle, together with those in the other four corners of the glyph's bounding box, can be cut out to produce a more detailed bounding box (of abutting rectangles), useful for kerning or interlocking symbols such as accidentals."><input
+              type="checkbox" />cutOutNE<span class="val"></span></label>
+          <label
+            title="The Cartesian coordinates in staff spaces of the top right corner of a nominal rectangle that intersects the bottom left corner of the glyph's bounding box."><input
+              type="checkbox" />cutOutSW<span class="val"></span></label>
+          <label
+            title="The Cartesian coordinates in staff spaces of the top left corner of a nominal rectangle that intersects the bottom right corner of the glyph's bounding box."><input
+              type="checkbox" />cutOutSE<span class="val"></span></label>
+          <label
+            title="The Cartesian coordinates in staff spaces of the position at which the glyph graceNoteSlashStemUp should be positioned relative to the stem-up flag of an unbeamed grace note; alternatively, the bottom left corner of a diagonal line drawn instead of using the above glyph."><input
+              type="checkbox" />graceNoteSlashSW<span class="val"></span></label>
+          <label
+            title="The Cartesian coordinates in staff spaces of the top right corner of a diagonal line drawn instead of using the glyph graceNoteSlashStemUp for a stem-up flag of an unbeamed grace note."><input
+              type="checkbox" />graceNoteSlashNE<span class="val"></span></label>
+          <label
+            title="The Cartesian coordinates in staff spaces of the position at which the glyph graceNoteSlashStemDown should be positioned relative to the stem-down flag of an unbeamed grace note; alternatively, the top left corner of a diagonal line drawn instead of using the above glyph."><input
+              type="checkbox" />graceNoteSlashNW<span class="val"></span></label>
+          <label
+            title="The Cartesian coordinates in staff spaces of the bottom right corner of a diagonal line drawn instead of using the glyph graceNoteSlashStemDown for a stem-down flag of an unbeamed grace note."><input
+              type="checkbox" />graceNoteSlashSE<span class="val"></span></label>
+          <label
+            title="The Cartesian coordinates in staff spaces of the horizontal position at which a glyph repeats, i.e. the position at which the same glyph or another of the same group should be positioned to ensure correct tessellation. This is used for e.g. multi-segment lines and the component glyphs that make up trills and mordents."><input
+              type="checkbox" />repeatOffset<span class="val"></span></label>
+          <label
+            title="The Cartesian coordinates in staff spaces of the left-hand edge of a notehead with a non-zero left-hand side bearing (e.g. a double whole, or breve, notehead with two vertical lines at each side), to assist in the correct horizontal alignment of these noteheads with other noteheads with zero-width left-side bearings."><input
+              type="checkbox" />noteheadOrigin<span class="val"></span></label>
+          <label
+            title="The Cartesian coordinates in staff spaces of the optical center of the glyph, to assist in the correct horizontal alignment of the glyph relative to a notehead or stem. Currently recommended for use with glyphs in the Dynamics range."><input
+              type="checkbox" />opticalCenter<span class="val"></span></label>
+          <label class="nohideall cutOutOrigin_BBL" title="cutOut anchor points are relative to the:
+              unchecked: glyph origin.
+              checked: bottom left-hand corner of the glyph bounding box(old spec).
+              "><input class="propOption manualToggle" type="checkbox" />cutOutOrigin_BBL<span
+              class="val"></span></label>
+        </div>
+        <div id="smuflGlyphHintsOptions">
+        </div>
       </div>
     </div>
     <div id="smuflGlyphInfo">
