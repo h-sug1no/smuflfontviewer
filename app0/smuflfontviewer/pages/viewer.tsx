@@ -54,6 +54,7 @@ import Copyright from '../src/Copyright';
 */
 
 const sMuFLMetadata: Database = new Database();
+let options: Options;
 
 const dialogContents: Dict<JSX.Element | undefined> = {};
 
@@ -233,7 +234,8 @@ function HeaderMenu() {
               'aria-haspopup': 'true',
               onClick: handleDrawerOpen,
             }}
-            size="large">
+            size="large"
+          >
             <MenuIcon />
           </IconButton>
 
@@ -476,7 +478,7 @@ export default function Viewer(): ReactElement {
     }
     if (dbState === DBState.INITIAL) {
       setDBState(DBState.LOADING);
-      const options: Options = Options.fromQuery(query);
+      options = Options.fromQuery(query);
       sMuFLMetadata.init(options).then((/* obj */) => {
         if (sMuFLMetadata.initErrors_?.length) {
           alert(
@@ -595,75 +597,77 @@ export default function Viewer(): ReactElement {
     BShowScratchpad: 'toggle Scratchpad',
   };
 
-  return <>
-    <Head>
-      <title>smuflfontviewer</title>
-      <link rel="icon" href="/favicon.ico" />
-    </Head>
-    <Container maxWidth="xl">
-      <Box my={4}>
-        <HeaderMenu />
-        <UCodepointSelect onChange={ucodepointSelectOnChange} value={currentUCodepoint} />
-        <div>
-          <Typography variant="h4" component="h1" gutterBottom>
-            <span className="smufl">{'render glyph'}</span>
-            text: FIXME
-          </Typography>
+  return (
+    <>
+      <Head>
+        <title>smuflfontviewer</title>
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+      <Container maxWidth="xl">
+        <Box my={4}>
+          <HeaderMenu />
+          <UCodepointSelect onChange={ucodepointSelectOnChange} value={currentUCodepoint} />
+          <div>
+            <Typography variant="h4" component="h1" gutterBottom>
+              <span className="smufl">{'render glyph'}</span>
+              text: FIXME
+            </Typography>
 
-          <Tooltip title={messages.BPrev}>
-            <Button
-              className={classes.button}
+            <Tooltip title={messages.BPrev}>
+              <Button
+                className={classes.button}
+                onClick={() => {
+                  seekToCodepoint(getCodepointNumber(), -1, false);
+                }}
+              >
+                ←
+              </Button>
+            </Tooltip>
+            <Tooltip
+              title={messages.BNextGlyph}
               onClick={() => {
-                seekToCodepoint(getCodepointNumber(), -1, false);
+                seekToCodepoint(getCodepointNumber(), 1, false);
               }}
             >
-              ←
-            </Button>
-          </Tooltip>
-          <Tooltip
-            title={messages.BNextGlyph}
-            onClick={() => {
-              seekToCodepoint(getCodepointNumber(), 1, false);
-            }}
-          >
-            <Button className={classes.button}>↓</Button>
-          </Tooltip>
-          <Tooltip title={messages.BPrevGlyph}>
-            <Button
-              className={classes.button}
-              onClick={() => {
-                seekToCodepoint(getCodepointNumber(), -1, true);
-              }}
-            >
-              ↑
-            </Button>
-          </Tooltip>
-          <Tooltip title={messages.BNextGlyph}>
-            <Button
-              className={classes.button}
-              onClick={() => {
-                seekToCodepoint(getCodepointNumber(), 1, true);
-              }}
-            >
-              →
-            </Button>
-          </Tooltip>
-          <Tooltip title={messages.BShowScratchpad}>
-            <IconButton className={classes.button} size="large">
-              <NoteIcon />
-            </IconButton>
-          </Tooltip>
-        </div>
-        <div>
-          <RangeSelect onChange={rangeSelectOnChange} value={currentRange} />
-        </div>
-        <div>
-          <GlyphCanvas
-            value={currentUCodepoint}
-            sMuFLMetadata={sMuFLMetadata ?? new Database()}
-          />
-        </div>
-        {/*
+              <Button className={classes.button}>↓</Button>
+            </Tooltip>
+            <Tooltip title={messages.BPrevGlyph}>
+              <Button
+                className={classes.button}
+                onClick={() => {
+                  seekToCodepoint(getCodepointNumber(), -1, true);
+                }}
+              >
+                ↑
+              </Button>
+            </Tooltip>
+            <Tooltip title={messages.BNextGlyph}>
+              <Button
+                className={classes.button}
+                onClick={() => {
+                  seekToCodepoint(getCodepointNumber(), 1, true);
+                }}
+              >
+                →
+              </Button>
+            </Tooltip>
+            <Tooltip title={messages.BShowScratchpad}>
+              <IconButton className={classes.button} size="large">
+                <NoteIcon />
+              </IconButton>
+            </Tooltip>
+          </div>
+          <div>
+            <RangeSelect onChange={rangeSelectOnChange} value={currentRange} />
+          </div>
+          <div>
+            <GlyphCanvas
+              value={currentUCodepoint}
+              sMuFLMetadata={sMuFLMetadata ?? new Database()}
+              options={options}
+            />
+          </div>
+          {/*
         <Select
           id="presetSelect"
           value={presetValue}
@@ -763,7 +767,8 @@ export default function Viewer(): ReactElement {
           open
         </Button>
         */}
-      </Box>
-    </Container>
-  </>;
+        </Box>
+      </Container>
+    </>
+  );
 }

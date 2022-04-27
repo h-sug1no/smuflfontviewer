@@ -41,7 +41,7 @@ type IOnInput = (e: unknown, mode: string) => void;
 type ITriStateProps = CheckboxProps & {
   triOnInput: IOnInput;
   triValue?: number;
-  mode?: string;
+  mode?: string; // 'tri' or 'bool'
 };
 
 const TriStateCheckbox = (props: ITriStateProps): JSX.Element => {

@@ -15,6 +15,7 @@ import { Database, FontMetadata } from '../lib/SMuFLMetadata';
 import { UCodePoint } from '../lib/UCodePoint';
 import { Dict, GlyphsWithAnchorItem } from '../lib/SMuFLTypes';
 import { EngravingDefaults, AnchorDefs } from '../lib/SMuFLTypes';
+import { Options } from '../lib/Viewer';
 
 type IScaledBBox = {
   W: number;
@@ -164,13 +165,21 @@ class GDCtx {
   sbl: number;
   sMuFLMetadata: Database;
   fontMetadata: FontMetadata;
-  constructor(ctx: CanvasRenderingContext2D, sMuFLMetadata: Database, fontSize: number) {
+  cutOutOrigin_BBL: boolean;
+
+  constructor(
+    ctx: CanvasRenderingContext2D,
+    sMuFLMetadata: Database,
+    fontSize: number,
+    cutOutOrigin_BBL: boolean,
+  ) {
     this.ctx = ctx;
     this.c = ctx.canvas;
     this.fontSize = fontSize;
     this.sbl = fontSize * 0.25;
     this.sMuFLMetadata = sMuFLMetadata;
     this.fontMetadata = sMuFLMetadata?.fontMetadata() || {};
+    this.cutOutOrigin_BBL = cutOutOrigin_BBL;
   }
 
   aCsToSCsY(val: number): number {
@@ -191,18 +200,23 @@ class GDCtx {
 
   static anchorCsToScreenCs(
     scaledBBox: IScaledBBox,
-    anchor: number[],
+    anchor: number[] | number,
     sbl: number,
     relativeToBBL = false,
   ) {
-    return {
-      x:
-        (relativeToBBL ? scaledBBox.W : scaledBBox.x) +
-        GDCtx.anchorCsToScreenCsX(Number(anchor[0]), sbl),
-      y:
-        (relativeToBBL ? scaledBBox.S : scaledBBox.y) +
-        GDCtx.anchorCsToScreenCsY(Number(anchor[1]), sbl),
-    };
+    const ret = Array.isArray(anchor)
+      ? {
+          x:
+            (relativeToBBL ? scaledBBox.W : scaledBBox.x) +
+            GDCtx.anchorCsToScreenCsX(Number(anchor[0]), sbl),
+          y:
+            (relativeToBBL ? scaledBBox.S : scaledBBox.y) +
+            GDCtx.anchorCsToScreenCsY(Number(anchor[1]), sbl),
+        }
+      : {
+          0: GDCtx.anchorCsToScreenCsY(Number(anchor), sbl),
+        };
+    return ret;
   }
   measureGlyph(glyphData: IGlyphData, x: number, y: number, sbl: number) {
     const glyphname = glyphData.glyphname;
@@ -259,12 +273,38 @@ class GDCtx {
   }
 }
 
+function _renderCross(gdc: GDCtx, x: number, y: number, crossSize = 10) {
+  const { ctx } = gdc;
+  ctx.fillRect(x - crossSize * 0.5, y - 0.5, crossSize, 1);
+  ctx.fillRect(x - 0.5, y - crossSize * 0.5, 1, crossSize);
+}
+
+function _renderNumeral(gdc: GDCtx, x: number, y: number, sbl: number, bb: IBb) {
+  const { ctx } = gdc;
+  const glyphData = gdc.getGlyphData('tuplet5');
+  const m = gdc.measureGlyph(glyphData, x, y, sbl);
+  const { scaledBBox } = m;
+  if (scaledBBox) {
+    const ox = x - scaledBBox.W;
+    const hw = scaledBBox.w * 0.5;
+    const oy = 0; // no y offset for baseline.
+
+    ctx.fillStyle = '#aaaaaacc';
+    _renderGlyph(ctx, glyphData, x + ox - hw, y + oy, bb.fontSize);
+
+    // hori: center of bbox.
+    // vert: baseline
+    ctx.fillStyle = '#0000ffff';
+    _renderCross(gdc, scaledBBox.W + ox - hw + hw, y + oy);
+  }
+}
+
 function _renderGlyph(
+  ctx: CanvasRenderingContext2D,
   glyphData: IGlyphData,
   x: number,
   y: number,
   fontSize: string | number,
-  ctx: CanvasRenderingContext2D,
 ) {
   const { codepoint = NaN } = glyphData;
   if (isNaN(codepoint)) {
@@ -308,10 +348,20 @@ type IGDOptions = {
   slValue: number;
   showOrigin: boolean;
   showBBox: boolean;
+  anchorInputValues: IAnchorInputValues;
+};
+
+type IBb = {
+  scaledBBox: IScaledBBox;
+  isIndeterminate: boolean;
+  anchor: number[] | number;
+  anchorDef: string[];
+  fontSize: number;
+  glyphData: IGlyphData;
 };
 
 const draw = (gdc: GDCtx, value: IUCSelectOption, options: IGDOptions) => {
-  const { ctx, c, fontSize } = gdc;
+  const { ctx, c, fontSize, fontMetadata } = gdc;
   if (!ctx) {
     return;
   }
@@ -328,11 +378,11 @@ const draw = (gdc: GDCtx, value: IUCSelectOption, options: IGDOptions) => {
 
   const glyphData = resolveGlyphdata(gdc.sMuFLMetadata, gdc.fontMetadata, value.value);
 
-  _renderGlyph(glyphData, x, y, fontSize, ctx);
+  _renderGlyph(ctx, glyphData, x, y, fontSize);
 
   const gm = gdc.measureGlyph(glyphData, x, y, gdc.sbl);
   const { scaledBBox, bbox } = gm;
-  const { showOrigin, showBBox } = options;
+  const { showOrigin, showBBox, anchorInputValues } = options;
 
   if (showOrigin) {
     ctx.fillStyle = 'orange';
@@ -349,29 +399,34 @@ const draw = (gdc: GDCtx, value: IUCSelectOption, options: IGDOptions) => {
   }
 
   const { anchors } = glyphData;
-  if (anchors) {
-    const bbs = {};
+  if (anchors && scaledBBox) {
+    const bbs: Dict<IBb> = {};
     for (const akey in anchors) {
       const anchorDef = AnchorDefs[akey];
-      /*
-      const $anchorCheckbox = $smuflGlyphHints.find('#' + toHintlabelIdStr(akey) + ' input');
-      _setValValue($anchorCheckbox, anchor[akey]);
-      const isIndeterminate = $anchorCheckbox.prop('indeterminate');
-      if ((!$anchorCheckbox.prop('checked') && !isIndeterminate) ||
-        $anchorCheckbox.parent().is(':hidden')) {
+      const anchorInputValue = anchorInputValues[akey];
+      const triVal = anchorInputValue.triState?.value;
+      if (triVal === TriValues.initial) {
         continue;
       }
-
+      const isIndeterminate = triVal === TriValues.indeterminate;
       bbs[akey] = {
         scaledBBox: scaledBBox,
-        isIndeterminate: isIndeterminate,
-        anchor: anchor,
+        isIndeterminate,
+        anchor: anchors[akey],
         anchorDef: anchorDef,
-        fontSizeInfo: fontSizeInfo,
-        glyphData: glyphData
+        fontSize: gdc.fontSize,
+        glyphData: glyphData,
       };
-      renderAnchor(akey, anchor[akey], anchorDef, scaledBBox, engravingDefaults, isIndeterminate, bbs);
-      */
+      renderAnchor(
+        gdc,
+        akey,
+        anchors[akey],
+        anchorDef,
+        scaledBBox,
+        fontMetadata.engravingDefaults || {},
+        isIndeterminate,
+        bbs,
+      );
     }
     // _renderGraceNoteSlash(bbs, engravingDefaults, sbl);
   }
@@ -381,6 +436,7 @@ const draw = (gdc: GDCtx, value: IUCSelectOption, options: IGDOptions) => {
 type IGlyphCanvasOptions = {
   value: IUCSelectOption | null;
   sMuFLMetadata: Database;
+  options: Options;
 };
 
 const DEFAULTS = {
@@ -612,16 +668,16 @@ const AnchorInputs = ({
 };
 
 const renderAnchor = (
-  ctx: CanvasRenderingContext2D,
+  gdc: GDCtx,
   akey: string,
-  anchor: number[],
+  anchor: number | number[],
   types: string[],
   scaledBBox: IScaledBBox,
   engravingDefaults: EngravingDefaults,
   isIndeterminate: boolean,
   bbs: any, // FIXME: define type.
-  isCutOutOriginBBL: boolean,
 ) => {
+  const { ctx, cutOutOrigin_BBL = false } = gdc;
   if (!anchor) {
     console.warn('fixme !anchor');
     return;
@@ -632,12 +688,15 @@ const renderAnchor = (
   let h;
   const sbl = scaledBBox.sbl;
   const isCutOut = akey.startsWith('cutOut');
-  const vals = GDCtx.anchorCsToScreenCs(scaledBBox, anchor, sbl, isCutOut && isCutOutOriginBBL);
+  const vals = GDCtx.anchorCsToScreenCs(scaledBBox, anchor, sbl, isCutOut && cutOutOrigin_BBL);
 
   // eslint-disable-next-line no-unused-vars
   let halign = 'L';
   let vdir = 'TTB';
   types.forEach(function (type) {
+    if (vals.y === undefined || vals.x === undefined) {
+      return;
+    }
     switch (type) {
       case 'S':
         y = vals.y;
@@ -672,7 +731,7 @@ const renderAnchor = (
   bbs[akey].vals = vals;
   ctx.save();
   if (isCutOut) {
-    if (isCutOutOriginBBL) {
+    if (cutOutOrigin_BBL) {
       ctx.fillStyle = '#ccccd5cc';
     } else {
       ctx.fillStyle = '#cccccccc';
@@ -729,18 +788,20 @@ const renderAnchor = (
   ctx.restore();
 };
 
+type IAnchorInputValues = Dict<{ triState: ITriState | undefined }>;
 type IAnchorInputsRef = {
   onInput: () => void;
-  values: Dict<{ triState: ITriState | undefined }>;
+  values: IAnchorInputValues;
 };
 
 export default function GlyphCanvas(props: IGlyphCanvasOptions): JSX.Element {
-  const { value, sMuFLMetadata } = props;
+  const { value, sMuFLMetadata, options } = props;
   console.log(value);
 
   const [tick, setTick] = React.useState<number>(0);
   const refTick = React.useRef<number>(tick);
   const slTriState = useTriState(0);
+  const [cutOutOrigin_BBL, setCutOutOrigin_BBL] = useState<boolean | undefined>(undefined);
   const anchorInputsRef = React.useRef<IAnchorInputsRef>({
     onInput: () => {
       setTick(refTick.current + 1);
@@ -752,7 +813,10 @@ export default function GlyphCanvas(props: IGlyphCanvasOptions): JSX.Element {
 
   useEffect(() => {
     refTick.current = tick;
-  });
+    if (cutOutOrigin_BBL === undefined && options) {
+      setCutOutOrigin_BBL(options.settings.cutOutOrigin_BBL ?? false);
+    }
+  }, [tick, cutOutOrigin_BBL, options]);
 
   const [size, setSize] = React.useState<number>(DEFAULTS.size);
 
@@ -767,12 +831,19 @@ export default function GlyphCanvas(props: IGlyphCanvasOptions): JSX.Element {
 
   const drawGlyph = useCallback(
     (c: HTMLCanvasElement, ctx: RenderingContext | null) => {
+      const { current } = anchorInputsRef;
       if (value) {
-        const gdc = new GDCtx(ctx as CanvasRenderingContext2D, sMuFLMetadata, size);
+        const gdc = new GDCtx(
+          ctx as CanvasRenderingContext2D,
+          sMuFLMetadata,
+          size,
+          cutOutOrigin_BBL ?? false,
+        );
         draw(gdc, value, {
           slValue: slTriState.value,
           showOrigin,
           showBBox,
+          anchorInputValues: current.values,
         });
       }
     },
@@ -918,6 +989,22 @@ export default function GlyphCanvas(props: IGlyphCanvasOptions): JSX.Element {
       </Box>
       <Box id="smuflGlyphHints">
         <AnchorInputs anchors={glyphWithAnchors} anchorInputsRef={anchorInputsRef} />
+        <Tooltip
+          title="cutOut anchor points are relative to the:
+unchecked: glyph origin.
+checked: bottom left-hand corner of the glyph bounding box(old spec)."
+        >
+          <FormControlLabel
+            label={
+              <Typography id="non-linear-tri-state-sl" gutterBottom display="inline">
+                sl
+              </Typography>
+            }
+            control={
+              <TriStateCheckbox triValue={slTriState.value} triOnInput={slTriState.onInput} />
+            }
+          />
+        </Tooltip>
       </Box>
     </>
   );
