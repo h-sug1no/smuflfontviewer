@@ -217,6 +217,20 @@
         addDemolistItem('steinbergmedia/petaluma/master(PetalumaText) + w3c/smufl',
           _create_petaluma_options('PetalumaText'));
 
+          function _create_Leland_options(otf) {
+          return _createDemolistOptions(
+            'https://raw.githubusercontent.com/MuseScoreFonts/Leland/main',
+            'https://raw.githubusercontent.com/w3c/smufl/gh-pages/metadata',
+            `/${otf}.otf`, '/metadata.json'
+          );
+        }
+
+        addDemolistItem('MuseScoreFonts/Leland/main(Leland) + w3c/smufl',
+          _create_Leland_options('Leland'));
+
+        addDemolistItem('MuseScoreFonts/Leland/main(LelandText) + w3c/smufl',
+        _create_Leland_options('LelandText'));
+
         var evt = new Event("change", {"bubbles":true, "cancelable":true});
         demolistElm.dispatchEvent(evt);
       })();
