@@ -89,7 +89,7 @@ export default function RangeSelect(props: RangeSelectProps): JSX.Element {
           return option.name;
         }}
         groupBy={(option: IRangeSelectOption | string) => {
-          return typeof option === 'string' ? option : (option.series || '').toString();
+          return typeof option === 'string' ? '' : (option.series || '').toString();
         }}
         /* agetOptionLabel={(option: IRangeSelectOption) => option.name} */
         // renderOption={(option: IRangeSelectOption) => option.name}
