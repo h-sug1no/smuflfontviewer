@@ -1,21 +1,14 @@
 /* eslint-disable no-use-before-define */
 import React, { MutableRefObject, useCallback, useEffect, useState } from 'react';
 import { IUCSelectOption, IUCSelectOption_value2Number } from './UCodepointSelect';
-import {
-  Typography,
-  Box,
-  Slider,
-  Checkbox,
-  FormControlLabel,
-  Button,
-  Tooltip,
-} from '@mui/material';
+import { Typography, Box, Slider, Checkbox, FormControlLabel, Button } from '@mui/material';
 import TriStateCheckbox, { useTriState, ITriState, TriValues } from '../lib/TriStateCheckbox';
 import { Database, FontMetadata } from '../lib/SMuFLMetadata';
 import { UCodePoint } from '../lib/UCodePoint';
 import { Dict, GlyphsWithAnchorItem } from '../lib/SMuFLTypes';
 import { EngravingDefaults, AnchorDefs } from '../lib/SMuFLTypes';
 import { Options } from '../lib/Viewer';
+import clsx from 'clsx';
 
 type IScaledBBox = {
   W: number;
@@ -596,25 +589,24 @@ const TriStateInput = ({
   anchorInputValRef.triState = triState;
 
   return (
-    <Tooltip title={title}>
-      <FormControlLabel
-        label={
-          <Typography id={`non-linear-tri-state-${name}`} gutterBottom display="inline">
-            {name}
-          </Typography>
-        }
-        control={
-          <TriStateCheckbox
-            triValue={triState.value}
-            triOnInput={(e: unknown, mode: string) => {
-              triState.onInput(e, mode);
-              triOnInput();
-            }}
-            mode={mode}
-          />
-        }
-      />
-    </Tooltip>
+    <FormControlLabel
+      title={title}
+      label={
+        <Typography id={`non-linear-tri-state-${name}`} gutterBottom display="inline">
+          {name}
+        </Typography>
+      }
+      control={
+        <TriStateCheckbox
+          triValue={triState.value}
+          triOnInput={(e: unknown, mode: string) => {
+            triState.onInput(e, mode);
+            triOnInput();
+          }}
+          mode={mode}
+        />
+      }
+    />
   );
 };
 
@@ -654,7 +646,7 @@ const AnchorInputs = ({
           <Box
             key={name}
             style={!anchor ? { display: 'none' } : {}}
-            className="gcGlyphHintInputContainer"
+            className={clsx('gcGlyphHintInputContainer', name)}
           >
             <TriStateInput
               name={name}
@@ -922,18 +914,15 @@ export default function GlyphCanvas(props: IGlyphCanvasOptions): JSX.Element {
         />
       </Box>
       <Box className="GCOptionBox">
-        <Tooltip title="staff lines: All glyphs should be drawn at a scale consistent with the key measurement that one staff space = 0.25 em">
-          <FormControlLabel
-            label={
-              <Typography id="non-linear-tri-state-sl" gutterBottom display="inline">
-                sl
-              </Typography>
-            }
-            control={
-              <TriStateCheckbox triValue={slTriState.value} triOnInput={slTriState.onInput} />
-            }
-          />
-        </Tooltip>
+        <FormControlLabel
+          title="staff lines: All glyphs should be drawn at a scale consistent with the key measurement that one staff space = 0.25 em"
+          label={
+            <Typography id="non-linear-tri-state-sl" gutterBottom display="inline">
+              sl
+            </Typography>
+          }
+          control={<TriStateCheckbox triValue={slTriState.value} triOnInput={slTriState.onInput} />}
+        />
       </Box>
       <Box className="GCOptionBox">
         <FormControlLabel
@@ -968,24 +957,22 @@ export default function GlyphCanvas(props: IGlyphCanvasOptions): JSX.Element {
           valueLabelDisplay="auto"
           aria-labelledby="non-linear-slider-glyph-size"
         />
-        <Tooltip title="reset font size">
-          <Button
-            onClick={() => {
-              setSize(DEFAULTS.size);
-            }}
-          >
-            s
-          </Button>
-        </Tooltip>
-        <Tooltip title="reset scroll position">
-          <Button
-            onClick={() => {
-              resetScPos();
-            }}
-          >
-            p
-          </Button>
-        </Tooltip>
+        <Button
+          title="reset font size"
+          onClick={() => {
+            setSize(DEFAULTS.size);
+          }}
+        >
+          s
+        </Button>
+        <Button
+          title="reset scroll position"
+          onClick={() => {
+            resetScPos();
+          }}
+        >
+          p
+        </Button>
       </Box>
       <Box id="smuflGlyphHints">
         <AnchorInputs
@@ -993,22 +980,6 @@ export default function GlyphCanvas(props: IGlyphCanvasOptions): JSX.Element {
           anchorInputsRef={anchorInputsRef}
           cutOutOrigin_BBL={cutOutOrigin_BBL ?? false}
         />
-        <Tooltip
-          title="cutOut anchor points are relative to the:
-unchecked: glyph origin.
-checked: bottom left-hand corner of the glyph bounding box(old spec)."
-        >
-          <FormControlLabel
-            label={
-              <Typography id="non-linear-tri-state-sl" gutterBottom display="inline">
-                sl
-              </Typography>
-            }
-            control={
-              <TriStateCheckbox triValue={slTriState.value} triOnInput={slTriState.onInput} />
-            }
-          />
-        </Tooltip>
       </Box>
     </>
   );

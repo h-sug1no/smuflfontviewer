@@ -7,15 +7,7 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import {
-  Select,
-  MenuItem,
-  Divider,
-  TextField,
-  FormControlLabel,
-  Checkbox,
-  Tooltip,
-} from '@mui/material';
+import { Select, MenuItem, Divider, TextField, FormControlLabel, Checkbox } from '@mui/material';
 import React, { useState, useEffect, ReactElement } from 'react';
 import { Options, Settings } from '../lib/Viewer';
 // import { route } from 'next/dist/next-server/server/router';
@@ -296,24 +288,22 @@ export default function AppIndex(): ReactElement {
             placeholder="codepoint(ex..:E0A3) or glyphname(ex...:noteheadHalf)"
           />
           <Divider />
-          <Tooltip
+          <FormControlLabel
             title="cutOut anchor points are relative to the:
-    unchecked: glyph origin.
-    checked: bottom left-hand corner of the glyph bounding box(old spec)."
-          >
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={cutOutOrigin_BBL}
-                  onChange={(e) => {
-                    setCutOutOrigin_BBL(e.target.checked);
-                  }}
-                  name="cutOutOrigin_BBL"
-                />
-              }
-              label="cutOutOrigin_BBL"
-            />
-          </Tooltip>
+            unchecked: glyph origin.
+            checked: bottom left-hand corner of the glyph bounding box(old spec)."
+            control={
+              <Checkbox
+                checked={cutOutOrigin_BBL}
+                onChange={(e) => {
+                  setCutOutOrigin_BBL(e.target.checked);
+                }}
+                name="cutOutOrigin_BBL"
+              />
+            }
+            label="cutOutOrigin_BBL"
+          />
+
           <Divider />
           <Button fullWidth onClick={openViewer}>
             open

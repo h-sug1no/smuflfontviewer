@@ -10,7 +10,6 @@ import Button from '@mui/material/Button';
 import NoteIcon from '@mui/icons-material/Note';
 import {
   MenuItem,
-  Tooltip,
   CircularProgress,
   Link,
   Toolbar,
@@ -613,49 +612,49 @@ export default function Viewer(): ReactElement {
               text: FIXME
             </Typography>
 
-            <Tooltip title={messages.BPrev}>
-              <Button
-                className={classes.button}
-                onClick={() => {
-                  seekToCodepoint(getCodepointNumber(), -1, false);
-                }}
-              >
-                ←
-              </Button>
-            </Tooltip>
-            <Tooltip
+            <Button
+              title={messages.BPrev}
+              className={classes.button}
+              onClick={() => {
+                seekToCodepoint(getCodepointNumber(), -1, false);
+              }}
+            >
+              ←
+            </Button>
+
+            <Button
               title={messages.BNextGlyph}
               onClick={() => {
                 seekToCodepoint(getCodepointNumber(), 1, false);
               }}
+              className={classes.button}
             >
-              <Button className={classes.button}>↓</Button>
-            </Tooltip>
-            <Tooltip title={messages.BPrevGlyph}>
-              <Button
-                className={classes.button}
-                onClick={() => {
-                  seekToCodepoint(getCodepointNumber(), -1, true);
-                }}
-              >
-                ↑
-              </Button>
-            </Tooltip>
-            <Tooltip title={messages.BNextGlyph}>
-              <Button
-                className={classes.button}
-                onClick={() => {
-                  seekToCodepoint(getCodepointNumber(), 1, true);
-                }}
-              >
-                →
-              </Button>
-            </Tooltip>
-            <Tooltip title={messages.BShowScratchpad}>
-              <IconButton className={classes.button} size="large">
-                <NoteIcon />
-              </IconButton>
-            </Tooltip>
+              ↓
+            </Button>
+
+            <Button
+              title={messages.BPrevGlyph}
+              className={classes.button}
+              onClick={() => {
+                seekToCodepoint(getCodepointNumber(), -1, true);
+              }}
+            >
+              ↑
+            </Button>
+
+            <Button
+              title={messages.BNextGlyph}
+              className={classes.button}
+              onClick={() => {
+                seekToCodepoint(getCodepointNumber(), 1, true);
+              }}
+            >
+              →
+            </Button>
+
+            <IconButton title={messages.BShowScratchpad} className={classes.button} size="large">
+              <NoteIcon />
+            </IconButton>
           </div>
           <div>
             <RangeSelect onChange={rangeSelectOnChange} value={currentRange} />
