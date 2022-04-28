@@ -623,9 +623,11 @@ type IonInput = () => void;
 const AnchorInputs = ({
   anchors = {},
   anchorInputsRef,
+  cutOutOrigin_BBL,
 }: {
   anchors: Dict<unknown>;
   anchorInputsRef: MutableRefObject<IAnchorInputsRef>;
+  cutOutOrigin_BBL: boolean;
 }): JSX.Element => {
   let hasCutOut = false;
   const anchorInputVal = anchorInputsRef.current;
@@ -634,8 +636,10 @@ const AnchorInputs = ({
     <>
       {ANCHOR_INPUTS_NAMES.map((name): JSX.Element => {
         let anchor = anchors[name];
+        let triValue = TriValues.initial;
         if (name === 'cutOutOrigin_BBL') {
           anchor = hasCutOut ? {} : undefined;
+          triValue = cutOutOrigin_BBL ? TriValues.checked : TriValues.initial;
         } else {
           if (!hasCutOut) {
             hasCutOut = !!(name.startsWith('cutOut') && anchor);
@@ -656,7 +660,7 @@ const AnchorInputs = ({
               name={name}
               title={v.title}
               mode={mode}
-              triVal={TriValues.initial}
+              triVal={triValue}
               triOnInput={anchorInputVal.onInput}
               anchorInputValRef={aiVals[name]}
             />
@@ -798,25 +802,19 @@ export default function GlyphCanvas(props: IGlyphCanvasOptions): JSX.Element {
   const { value, sMuFLMetadata, options } = props;
   console.log(value);
 
-  const [tick, setTick] = React.useState<number>(0);
-  const refTick = React.useRef<number>(tick);
+  const [, setTick] = React.useState<number>(0);
   const slTriState = useTriState(0);
-  const [cutOutOrigin_BBL, setCutOutOrigin_BBL] = useState<boolean | undefined>(undefined);
+
   const anchorInputsRef = React.useRef<IAnchorInputsRef>({
     onInput: () => {
-      setTick(refTick.current + 1);
+      setTick((v) => {
+        return v + 1;
+      });
     },
     values: {},
   });
   const [showOrigin, setShowOrigin] = useState<boolean>(true);
   const [showBBox, setShowBBox] = useState<boolean>(true);
-
-  useEffect(() => {
-    refTick.current = tick;
-    if (cutOutOrigin_BBL === undefined && options) {
-      setCutOutOrigin_BBL(options.settings.cutOutOrigin_BBL ?? false);
-    }
-  }, [tick, cutOutOrigin_BBL, options]);
 
   const [size, setSize] = React.useState<number>(DEFAULTS.size);
 
@@ -828,6 +826,8 @@ export default function GlyphCanvas(props: IGlyphCanvasOptions): JSX.Element {
     };
   }
   */
+
+  const { cutOutOrigin_BBL } = options.settings;
 
   const drawGlyph = useCallback(
     (c: HTMLCanvasElement, ctx: RenderingContext | null) => {
@@ -847,7 +847,7 @@ export default function GlyphCanvas(props: IGlyphCanvasOptions): JSX.Element {
         });
       }
     },
-    [value, sMuFLMetadata, size, slTriState.value, showOrigin, showBBox],
+    [value, sMuFLMetadata, size, cutOutOrigin_BBL, slTriState.value, showOrigin, showBBox],
   );
   const sizeRef = React.useRef(size);
   useEffect(() => {
@@ -988,7 +988,11 @@ export default function GlyphCanvas(props: IGlyphCanvasOptions): JSX.Element {
         </Tooltip>
       </Box>
       <Box id="smuflGlyphHints">
-        <AnchorInputs anchors={glyphWithAnchors} anchorInputsRef={anchorInputsRef} />
+        <AnchorInputs
+          anchors={glyphWithAnchors}
+          anchorInputsRef={anchorInputsRef}
+          cutOutOrigin_BBL={cutOutOrigin_BBL ?? false}
+        />
         <Tooltip
           title="cutOut anchor points are relative to the:
 unchecked: glyph origin.

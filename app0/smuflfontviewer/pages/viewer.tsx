@@ -661,11 +661,13 @@ export default function Viewer(): ReactElement {
             <RangeSelect onChange={rangeSelectOnChange} value={currentRange} />
           </div>
           <div>
-            <GlyphCanvas
-              value={currentUCodepoint}
-              sMuFLMetadata={sMuFLMetadata ?? new Database()}
-              options={options}
-            />
+            {options && (
+              <GlyphCanvas
+                value={currentUCodepoint}
+                sMuFLMetadata={sMuFLMetadata ?? new Database()}
+                options={options}
+              />
+            )}
           </div>
           {/*
         <Select
