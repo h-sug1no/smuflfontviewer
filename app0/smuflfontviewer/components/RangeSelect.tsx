@@ -94,7 +94,7 @@ export default function RangeSelect(props: RangeSelectProps): JSX.Element {
         style={{ width: 300 }}
         freeSolo
         renderInput={(params) => <TextField {...params} label="enter (r)ange" variant="outlined" />}
-        renderOption={(option, { inputValue }) => {
+        renderOption={(props, option, { inputValue }) => {
           const matches = match(option.name, inputValue);
           const parts = parse(option.name, matches);
 
