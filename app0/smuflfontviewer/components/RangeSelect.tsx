@@ -8,7 +8,7 @@ import { Dict } from '../lib/SMuFLTypes';
 
 import { match } from './UCodepointSelect';
 
-const filter = createFilterOptions<IRangeSelectOption>({
+const filter = createFilterOptions<IRangeSelectOption | string>({
   /* limit: 10 */
 });
 
@@ -76,7 +76,7 @@ export default function RangeSelect(props: RangeSelectProps): JSX.Element {
         handleHomeEndKeys
         id="ucodepoint-select"
         options={rangeSelectOptions}
-        getOptionLabel={(option: IRangeSelectOption) => {
+        getOptionLabel={(option: IRangeSelectOption | string) => {
           // Value selected with enter, right from the input
           if (typeof option === 'string') {
             return option;
@@ -88,15 +88,18 @@ export default function RangeSelect(props: RangeSelectProps): JSX.Element {
           // Regular option
           return option.name;
         }}
-        groupBy={(option: IRangeSelectOption) => (option.series || '').toString()}
+        groupBy={(option: IRangeSelectOption | string) => {
+          return typeof option === 'string' ? option : (option.series || '').toString();
+        }}
         /* agetOptionLabel={(option: IRangeSelectOption) => option.name} */
         // renderOption={(option: IRangeSelectOption) => option.name}
         style={{ width: 300 }}
         freeSolo
         renderInput={(params) => <TextField {...params} label="enter (r)ange" variant="outlined" />}
         renderOption={(props, option, { inputValue }) => {
-          const matches = match(option.name, inputValue);
-          const parts = parse(option.name, matches);
+          const name = typeof option === 'string' ? option : option.name;
+          const matches = match(name, inputValue);
+          const parts = parse(name, matches);
 
           /*
           if (inputValue.length) {
@@ -105,7 +108,7 @@ export default function RangeSelect(props: RangeSelectProps): JSX.Element {
           */
 
           return (
-            <div>
+            <li {...props}>
               {parts.map((part, index) => (
                 <span
                   key={index}
@@ -114,7 +117,7 @@ export default function RangeSelect(props: RangeSelectProps): JSX.Element {
                   {part.text}
                 </span>
               ))}
-            </div>
+            </li>
           );
         }}
       />
@@ -133,6 +136,26 @@ export type IRangeSelectOption = {
 
 const rangeSelectOptions: IRangeSelectOption[] = [];
 const rangeSelectOptionsMap: Dict<IRangeSelectOption> = {};
+
+const strCompare = (s1: string, s2: string): number => {
+  let ret = 0;
+  if (s1 > s2) {
+    ret = 1;
+  } else if (s1 < s2) {
+    ret = -1;
+  }
+  return ret;
+};
+
+export const sortRangeSelectOptions = () => {
+  rangeSelectOptions.sort((a, b) => {
+    let ret = strCompare(a.series, b.series);
+    if (!ret) {
+      ret = strCompare(a.name, b.name);
+    }
+    return ret;
+  });
+};
 
 const str2key = (str: string) => str.trim();
 export function registerRangeSelectOption(

@@ -42,6 +42,7 @@ import RangeSelect, {
   registerRangeSelectOption,
   getRangeSelectOptionByValue,
   IRangeSelectOption,
+  sortRangeSelectOptions,
 } from '../components/RangeSelect';
 import GlyphCanvas from '../components/GlyphCanvas';
 import { Options } from '../lib/Viewer';
@@ -383,6 +384,7 @@ const createRangeSelectOptions = (sMuFLMetadata: Database) => {
       UCodePoint.fromUString(optRange.range_start).toNumber(),
     );
   }
+  sortRangeSelectOptions();
 };
 const cpNumber2Range = (cpNumber: number) => {
   const ranges = sMuFLMetadata.data_.ranges;
