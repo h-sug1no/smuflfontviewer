@@ -25,6 +25,7 @@
   },
   "devDependencies": {
     "@types/autosuggest-highlight": "^3.2.0",
+    "@types/node": "^18.7.11",
     "@types/react": "^17.0.44",
     "@typescript-eslint/eslint-plugin": "^5.21.0",
     "@typescript-eslint/parser": "^5.21.0",
