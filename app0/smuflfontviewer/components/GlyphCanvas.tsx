@@ -667,7 +667,7 @@ const renderAnchor = (
   gdc: GDCtx,
   akey: string,
   anchor: number | number[],
-  types: string[],
+  types: string[] = [],
   scaledBBox: IScaledBBox,
   engravingDefaults: EngravingDefaults,
   isIndeterminate: boolean,
