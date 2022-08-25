@@ -351,6 +351,7 @@ type IBb = {
   anchorDef: string[];
   fontSize: number;
   glyphData: IGlyphData;
+  vals: Dict<number | undefined> | undefined;
 };
 
 const draw = (gdc: GDCtx, value: IUCSelectOption, options: IGDOptions) => {
@@ -409,6 +410,7 @@ const draw = (gdc: GDCtx, value: IUCSelectOption, options: IGDOptions) => {
         anchorDef: anchorDef,
         fontSize: gdc.fontSize,
         glyphData: glyphData,
+        vals: undefined,
       };
       renderAnchor(
         gdc,
@@ -671,7 +673,7 @@ const renderAnchor = (
   scaledBBox: IScaledBBox,
   engravingDefaults: EngravingDefaults,
   isIndeterminate: boolean,
-  bbs: any, // FIXME: define type.
+  bbs: Dict<IBb>,
 ) => {
   const { ctx, cutOutOrigin_BBL = false } = gdc;
   if (!anchor) {
