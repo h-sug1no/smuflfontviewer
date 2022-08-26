@@ -1035,7 +1035,7 @@ const renderAnchor = (
     if (akey.startsWith('stem')) {
       ctx.fillStyle = '#4444ffcc';
     }
-    // _renderCross(x, y);
+    _renderCross(gdc, x, y);
   }
   ctx.restore();
 };
