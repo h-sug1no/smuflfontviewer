@@ -136,8 +136,6 @@ export const AnchorDefs: Dict<string[]> = (() => {
   return ret;
 })();
 
-console.log(AnchorDefs);
-
 /**
  * @see https://w3c.github.io/smufl/latest/specification/glyphswithalternates.html
  */
