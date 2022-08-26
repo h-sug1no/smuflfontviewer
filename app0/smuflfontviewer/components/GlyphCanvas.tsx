@@ -175,6 +175,13 @@ class GDCtx {
     this.cutOutOrigin_BBL = cutOutOrigin_BBL;
   }
 
+  getFontSizeInfo(): IFontSizeInfo {
+    return {
+      fontSize: this.fontSize,
+      sbl: this.sbl,
+    };
+  }
+
   aCsToSCsY(val: number): number {
     return GDCtx.anchorCsToScreenCsY(val, this.sbl);
   }
@@ -283,13 +290,69 @@ function _renderNumeral(gdc: GDCtx, x: number, y: number, sbl: number, bb: IBb) 
     const oy = 0; // no y offset for baseline.
 
     ctx.fillStyle = '#aaaaaacc';
-    _renderGlyph(ctx, glyphData, x + ox - hw, y + oy, bb.fontSize);
+    _renderGlyph(ctx, glyphData, x + ox - hw, y + oy, bb.fontSizeInfo.fontSize);
 
     // hori: center of bbox.
     // vert: baseline
     ctx.fillStyle = '#0000ffff';
     _renderCross(gdc, scaledBBox.W + ox - hw + hw, y + oy);
   }
+}
+
+function _renderSampleNoteheadAlignToOpticalCenter(
+  gdc: GDCtx,
+  ocX: number,
+  ocY: number,
+  ocScaledBBox: IScaledBBox,
+  engravingDefaults: EngravingDefaults,
+  bb: IBb,
+) {
+  const { ctx } = gdc;
+  const glyphData = gdc.getGlyphData('noteheadWhole');
+  const m = gdc.measureGlyph(glyphData, 0, 0, ocScaledBBox.sbl);
+
+  if (!m.scaledBBox) {
+    return;
+  }
+
+  ctx.save();
+  ctx.fillStyle = '#aaaaaaaa';
+  const nhY = ocScaledBBox.y - ocScaledBBox.sbl * 3.5;
+  _renderGlyph(ctx, glyphData, ocX - m.scaledBBox.w * 0.5, nhY, bb.fontSizeInfo.fontSize);
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = ctx.fillStyle;
+  ctx.setLineDash([5, 5]);
+  ctx.beginPath();
+  ctx.moveTo(ocX, nhY);
+  ctx.lineTo(ocX, ocY);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function _renderSampleNoteheadAlignToNoteheadOrigin(
+  gdc: GDCtx,
+  noX: number,
+  noY: number,
+  noScaledBBox: IScaledBBox,
+  engravingDefaults: EngravingDefaults,
+  bb: IBb,
+) {
+  const glyphData = gdc.getGlyphData('noteheadWhole');
+  const { ctx } = gdc;
+  // const m = _measureGlyph(glyphData, 0, 0, noScaledBBox.sbl);
+
+  ctx.save();
+  ctx.fillStyle = '#aaaaaaaa';
+  const nhY = noScaledBBox.y - noScaledBBox.sbl * 2;
+  _renderGlyph(ctx, glyphData, noX, nhY, bb.fontSizeInfo.fontSize);
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = ctx.fillStyle;
+  ctx.setLineDash([5, 5]);
+  ctx.beginPath();
+  ctx.moveTo(noX, nhY);
+  ctx.lineTo(noX, noY);
+  ctx.stroke();
+  ctx.restore();
 }
 
 function _renderGlyph(
@@ -344,14 +407,19 @@ type IGDOptions = {
   anchorInputValues: IAnchorInputValues;
 };
 
+type IFontSizeInfo = {
+  fontSize: number;
+  sbl: number;
+};
+
 type IBb = {
   scaledBBox: IScaledBBox;
   isIndeterminate: boolean;
   anchor: number[] | number;
   anchorDef: string[];
-  fontSize: number;
   glyphData: IGlyphData;
   vals: Dict<number | undefined> | undefined;
+  fontSizeInfo: IFontSizeInfo;
 };
 
 const draw = (gdc: GDCtx, value: IUCSelectOption, options: IGDOptions) => {
@@ -408,7 +476,7 @@ const draw = (gdc: GDCtx, value: IUCSelectOption, options: IGDOptions) => {
         isIndeterminate,
         anchor: anchors[akey],
         anchorDef: anchorDef,
-        fontSize: gdc.fontSize,
+        fontSizeInfo: gdc.getFontSizeInfo(),
         glyphData: glyphData,
         vals: undefined,
       };
@@ -665,6 +733,179 @@ const AnchorInputs = ({
   );
 };
 
+function _renderStemEx(
+  gdc: GDCtx,
+  nhScaledBBox: IScaledBBox,
+  w: number,
+  endY: number,
+  bb: IBb,
+  stemAnchorName: string | undefined,
+) {
+  const { ctx } = gdc;
+  if (!bb.glyphData || !bb.glyphData.anchors || !stemAnchorName) {
+    return 0;
+  }
+  const stemAnchor = bb.glyphData.anchors[stemAnchorName];
+  const stemAttachmentPos = GDCtx.anchorCsToScreenCs(nhScaledBBox, stemAnchor, nhScaledBBox.sbl);
+
+  if (stemAttachmentPos.x === undefined) {
+    return 0;
+  }
+
+  const x = stemAttachmentPos.x - w * 0.5 * (stemAnchorName.endsWith('NW') ? -1 : 1);
+  const y = stemAttachmentPos.y;
+  ctx.save();
+  ctx.lineWidth = Math.abs(w);
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+  ctx.lineTo(x, endY);
+  ctx.stroke();
+  ctx.restore();
+
+  return x;
+}
+
+const stemAnchorNamesByHV = {
+  R_BTT: 'stemUpSE',
+  R_TTB: 'stemDownNW',
+  L_BTT: 'stemUpSE',
+  L_TTB: 'stemDownNW',
+};
+
+function _renderAllteredUnison(
+  gdc: GDCtx,
+  halign: string,
+  vdir: string,
+  w: number,
+  nhScaledBBox: {
+    W?: number;
+    N?: number;
+    E?: number;
+    S?: number;
+    w: any;
+    h?: number;
+    x: any;
+    y: any;
+    sbl: any;
+  },
+  bb: IBb,
+) {
+  const { ctx } = gdc;
+  ctx.save();
+  ctx.strokeStyle = '#aaaaaa';
+  ctx.fillStyle = '#aaaaaa';
+
+  const angd = gdc.getGlyphData('accidentalNatural');
+  const anm = gdc.measureGlyph(angd, 0, 0, nhScaledBBox.sbl);
+
+  const afgd = gdc.getGlyphData('accidentalFlat');
+  const afm = gdc.measureGlyph(afgd, 0, 0, nhScaledBBox.sbl);
+
+  const paddingX = nhScaledBBox.sbl * 0.4;
+  const accidentalPaddingX = nhScaledBBox.sbl * 0.15;
+
+  let nh1X = nhScaledBBox.x;
+
+  if (halign === 'R') {
+    // n ap [nh1 p b ap] nh0
+    nh1X -= afm.scaledBBox?.w + nhScaledBBox.w + (paddingX + accidentalPaddingX);
+  } else {
+    // b ap [nh0 p n ap nh1]
+    nh1X += nhScaledBBox.w + anm.scaledBBox?.w + (paddingX + accidentalPaddingX);
+  }
+
+  _renderGlyph(ctx, bb.glyphData, nh1X, nhScaledBBox.y, bb.fontSizeInfo.fontSize);
+  const m = gdc.measureGlyph(bb.glyphData, nh1X, nhScaledBBox.y, nhScaledBBox.sbl);
+
+  if (!m.scaledBBox || !anm.scaledBBox || !afm.scaledBBox) {
+    return {
+      nhMetrics: m,
+    };
+  }
+  _renderGlyph(
+    ctx,
+    angd,
+    m.scaledBBox.x - anm.scaledBBox.w - accidentalPaddingX,
+    m.scaledBBox.y,
+    bb.fontSizeInfo.fontSize,
+  );
+
+  _renderGlyph(
+    ctx,
+    afgd,
+    nhScaledBBox.x - afm.scaledBBox.w - accidentalPaddingX,
+    nhScaledBBox.y,
+    bb.fontSizeInfo.fontSize,
+  );
+
+  // console.log(vdir, halign, w);
+  const stemAnchorName =
+    stemAnchorNamesByHV[`${halign}_${vdir}` as keyof typeof stemAnchorNamesByHV];
+  const stemLen = m.scaledBBox.sbl * 4 * (vdir === 'BTT' ? 1 : -1);
+  const stemEndY = m.scaledBBox.y - stemLen;
+  const stemX = _renderStemEx(gdc, m.scaledBBox, Math.abs(w), stemEndY, bb, stemAnchorName);
+
+  ctx.restore();
+
+  return {
+    nhMetrics: m,
+    stemAttachmentY: stemEndY + stemLen / 4,
+    stemAttachmentX: stemX,
+  };
+}
+
+function _renderStem(
+  gdc: GDCtx,
+  x: number,
+  y: number,
+  h: number,
+  halign: string,
+  vdir: string,
+  sbl: number,
+  engravingDefaults: EngravingDefaults,
+  isSplitStem: boolean,
+  nhScaledBBox: IScaledBBox,
+  akey: string,
+  bb: IBb,
+) {
+  const { ctx } = gdc;
+  let w = GDCtx.anchorCsToScreenCsX(engravingDefaults.stemThickness || 0, sbl);
+  let rad = 0;
+
+  if (isSplitStem) {
+    const auInfo = _renderAllteredUnison(gdc, halign, vdir, w, nhScaledBBox, bb);
+    // https://steinberg.help/dorico/v2/en/_shared_picts/picts/dorico/notation_reference/accidentals_altered_unison_tree.png
+    // https://www.steinberg.net/forums/download/file.php?id=16781
+    if (auInfo.stemAttachmentX !== undefined && auInfo.stemAttachmentY !== undefined) {
+      const dw = auInfo.stemAttachmentX - x - w * 0.5 * (halign === 'L' ? 1 : -1);
+      const dh = auInfo.stemAttachmentY - y;
+      rad = Math.atan2(dw, dh) * -1;
+      h = Math.sqrt(dw * dw + dh * dh);
+      if ((vdir === 'BTT' && halign === 'L') || (vdir === 'TTB' && halign === 'R')) {
+        w *= -1;
+      }
+    }
+  } else {
+    if (vdir === 'BTT') {
+      h *= -1;
+    }
+    if (halign === 'R') {
+      w *= -1;
+    }
+  }
+
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(rad);
+  ctx.translate(-x, -y);
+  ctx.fillStyle = '#aaaaaacc';
+  ctx.beginPath();
+  ctx.rect(x, y, w, h);
+  ctx.fill();
+  // const cm = ctx.getTransform();
+  ctx.restore();
+}
+
 const renderAnchor = (
   gdc: GDCtx,
   akey: string,
@@ -748,16 +989,16 @@ const renderAnchor = (
     akey === 'noteheadOrigin' ||
     akey === 'opticalCenter'
   ) {
-    x = vals.x;
-    y = vals.y;
+    x = vals.x || 0;
+    y = vals.y || 0;
 
     if (!isIndeterminate) {
-      /*
       if (akey.startsWith('splitStem') || akey.startsWith('stem')) {
         _renderStem(
+          gdc,
           x,
           y,
-          Math.max(scaledBBox.h, anchorCsToScreenCsX(3.5, sbl)),
+          Math.max(scaledBBox.h, GDCtx.anchorCsToScreenCsX(3.5, sbl)),
           halign,
           vdir,
           sbl,
@@ -768,13 +1009,26 @@ const renderAnchor = (
           bbs[akey],
         );
       } else if (akey.startsWith('numeral')) {
-        _renderNumeral(x, y, sbl, bbs[akey]);
+        _renderNumeral(gdc, x, y, sbl, bbs[akey]);
       } else if (akey === 'opticalCenter') {
-        _renderSampleNoteheadAlignToOpticalCenter(x, y, scaledBBox, engravingDefaults, bbs[akey]);
+        _renderSampleNoteheadAlignToOpticalCenter(
+          gdc,
+          x,
+          y,
+          scaledBBox,
+          engravingDefaults,
+          bbs[akey],
+        );
       } else if (akey === 'noteheadOrigin') {
-        _renderSampleNoteheadAlignToNoteheadOrigin(x, y, scaledBBox, engravingDefaults, bbs[akey]);
+        _renderSampleNoteheadAlignToNoteheadOrigin(
+          gdc,
+          x,
+          y,
+          scaledBBox,
+          engravingDefaults,
+          bbs[akey],
+        );
       }
-      */
     }
 
     ctx.fillStyle = '#ff4444cc';
@@ -790,13 +1044,14 @@ type IAnchorInputValues = Dict<{ triState: ITriState | undefined }>;
 type IAnchorInputsRef = {
   onInput: () => void;
   values: IAnchorInputValues;
+  tick: number;
 };
 
 export default function GlyphCanvas(props: IGlyphCanvasOptions): JSX.Element {
   const { value, sMuFLMetadata, options } = props;
   console.log(value);
 
-  const [, setTick] = React.useState<number>(0);
+  const [tick, setTick] = React.useState<number>(0);
   const slTriState = useTriState(0);
 
   const anchorInputsRef = React.useRef<IAnchorInputsRef>({
@@ -806,6 +1061,7 @@ export default function GlyphCanvas(props: IGlyphCanvasOptions): JSX.Element {
       });
     },
     values: {},
+    tick: 0,
   });
   const [showOrigin, setShowOrigin] = useState<boolean>(true);
   const [showBBox, setShowBBox] = useState<boolean>(true);
@@ -826,6 +1082,7 @@ export default function GlyphCanvas(props: IGlyphCanvasOptions): JSX.Element {
   const drawGlyph = useCallback(
     (c: HTMLCanvasElement, ctx: RenderingContext | null) => {
       const { current } = anchorInputsRef;
+      current.tick = tick;
       if (value) {
         const gdc = new GDCtx(
           ctx as CanvasRenderingContext2D,
@@ -841,7 +1098,7 @@ export default function GlyphCanvas(props: IGlyphCanvasOptions): JSX.Element {
         });
       }
     },
-    [value, sMuFLMetadata, size, cutOutOrigin_BBL, slTriState.value, showOrigin, showBBox],
+    [value, sMuFLMetadata, size, cutOutOrigin_BBL, slTriState.value, showOrigin, showBBox, tick],
   );
   const sizeRef = React.useRef(size);
   useEffect(() => {
