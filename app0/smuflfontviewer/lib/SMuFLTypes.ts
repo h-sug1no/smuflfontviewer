@@ -106,7 +106,7 @@ export const AnchorNames: string[] = [
 
 export const AnchorDefs: Dict<string[]> = (() => {
   const ret: Dict<string[]> = {};
-  AnchorNames.every((akey) => {
+  AnchorNames.forEach((akey) => {
     let anchorDef;
     if (akey.endsWith('SE')) {
       anchorDef = ['S', 'E'];
@@ -135,6 +135,8 @@ export const AnchorDefs: Dict<string[]> = (() => {
   });
   return ret;
 })();
+
+console.log(AnchorDefs);
 
 /**
  * @see https://w3c.github.io/smufl/latest/specification/glyphswithalternates.html
