@@ -121,7 +121,7 @@ export default function RangeSelect(props: RangeSelectProps): JSX.Element {
           );
         }}
       />
-      {JSON.stringify(value)}
+      {/*JSON.stringify(value)*/}
     </>
   );
 }

@@ -181,7 +181,7 @@ export default function UCodepointSelect(props: IUCodepointSelectOptions): JSX.E
           );
         }}
       />
-      {JSON.stringify(value)}
+      {/*JSON.stringify(value)*/}
     </>
   );
 }

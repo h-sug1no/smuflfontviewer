@@ -609,11 +609,6 @@ export default function Viewer(): ReactElement {
           <HeaderMenu />
           <UCodepointSelect onChange={ucodepointSelectOnChange} value={currentUCodepoint} />
           <div>
-            <Typography variant="h4" component="h1" gutterBottom>
-              <span className="smufl">{'render glyph'}</span>
-              text: FIXME
-            </Typography>
-
             <Button
               title={messages.BPrev}
               className={classes.button}
