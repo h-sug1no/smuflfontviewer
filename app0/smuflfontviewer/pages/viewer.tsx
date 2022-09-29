@@ -341,6 +341,7 @@ const createUCodepointSelectOptions = (sMuFLMetadata: Database) => {
           value: cp,
           name: cp + ': ' + gname,
           glyphname: gname,
+          cpStr: String.fromCharCode(parseInt(`0x${cp}`)),
         });
       }
     }
@@ -356,6 +357,7 @@ const createUCodepointSelectOptions = (sMuFLMetadata: Database) => {
         value: cp,
         name: cp + ': ' + gname,
         glyphname: gname,
+        cpStr: String.fromCharCode(parseInt(`0x${cp}`)),
       });
     }
   });

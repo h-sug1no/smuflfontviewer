@@ -1,6 +1,6 @@
 /* eslint-disable no-use-before-define */
-import React, { useCallback, useEffect } from 'react';
-import TextField from '@mui/material/TextField';
+import React, { HTMLInputTypeAttribute, InputHTMLAttributes, useCallback, useEffect } from 'react';
+import TextField, { TextFieldProps } from '@mui/material/TextField';
 import { Autocomplete } from '@mui/material';
 import { createFilterOptions } from '@mui/material/useAutocomplete';
 import parse from 'autosuggest-highlight/parse';
@@ -120,6 +120,7 @@ export default function UCodepointSelect(props: IUCodepointSelectOptions): JSX.E
                   name: `${str}`,
                   value: `${str}`,
                   series: 'codepoint',
+                  cpStr: String.fromCharCode(cpNumber),
                 };
                 ucSelectOptions.unshift(ucSelectOptionsMap[str]);
                 filtered.unshift(ucSelectOptionsMap[str]);
@@ -153,11 +154,31 @@ export default function UCodepointSelect(props: IUCodepointSelectOptions): JSX.E
         // renderOption={(option: IUCSelectOption) => option.name}
         style={{ width: 300 }}
         freeSolo
-        renderInput={(params) => (
-          <TextField {...params} label="glyphname or (c)odepoint" variant="outlined" />
-        )}
+        renderInput={(params) => {
+          let title = '';
+          if (typeof value === 'string') {
+            title = value;
+          } else {
+            title = value ? (value as IUCSelectOption).name || '' : '';
+          }
+          return (
+            <TextField
+              {...params}
+              label="glyphname or (c)odepoint"
+              variant="outlined"
+              title={title}
+            />
+          );
+        }}
         renderOption={(props, option, { inputValue }) => {
-          const name = typeof option === 'string' ? option : option.name;
+          let name;
+          let cpStr = '';
+          if (typeof option === 'string') {
+            name = option;
+          } else {
+            name = option.name;
+            cpStr = option.cpStr;
+          }
           const matches = match(name, inputValue);
           const parts = parse(name, matches);
 
@@ -169,10 +190,22 @@ export default function UCodepointSelect(props: IUCodepointSelectOptions): JSX.E
 
           return (
             <li {...props}>
+              <span
+                style={{
+                  fontFamily: 'SMuFLFont',
+                  fontSize: '2.5em',
+                  margin: '0 0.2em 0 0 ',
+                }}
+              >
+                {cpStr}
+              </span>
               {parts.map((part, index) => (
                 <span
                   key={index}
-                  style={{ backgroundColor: part.highlight ? 'orange' : 'transparent' }}
+                  style={{
+                    backgroundColor: part.highlight ? 'orange' : 'transparent',
+                    wordBreak: 'break-all',
+                  }}
                 >
                   {part.text}
                 </span>
@@ -191,6 +224,7 @@ export type IUCSelectOption = {
   series: string;
   value: string;
   name: string;
+  cpStr: string;
   glyphname?: string; // for series: optionalGlyphs | glyphnames
 };
 
@@ -237,6 +271,7 @@ function registerUCSelectOption(cpStr = '') {
         name: `${str}`,
         value: `${str}`,
         series: 'codepoint',
+        cpStr: String.fromCharCode(cpNumber),
       };
     }
     ret = ucSelectOptionsMap[str];
