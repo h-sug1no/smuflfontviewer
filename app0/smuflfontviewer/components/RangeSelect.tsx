@@ -108,7 +108,13 @@ export default function RangeSelect(props: RangeSelectProps): JSX.Element {
           */
 
           return (
-            <li {...props}>
+            <li
+              {...props}
+              style={{
+                borderBottom: 'solid 1px gray',
+                wordBreak: 'break-all',
+              }}
+            >
               {parts.map((part, index) => (
                 <span
                   key={index}

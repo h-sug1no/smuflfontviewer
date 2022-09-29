@@ -193,6 +193,7 @@ export default function UCodepointSelect(props: IUCodepointSelectOptions): JSX.E
               {...props}
               style={{
                 display: 'flex',
+                borderBottom: 'solid 1px gray',
               }}
             >
               <span
