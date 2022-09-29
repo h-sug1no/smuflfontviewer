@@ -189,7 +189,12 @@ export default function UCodepointSelect(props: IUCodepointSelectOptions): JSX.E
         */
 
           return (
-            <li {...props}>
+            <li
+              {...props}
+              style={{
+                display: 'flex',
+              }}
+            >
               <span
                 style={{
                   fontFamily: 'SMuFLFont',
@@ -199,17 +204,23 @@ export default function UCodepointSelect(props: IUCodepointSelectOptions): JSX.E
               >
                 {cpStr}
               </span>
-              {parts.map((part, index) => (
-                <span
-                  key={index}
-                  style={{
-                    backgroundColor: part.highlight ? 'orange' : 'transparent',
-                    wordBreak: 'break-all',
-                  }}
-                >
-                  {part.text}
-                </span>
-              ))}
+              <div
+                style={{
+                  wordBreak: 'break-all',
+                }}
+              >
+                {parts.map((part, index) => (
+                  <span
+                    key={index}
+                    style={{
+                      backgroundColor: part.highlight ? 'orange' : 'transparent',
+                      wordBreak: 'break-all',
+                    }}
+                  >
+                    {part.text}
+                  </span>
+                ))}
+              </div>
             </li>
           );
         }}
