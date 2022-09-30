@@ -1155,91 +1155,95 @@ export default function GlyphCanvas(props: IGlyphCanvasOptions): JSX.Element {
       <div className="gcBox" ref={gcBoxRef}>
         <canvas ref={canvasRef} width="800" height="600" />
       </div>
-      <Box className="GCOptionBox">
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={showOrigin}
-              onChange={(e) => {
-                setShowOrigin(e.target.checked);
-              }}
-            />
-          }
-          label={
-            <Typography id="non-linear-showOrigin" gutterBottom display="inline">
-              origin
-            </Typography>
-          }
-        />
-      </Box>
-      <Box className="GCOptionBox">
-        <FormControlLabel
-          title="staff lines: All glyphs should be drawn at a scale consistent with the key measurement that one staff space = 0.25 em"
-          label={
-            <Typography id="non-linear-tri-state-sl" gutterBottom display="inline">
-              sl
-            </Typography>
-          }
-          control={<TriStateCheckbox triValue={slTriState.value} triOnInput={slTriState.onInput} />}
-        />
-      </Box>
-      <Box className="GCOptionBox">
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={showBBox}
-              onChange={(e) => {
-                setShowBBox(e.target.checked);
-              }}
-            />
-          }
-          label={
-            <Typography id="non-linear-showBBox" gutterBottom display="inline">
-              bbox: {JSON.stringify(glyphBBox)}
-            </Typography>
-          }
-        />
-      </Box>
-      <Box className="gcSizeBox GCOptionBox">
-        <Typography id="non-linear-slider-glyph-size" gutterBottom>
-          size: {size}
-        </Typography>
-        <Slider
-          value={size}
-          min={SLIDER_RANGE.min}
-          step={1}
-          max={SLIDER_RANGE.max}
-          // scale={calculateValue}
-          getAriaValueText={sizeLabelFormat}
-          valueLabelFormat={sizeLabelFormat}
-          onChange={handleSizeChange}
-          valueLabelDisplay="auto"
-          aria-labelledby="non-linear-slider-glyph-size"
-        />
-        <Button
-          title="reset font size"
-          onClick={() => {
-            setSize(DEFAULTS.size);
-          }}
-        >
-          s
-        </Button>
-        <Button
-          title="reset scroll position"
-          onClick={() => {
-            resetScPos();
-          }}
-        >
-          p
-        </Button>
-      </Box>
-      <Box id="smuflGlyphHints">
-        <AnchorInputs
-          anchors={glyphWithAnchors}
-          anchorInputsRef={anchorInputsRef}
-          cutOutOrigin_BBL={cutOutOrigin_BBL ?? false}
-        />
-      </Box>
+      <div>
+        <Box className="GCOptionBox">
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={showOrigin}
+                onChange={(e) => {
+                  setShowOrigin(e.target.checked);
+                }}
+              />
+            }
+            label={
+              <Typography id="non-linear-showOrigin" gutterBottom display="inline">
+                origin
+              </Typography>
+            }
+          />
+        </Box>
+        <Box className="GCOptionBox">
+          <FormControlLabel
+            title="staff lines: All glyphs should be drawn at a scale consistent with the key measurement that one staff space = 0.25 em"
+            label={
+              <Typography id="non-linear-tri-state-sl" gutterBottom display="inline">
+                sl
+              </Typography>
+            }
+            control={
+              <TriStateCheckbox triValue={slTriState.value} triOnInput={slTriState.onInput} />
+            }
+          />
+        </Box>
+        <Box className="GCOptionBox">
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={showBBox}
+                onChange={(e) => {
+                  setShowBBox(e.target.checked);
+                }}
+              />
+            }
+            label={
+              <Typography id="non-linear-showBBox" gutterBottom display="inline">
+                bbox: {JSON.stringify(glyphBBox)}
+              </Typography>
+            }
+          />
+        </Box>
+        <Box className="gcSizeBox GCOptionBox">
+          <Typography id="non-linear-slider-glyph-size" gutterBottom>
+            size: {size}
+          </Typography>
+          <Slider
+            value={size}
+            min={SLIDER_RANGE.min}
+            step={1}
+            max={SLIDER_RANGE.max}
+            // scale={calculateValue}
+            getAriaValueText={sizeLabelFormat}
+            valueLabelFormat={sizeLabelFormat}
+            onChange={handleSizeChange}
+            valueLabelDisplay="auto"
+            aria-labelledby="non-linear-slider-glyph-size"
+          />
+          <Button
+            title="reset font size"
+            onClick={() => {
+              setSize(DEFAULTS.size);
+            }}
+          >
+            s
+          </Button>
+          <Button
+            title="reset scroll position"
+            onClick={() => {
+              resetScPos();
+            }}
+          >
+            p
+          </Button>
+        </Box>
+        <Box id="smuflGlyphHints">
+          <AnchorInputs
+            anchors={glyphWithAnchors}
+            anchorInputsRef={anchorInputsRef}
+            cutOutOrigin_BBL={cutOutOrigin_BBL ?? false}
+          />
+        </Box>
+      </div>
     </>
   );
 }

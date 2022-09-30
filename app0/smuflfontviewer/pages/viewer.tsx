@@ -47,6 +47,7 @@ import RangeSelect, {
 import GlyphCanvas from '../components/GlyphCanvas';
 import { Options } from '../lib/Viewer';
 import { _initFontFace } from '../lib/JSDomFontFace';
+import GlyphInfoPanel from '../components/GlyphInfoPanel';
 /*
 import ProTip from '../src/ProTip';
 import Link from '../src/Link';
@@ -607,64 +608,92 @@ export default function Viewer(): ReactElement {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Container maxWidth="xl">
-        <Box my={4}>
-          <HeaderMenu />
-          <UCodepointSelect onChange={ucodepointSelectOnChange} value={currentUCodepoint} />
-          <div>
-            <Button
-              title={messages.BPrev}
-              className={classes.button}
-              onClick={() => {
-                seekToCodepoint(getCodepointNumber(), -1, false);
-              }}
-            >
-              ←
-            </Button>
+        <HeaderMenu />
+        <Box
+          my={4}
+          sx={{
+            display: 'flex',
+            '& .glyphPanel': {
+              width: '50%',
+            },
+            '& .glyphInfoPanel': {
+              width: '50%',
+              '& .cpStr': {
+                fontFamily: 'SMuFLFont',
+                fontSize: '2em',
+              },
+            },
+          }}
+        >
+          <div className="glyphPanel">
+            <div>
+              <UCodepointSelect onChange={ucodepointSelectOnChange} value={currentUCodepoint} />
+              <div>
+                <Button
+                  title={messages.BPrev}
+                  className={classes.button}
+                  onClick={() => {
+                    seekToCodepoint(getCodepointNumber(), -1, false);
+                  }}
+                >
+                  ←
+                </Button>
 
-            <Button
-              title={messages.BNextGlyph}
-              onClick={() => {
-                seekToCodepoint(getCodepointNumber(), 1, false);
-              }}
-              className={classes.button}
-            >
-              ↓
-            </Button>
+                <Button
+                  title={messages.BNextGlyph}
+                  onClick={() => {
+                    seekToCodepoint(getCodepointNumber(), 1, false);
+                  }}
+                  className={classes.button}
+                >
+                  ↓
+                </Button>
 
-            <Button
-              title={messages.BPrevGlyph}
-              className={classes.button}
-              onClick={() => {
-                seekToCodepoint(getCodepointNumber(), -1, true);
-              }}
-            >
-              ↑
-            </Button>
+                <Button
+                  title={messages.BPrevGlyph}
+                  className={classes.button}
+                  onClick={() => {
+                    seekToCodepoint(getCodepointNumber(), -1, true);
+                  }}
+                >
+                  ↑
+                </Button>
 
-            <Button
-              title={messages.BNextGlyph}
-              className={classes.button}
-              onClick={() => {
-                seekToCodepoint(getCodepointNumber(), 1, true);
-              }}
-            >
-              →
-            </Button>
+                <Button
+                  title={messages.BNextGlyph}
+                  className={classes.button}
+                  onClick={() => {
+                    seekToCodepoint(getCodepointNumber(), 1, true);
+                  }}
+                >
+                  →
+                </Button>
 
-            <IconButton title={messages.BShowScratchpad} className={classes.button} size="large">
-              <NoteIcon />
-            </IconButton>
+                <IconButton
+                  title={messages.BShowScratchpad}
+                  className={classes.button}
+                  size="large"
+                >
+                  <NoteIcon />
+                </IconButton>
+              </div>
+              <div>
+                <RangeSelect onChange={rangeSelectOnChange} value={currentRange} />
+              </div>
+            </div>
+            <div>
+              {options && (
+                <GlyphCanvas
+                  value={currentUCodepoint}
+                  sMuFLMetadata={sMuFLMetadata}
+                  options={options}
+                />
+              )}
+            </div>
           </div>
-          <div>
-            <RangeSelect onChange={rangeSelectOnChange} value={currentRange} />
-          </div>
-          <div>
-            {options && (
-              <GlyphCanvas
-                value={currentUCodepoint}
-                sMuFLMetadata={sMuFLMetadata ?? new Database()}
-                options={options}
-              />
+          <div className="glyphInfoPanel">
+            {currentUCodepoint && (
+              <GlyphInfoPanel sMuFLMetadata={sMuFLMetadata} selectOption={currentUCodepoint} />
             )}
           </div>
           {/*

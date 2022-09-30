@@ -49,22 +49,27 @@ export type GlyphItem = {
 
 export class FontInfo {
   fontMetadata_: FontMetadata;
+
   /**
    * key is GlyphnameStr.
    */
   setsByAlternateFor?: Dict<Array<SetByAnyMapItem>>;
+
   /**
    * key is GlyphnameStr.
    */
   setsByName?: Dict<Array<SetByAnyMapItem>>;
-  /**
-   * key is UCodepointStr
-   */
-  alternateFors?: Dict<Array<GlyphnameStr>>;
+
   /**
    * key is GlyphnameStr
    */
+  alternateFors?: Dict<Array<GlyphnameStr>>;
+
+  /**
+   * key is UCodepointStr
+   */
   alternateCodepointFors?: Dict<Array<GlyphItem>>;
+
   glyphsByUCodepoint?: Dict<GlyphItem>;
   optClasses?: Classes;
   optRange?: SFVOptRangeItem;

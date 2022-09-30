@@ -31,3 +31,7 @@ export class UCodePoint {
     return this.cpNumber_;
   }
 }
+
+export function codepoint2UString(codepoint: string): string {
+  return `U+${codepoint}`;
+}
