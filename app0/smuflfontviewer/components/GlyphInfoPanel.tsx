@@ -2,7 +2,11 @@ import { Box } from '@mui/system';
 import clsx from 'clsx';
 import React from 'react';
 import { Database, GlyphItem } from '../lib/SMuFLMetadata';
-import { GlyphsWithAlternateAlternateItem, GlyphsWithAlternateItem } from '../lib/SMuFLTypes';
+import {
+  GlyphnameItem,
+  GlyphsWithAlternateAlternateItem,
+  GlyphsWithAlternateItem,
+} from '../lib/SMuFLTypes';
 import { codepoint2UString } from '../lib/UCodePoint';
 import { IUCSelectOption } from './UCodepointSelect';
 
@@ -38,33 +42,36 @@ function UCodePoint(props: { uPlusCodepoint: string; isCurrentGlyph?: boolean })
 
 function BasicInfo(props: IGlyphInfoPanelParams): JSX.Element {
   const { selectOption, sMuFLMetadata } = props;
-  const glyphsWithAlternates = sMuFLMetadata.fontMetadata()?.glyphsWithAlternates;
-
-  let gis: GlyphsWithAlternateItem | undefined = undefined;
+  const fontMetaData = sMuFLMetadata.fontMetadata();
   let alternatesDom: JSX.Element | undefined;
 
-  // FIXME: what is alternateCodepoint?
-  if (glyphsWithAlternates) {
-    gis = glyphsWithAlternates[selectOption.glyphname || ''] || [];
-    if (gis && gis.alternates) {
-      alternatesDom = (
-        <div>
-          alternateCodepoint:{' '}
-          {gis.alternates.map((gi: GlyphsWithAlternateAlternateItem) => {
-            return <UCodePoint key={gi.codepoint} uPlusCodepoint={gi.codepoint || ''} />;
-          })}
-        </div>
-      );
+  const glyphname = selectOption.glyphname || '';
+  if (fontMetaData) {
+    const { glyphnames } = sMuFLMetadata.data_;
+    const glyphsWithAlternates = fontMetaData.glyphsWithAlternates;
+
+    if (glyphnames) {
+      const glyphnameItem: GlyphnameItem = glyphnames[glyphname];
+    }
+    // FIXME: what is alternateCodepoint?
+    if (glyphsWithAlternates) {
+      const gis: GlyphsWithAlternateItem | undefined = glyphsWithAlternates[glyphname || ''] || [];
+      if (gis && gis.alternates) {
+        alternatesDom = (
+          <div>
+            alternateCodepoint:{' '}
+            {gis.alternates.map((gi: GlyphsWithAlternateAlternateItem) => {
+              return <UCodePoint key={gi.codepoint} uPlusCodepoint={gi.codepoint || ''} />;
+            })}
+          </div>
+        );
+      }
     }
   }
 
   return (
     <div className="basic">
-      <GlyphAndName
-        name={selectOption.glyphname || ''}
-        cpStr={selectOption.cpStr}
-        isCurrentGlyph={true}
-      />
+      <GlyphAndName name={glyphname} cpStr={selectOption.cpStr} isCurrentGlyph={true} />
       {alternatesDom}
     </div>
   );

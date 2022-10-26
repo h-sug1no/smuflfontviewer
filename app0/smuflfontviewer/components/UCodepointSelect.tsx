@@ -120,7 +120,7 @@ export default function UCodepointSelect(props: IUCodepointSelectOptions): JSX.E
                   name: `${str}`,
                   value: `${str}`,
                   series: 'codepoint',
-                  cpStr: String.fromCharCode(cpNumber),
+                  cpStr: String.fromCodePoint(cpNumber),
                 };
                 ucSelectOptions.unshift(ucSelectOptionsMap[str]);
                 filtered.unshift(ucSelectOptionsMap[str]);
@@ -283,7 +283,7 @@ function registerUCSelectOption(cpStr = '') {
         name: `${str}`,
         value: `${str}`,
         series: 'codepoint',
-        cpStr: String.fromCharCode(cpNumber),
+        cpStr: String.fromCodePoint(cpNumber),
       };
     }
     ret = ucSelectOptionsMap[str];

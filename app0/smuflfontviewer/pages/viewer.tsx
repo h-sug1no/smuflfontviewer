@@ -342,7 +342,7 @@ const createUCodepointSelectOptions = (sMuFLMetadata: Database) => {
           value: cp,
           name: cp + ': ' + gname,
           glyphname: gname,
-          cpStr: String.fromCharCode(parseInt(`0x${cp}`)),
+          cpStr: String.fromCodePoint(parseInt(`0x${cp}`)),
         });
       }
     }
@@ -358,7 +358,7 @@ const createUCodepointSelectOptions = (sMuFLMetadata: Database) => {
         value: cp,
         name: cp + ': ' + gname,
         glyphname: gname,
-        cpStr: String.fromCharCode(parseInt(`0x${cp}`)),
+        cpStr: String.fromCodePoint(parseInt(`0x${cp}`)),
       });
     }
   });
@@ -557,8 +557,8 @@ export default function Viewer(): ReactElement {
     return tcp.value;
   }
 
-  function getCodepointNumber() {
-    return Number('0x' + getCodepoint());
+  function getCodepointNumber(): number {
+    return UCodePoint.fromUString(getCodepoint()).toNumber();
   }
 
   function selectCodepointByString(cp: string) {
