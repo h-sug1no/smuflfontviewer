@@ -642,7 +642,7 @@ export default function Viewer(): ReactElement {
                 <Button
                   title={messages.BNextGlyph}
                   onClick={() => {
-                    seekToCodepoint(getCodepointNumber(), 1, false);
+                    seekToCodepoint(getCodepointNumber(), 1, true);
                   }}
                   className={classes.button}
                 >
@@ -660,10 +660,10 @@ export default function Viewer(): ReactElement {
                 </Button>
 
                 <Button
-                  title={messages.BNextGlyph}
+                  title={messages.BNext}
                   className={classes.button}
                   onClick={() => {
-                    seekToCodepoint(getCodepointNumber(), 1, true);
+                    seekToCodepoint(getCodepointNumber(), 1, false);
                   }}
                 >
                   →
