@@ -45,6 +45,7 @@ export class FontMetadata {
 export type GlyphItem = {
   glyphname: GlyphnameStr;
   isOptionalGlyph: boolean;
+  codepoint: string | undefined;
 };
 
 export class FontInfo {
@@ -237,9 +238,10 @@ export class Database {
                 `duplicate codepoint: ${cp}: ${key}, ${glyphsByUCodepoint[cp].glyphname}`,
               );
             }
-            const glyphItem = {
+            const glyphItem: GlyphItem = {
               glyphname: key,
               isOptionalGlyph: namesDef.isOptionalGlyph,
+              codepoint: cp,
             };
             glyphsByUCodepoint[cp] = glyphItem;
 
