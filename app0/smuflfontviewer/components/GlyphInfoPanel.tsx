@@ -43,6 +43,7 @@ function UCodePoint(props: { uPlusCodepoint: string; isCurrentGlyph?: boolean })
 function BasicInfo(props: IGlyphInfoPanelParams): JSX.Element {
   const { selectOption, sMuFLMetadata } = props;
   const fontMetaData = sMuFLMetadata.fontMetadata();
+  let glyphnameDom: JSX.Element[] | undefined;
   let alternatesDom: JSX.Element | undefined;
 
   const glyphname = selectOption.glyphname || '';
@@ -52,6 +53,20 @@ function BasicInfo(props: IGlyphInfoPanelParams): JSX.Element {
 
     if (glyphnames) {
       const glyphnameItem: GlyphnameItem = glyphnames[glyphname];
+      if (glyphnameItem) {
+        glyphnameDom = Object.keys(glyphnameItem).map((key: keyof GlyphnameItem) => {
+          let value: string | JSX.Element = glyphnameItem[key] || '';
+          if (key !== 'description') {
+            value = <UCodePoint uPlusCodepoint={value} isCurrentGlyph={key === 'codepoint'} />;
+          }
+          return (
+            <div key={key}>
+              <span>{key}</span>
+              <span>{value}</span>
+            </div>
+          );
+        });
+      }
     }
     // FIXME: what is alternateCodepoint?
     if (glyphsWithAlternates) {
@@ -72,6 +87,7 @@ function BasicInfo(props: IGlyphInfoPanelParams): JSX.Element {
   return (
     <div className="basic">
       <GlyphAndName name={glyphname} cpStr={selectOption.cpStr} isCurrentGlyph={true} />
+      {glyphnameDom}
       {alternatesDom}
     </div>
   );

@@ -36,6 +36,7 @@ export type GlyphnameItem = {
    */
   alternateCodepoint?: UCodepointStr;
   description?: string;
+  [key: string]: string | undefined;
 };
 
 /**
