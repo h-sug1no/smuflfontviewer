@@ -39,7 +39,7 @@ function GlyphAndName(props: {
         resolveOptionalGlyphClazz(isOptionalGlyph),
       )}
     >
-      {name}:&nbsp;<span className="cpStr">{cpStr}</span>
+      {name || '?'}:&nbsp;<span className="cpStr">{cpStr}</span>
     </span>
   );
 }
@@ -47,7 +47,7 @@ function GlyphAndName(props: {
 function CUCodePoint(props: { uPlusCodepoint: string; isCurrentGlyph?: boolean }): JSX.Element {
   return (
     <span className={clsx('uPlusCodepoint', resolveCurrentClazz(props.isCurrentGlyph))}>
-      {props.uPlusCodepoint}
+      {props.uPlusCodepoint || '?'}
     </span>
   );
 }
@@ -56,7 +56,7 @@ function BasicInfo(props: IGlyphInfoPanelParams): JSX.Element {
   const { selectOption, sMuFLMetadata } = props;
   const fontMetaData = sMuFLMetadata.fontMetadata();
   const fontInfo = sMuFLMetadata.getFontInfo();
-  let glyphnameDom: JSX.Element[] | undefined;
+  let glyphnameDom: JSX.Element | JSX.Element[] | undefined;
   let alternatesDom: JSX.Element | undefined;
 
   let isOptionalGlyph = false;
@@ -78,13 +78,13 @@ function BasicInfo(props: IGlyphInfoPanelParams): JSX.Element {
           const uPlusCodepoint = uCodePoint.toUString();
           const glyphItems = alternateCodepointFors[uPlusCodepoint];
           if (glyphItems) {
-            glyphnameDom = [
+            glyphnameDom = (
               <>
                 codepoint: <CUCodePoint uPlusCodepoint={uPlusCodepoint} isCurrentGlyph={true} /> is
                 alternateCodepoint for:
-                {glyphItems.map((gi: GlyphItem) => {
+                {glyphItems.map((gi: GlyphItem, idx) => {
                   return (
-                    <>
+                    <div key={`${idx}_${gi.codepoint}`}>
                       codepoint: <CUCodePoint uPlusCodepoint={gi.codepoint || ''} />
                       name:{' '}
                       <GlyphAndName
@@ -92,11 +92,11 @@ function BasicInfo(props: IGlyphInfoPanelParams): JSX.Element {
                         isOptionalGlyph={gi.isOptionalGlyph}
                         cpStr={uCodePoint.toCharString()}
                       />
-                    </>
+                    </div>
                   );
                 })}
-              </>,
-            ];
+              </>
+            );
           }
         }
       }
