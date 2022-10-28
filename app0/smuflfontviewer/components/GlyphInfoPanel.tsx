@@ -174,6 +174,10 @@ function AlternatesInfo(props: {
   return ret;
 }
 
+function RangeInfo() {
+  return <div>range: {}</div>;
+}
+
 export default function GlyphInfoPanel(props: IGlyphInfoPanelParams): JSX.Element {
   const { selectOption, sMuFLMetadata } = props;
 
