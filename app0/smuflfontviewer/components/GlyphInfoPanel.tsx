@@ -2,11 +2,12 @@ import { isOptionGroup } from '@mui/base';
 import { Box } from '@mui/system';
 import clsx from 'clsx';
 import React from 'react';
-import { Database, GlyphItem } from '../lib/SMuFLMetadata';
+import { Database, GlyphItem, FontMetadata, SearchOptions } from '../lib/SMuFLMetadata';
 import {
   GlyphnameItem,
   GlyphsWithAlternateAlternateItem,
   GlyphsWithAlternateItem,
+  GlyphsWithAlternates,
 } from '../lib/SMuFLTypes';
 import { codepoint2UString, UCodePoint } from '../lib/UCodePoint';
 import { IUCSelectOption } from './UCodepointSelect';
@@ -26,11 +27,12 @@ function resolveOptionalGlyphClazz(isOptionalGlyph = false): string {
 
 function GlyphAndName(props: {
   name: string;
-  cpStr: string;
+  cpStr?: string;
   isCurrentGlyph?: boolean;
   isOptionalGlyph?: boolean;
 }): JSX.Element {
-  const { name, cpStr, isCurrentGlyph = false, isOptionalGlyph = false } = props;
+  const { name, cpStr, isCurrentGlyph = false, isOptionalGlyph } = props;
+
   return (
     <span
       className={clsx(
@@ -57,13 +59,11 @@ function BasicInfo(props: IGlyphInfoPanelParams): JSX.Element {
   const fontMetaData = sMuFLMetadata.fontMetadata();
   const fontInfo = sMuFLMetadata.getFontInfo();
   let glyphnameDom: JSX.Element | JSX.Element[] | undefined;
-  let alternatesDom: JSX.Element | undefined;
 
   let isOptionalGlyph = false;
   const glyphname = selectOption.glyphname || '';
   if (fontMetaData) {
     const { glyphnames } = sMuFLMetadata.data_;
-    const glyphsWithAlternates = fontMetaData.glyphsWithAlternates;
     if (glyphnames) {
       const { optionalGlyphs } = fontMetaData;
       let glyphnameItem: GlyphnameItem = glyphnames[glyphname];
@@ -118,20 +118,6 @@ function BasicInfo(props: IGlyphInfoPanelParams): JSX.Element {
         });
       }
     }
-    // FIXME: what is alternateCodepoint?
-    if (glyphsWithAlternates) {
-      const gis: GlyphsWithAlternateItem | undefined = glyphsWithAlternates[glyphname || ''] || [];
-      if (gis && gis.alternates) {
-        alternatesDom = (
-          <div>
-            alternateCodepoint:{' '}
-            {gis.alternates.map((gi: GlyphsWithAlternateAlternateItem) => {
-              return <CUCodePoint key={gi.codepoint} uPlusCodepoint={gi.codepoint || ''} />;
-            })}
-          </div>
-        );
-      }
-    }
   }
 
   return (
@@ -143,13 +129,57 @@ function BasicInfo(props: IGlyphInfoPanelParams): JSX.Element {
         isOptionalGlyph={isOptionalGlyph}
       />
       {glyphnameDom}
-      {alternatesDom}
     </div>
   );
 }
 
+function AlternatesInfo(props: {
+  sMuFLMetadata: Database;
+  glyphsWithAlternates?: GlyphsWithAlternates;
+  selectOption: IUCSelectOption;
+}): JSX.Element {
+  const { glyphsWithAlternates } = props;
+  const { glyphname } = props.selectOption;
+  let alternatesDom;
+
+  if (glyphsWithAlternates) {
+    const gis: GlyphsWithAlternateItem | undefined = glyphsWithAlternates[glyphname || ''] || [];
+    if (gis && gis.alternates) {
+      alternatesDom = (
+        <div>
+          alternates:{' '}
+          {gis.alternates.map((gi: GlyphsWithAlternateAlternateItem) => {
+            const options: SearchOptions = {
+              searchOptional: true,
+            };
+            const uCodePoint = props.sMuFLMetadata.glyphname2UCodePointObj(gi.name, options);
+            return (
+              <div key={gi.name}>
+                codepoint:
+                <CUCodePoint key={gi.codepoint} uPlusCodepoint={gi.codepoint || ''} /> name:
+                <GlyphAndName
+                  name={gi.name || ''}
+                  cpStr={uCodePoint?.toCharString()}
+                  isCurrentGlyph={false}
+                  isOptionalGlyph={options.isOptionalGlyph}
+                />
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+  }
+  const ret = <div className="alternates">{alternatesDom}</div>;
+  return ret;
+}
+
 export default function GlyphInfoPanel(props: IGlyphInfoPanelParams): JSX.Element {
   const { selectOption, sMuFLMetadata } = props;
+
+  const fontMetaData = sMuFLMetadata?.fontMetadata();
+  const glyphsWithAlternates = fontMetaData?.glyphsWithAlternates;
+
   return (
     <Box
       sx={{
@@ -158,6 +188,11 @@ export default function GlyphInfoPanel(props: IGlyphInfoPanelParams): JSX.Elemen
       }}
     >
       <BasicInfo {...props} />
+      <AlternatesInfo
+        sMuFLMetadata={sMuFLMetadata}
+        selectOption={selectOption}
+        glyphsWithAlternates={glyphsWithAlternates}
+      />
     </Box>
   );
 }

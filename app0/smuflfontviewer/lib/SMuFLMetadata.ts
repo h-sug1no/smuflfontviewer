@@ -372,7 +372,15 @@ export class Database {
     return (item || { codepoint: undefined }).codepoint;
   }
 
-  glyphname2string(glyphname: string): UCodepointStr | undefined {
+  glyphname2UCodepointStr(glyphname: string): UCodepointStr | undefined {
     return this.glyphname2uCodepoint(glyphname);
+  }
+
+  glyphname2UCodePointObj(
+    glyphname: string | undefined = '',
+    options: SearchOptions = {},
+  ): UCodePoint | undefined {
+    const ucp = this.glyphname2uCodepoint(glyphname, options);
+    return ucp ? UCodePoint.fromUString(ucp) : undefined;
   }
 }
