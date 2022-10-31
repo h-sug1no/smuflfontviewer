@@ -104,7 +104,7 @@ function HeaderMenu() {
   ];
 
   const TContainer = styled('div')(() => ({
-    header: {
+    '.header': {
       backgroundColor: '#400CCC',
       paddingRight: '79px',
       paddingLeft: '118px',
@@ -119,23 +119,23 @@ function HeaderMenu() {
         height: 'auto',
       },
     },
-    logo: {
+    '.logo': {
       fontFamily: 'Work Sans, sans-serif',
       fontWeight: 600,
       color: '#FFFEFE',
       textAlign: 'left',
     },
-    menuButton: {
+    '.menuButton': {
       fontFamily: 'Open Sans, sans-serif',
       fontWeight: 700,
       size: '18px',
       marginLeft: '38px',
     },
-    toolbar: {
+    '.toolbar': {
       display: 'flex',
       justifyContent: 'space-between',
     },
-    drawerContainer: {
+    '.drawerContainer': {
       padding: '20px 30px',
     },
   }));
@@ -437,7 +437,7 @@ const cpNumber2Range = (cpNumber: number) => {
 };
 
 const VContainer = styled('div')(() => ({
-  button: {
+  '.button': {
     fontSize: '2rem',
   },
 }));

@@ -9,12 +9,12 @@ import { Slide, SlideProps, DialogProps } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
 const TContainer = styled('div')(({ theme }) => ({
-  appBar: {
+  '.appBar': {
     position: 'fixed',
     right: 0,
     width: '5rem',
   },
-  title: {
+  '.title': {
     marginLeft: theme.spacing(2),
     flex: 1,
   },
