@@ -17,7 +17,7 @@ import {
   Drawer,
   AppBar,
 } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
+import { styled } from '@mui/material/styles';
 import MenuIcon from '@mui/icons-material/Menu';
 import React, { useState, useEffect, ReactElement, useRef } from 'react';
 import AnyListDialogRef, { IHandlers } from '../components/AnyListDialog';
@@ -103,7 +103,7 @@ function HeaderMenu() {
     },
   ];
 
-  const useStyles = makeStyles(() => ({
+  const TContainer = styled('div')(() => ({
     header: {
       backgroundColor: '#400CCC',
       paddingRight: '79px',
@@ -142,8 +142,6 @@ function HeaderMenu() {
 
   function Header() {
     const cal = useRef<IHandlers | null>(null);
-
-    const { header, logo, menuButton, toolbar, drawerContainer } = useStyles();
 
     const [state, setState] = useState({
       mobileView: false,
@@ -213,7 +211,7 @@ function HeaderMenu() {
 
     const displayDesktop = () => {
       return (
-        <Toolbar className={toolbar}>
+        <Toolbar className={'toolbar'}>
           {appLogo}
           <div>{getMenuButtons()}</div>
         </Toolbar>
@@ -247,7 +245,7 @@ function HeaderMenu() {
               onClose: handleDrawerClose,
             }}
           >
-            <div className={drawerContainer}>{getDrawerChoices()}</div>
+            <div className={'drawerContainer'}>{getDrawerChoices()}</div>
           </Drawer>
 
           <div>{appLogo}</div>
@@ -291,7 +289,7 @@ function HeaderMenu() {
     };
 
     const appLogo = (
-      <Typography variant="h6" component="h1" className={logo}>
+      <Typography variant="h6" component="h1" className={'logo'}>
         smuflfontviewer
       </Typography>
     );
@@ -305,7 +303,7 @@ function HeaderMenu() {
               color: 'inherit',
               to: href,
               component: 'span',
-              className: menuButton,
+              className: 'menuButton',
               onClick: (e: React.MouseEvent) => onClick(eType, e),
             }}
           >
@@ -316,10 +314,12 @@ function HeaderMenu() {
     };
 
     return (
-      <header>
-        <AppBar className={header}>{mobileView ? displayMobile() : displayDesktop()}</AppBar>
-        <AnyListDialogRef ref={cal} />
-      </header>
+      <TContainer>
+        <header>
+          <AppBar className={'header'}>{mobileView ? displayMobile() : displayDesktop()}</AppBar>
+          <AnyListDialogRef ref={cal} />
+        </header>
+      </TContainer>
     );
   }
   return Header();
@@ -436,7 +436,7 @@ const cpNumber2Range = (cpNumber: number) => {
   return tRange;
 };
 
-const useStyles = makeStyles(() => ({
+const VContainer = styled('div')(() => ({
   button: {
     fontSize: '2rem',
   },
@@ -450,7 +450,6 @@ export default function Viewer(): ReactElement {
     ERROR,
     READY,
   }
-  const classes = useStyles();
   const { query, asPath } = useRouter();
   const [dbState, setDBState] = useState(DBState.INITIAL);
 
@@ -602,7 +601,7 @@ export default function Viewer(): ReactElement {
   };
 
   return (
-    <>
+    <VContainer>
       <Head>
         <title>smuflfontviewer</title>
         <link rel="icon" href="/favicon.ico" />
@@ -631,7 +630,7 @@ export default function Viewer(): ReactElement {
               <div>
                 <Button
                   title={messages.BPrev}
-                  className={classes.button}
+                  className={'button'}
                   onClick={() => {
                     seekToCodepoint(getCodepointNumber(), -1, false);
                   }}
@@ -644,14 +643,14 @@ export default function Viewer(): ReactElement {
                   onClick={() => {
                     seekToCodepoint(getCodepointNumber(), 1, true);
                   }}
-                  className={classes.button}
+                  className={'button'}
                 >
                   ↓
                 </Button>
 
                 <Button
                   title={messages.BPrevGlyph}
-                  className={classes.button}
+                  className={'button'}
                   onClick={() => {
                     seekToCodepoint(getCodepointNumber(), -1, true);
                   }}
@@ -661,7 +660,7 @@ export default function Viewer(): ReactElement {
 
                 <Button
                   title={messages.BNext}
-                  className={classes.button}
+                  className={'button'}
                   onClick={() => {
                     seekToCodepoint(getCodepointNumber(), 1, false);
                   }}
@@ -669,11 +668,7 @@ export default function Viewer(): ReactElement {
                   →
                 </Button>
 
-                <IconButton
-                  title={messages.BShowScratchpad}
-                  className={classes.button}
-                  size="large"
-                >
+                <IconButton title={messages.BShowScratchpad} className={'button'} size="large">
                   <NoteIcon />
                 </IconButton>
               </div>
@@ -798,6 +793,6 @@ export default function Viewer(): ReactElement {
         */}
         </Box>
       </Container>
-    </>
+    </VContainer>
   );
 }

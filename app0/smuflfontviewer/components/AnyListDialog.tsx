@@ -1,5 +1,4 @@
 import React, { MutableRefObject, ReactNode } from 'react';
-import makeStyles from '@mui/styles/makeStyles';
 import Dialog from '@mui/material/Dialog';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
@@ -7,8 +6,9 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import CloseIcon from '@mui/icons-material/Close';
 import { Slide, SlideProps, DialogProps } from '@mui/material';
+import { styled } from '@mui/material/styles';
 
-const useStyles = makeStyles((theme) => ({
+const TContainer = styled('div')(({ theme }) => ({
   appBar: {
     position: 'fixed',
     right: 0,
@@ -31,7 +31,6 @@ export type IHandlers = { handleClickOpen: (children: ReactNode) => void | null 
 // type AnyListDialogProp = null; // {someprop: proptype}
 
 const AnyListDialogRef = React.forwardRef<IHandlers>(function AnyListDialog(props, ref) {
-  const classes = useStyles();
   const [open, setOpen] = React.useState(false);
 
   const [children, setChildren] = React.useState<ReactNode | null>(null);
@@ -58,29 +57,30 @@ const AnyListDialogRef = React.forwardRef<IHandlers>(function AnyListDialog(prop
   }
 
   return (
-    <div>
+    <TContainer>
       {/*
       <Button variant="outlined" color="primary" onClick={handleClickOpen}>
         Open full-screen dialog
       </Button>
       */}
       <Dialog fullScreen open={open} onClose={handleClose} TransitionComponent={Transition}>
-        <AppBar className={classes.appBar}>
+        <AppBar className={'appBar'}>
           <Toolbar>
             <IconButton
               edge="start"
               color="inherit"
               onClick={handleClose}
               aria-label="close"
-              size="large">
+              size="large"
+            >
               <CloseIcon />
             </IconButton>
-            <Typography variant="h6" className={classes.title}></Typography>
+            <Typography variant="h6" className={'title'}></Typography>
           </Toolbar>
         </AppBar>
         <div className="contentContainer">{children}</div>
       </Dialog>
-    </div>
+    </TContainer>
   );
 });
 
