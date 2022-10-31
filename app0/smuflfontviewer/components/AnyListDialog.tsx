@@ -9,12 +9,12 @@ import { Slide, SlideProps, DialogProps } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
 const TContainer = styled('div')(({ theme }) => ({
-  '.appBar': {
+  '& .appBar': {
     position: 'fixed',
     right: 0,
     width: '5rem',
   },
-  '.title': {
+  '& .title': {
     marginLeft: theme.spacing(2),
     flex: 1,
   },
@@ -57,30 +57,32 @@ const AnyListDialogRef = React.forwardRef<IHandlers>(function AnyListDialog(prop
   }
 
   return (
-    <TContainer>
+    <>
       {/*
       <Button variant="outlined" color="primary" onClick={handleClickOpen}>
         Open full-screen dialog
       </Button>
       */}
       <Dialog fullScreen open={open} onClose={handleClose} TransitionComponent={Transition}>
-        <AppBar className={'appBar'}>
-          <Toolbar>
-            <IconButton
-              edge="start"
-              color="inherit"
-              onClick={handleClose}
-              aria-label="close"
-              size="large"
-            >
-              <CloseIcon />
-            </IconButton>
-            <Typography variant="h6" className={'title'}></Typography>
-          </Toolbar>
-        </AppBar>
-        <div className="contentContainer">{children}</div>
+        <TContainer className="tContainer">
+          <AppBar className={'appBar'}>
+            <Toolbar>
+              <IconButton
+                edge="start"
+                color="inherit"
+                onClick={handleClose}
+                aria-label="close"
+                size="large"
+              >
+                <CloseIcon />
+              </IconButton>
+              <Typography variant="h6" className={'title'}></Typography>
+            </Toolbar>
+          </AppBar>
+          <div className="contentContainer">{children}</div>
+        </TContainer>
       </Dialog>
-    </TContainer>
+    </>
   );
 });
 
