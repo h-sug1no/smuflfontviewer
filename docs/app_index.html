@@ -217,19 +217,19 @@
         addDemolistItem('steinbergmedia/petaluma/master(PetalumaText) + w3c/smufl',
           _create_petaluma_options('PetalumaText'));
 
-          function _create_Leland_options(otf) {
+          function _create_Leland_options(otf, metadata) {
           return _createDemolistOptions(
             'https://raw.githubusercontent.com/MuseScoreFonts/Leland/main',
             'https://raw.githubusercontent.com/w3c/smufl/gh-pages/metadata',
-            `/${otf}.otf`, '/metadata.json'
+            `/${otf}.otf`, `/${metadata}.json`
           );
         }
 
         addDemolistItem('MuseScoreFonts/Leland/main(Leland) + w3c/smufl',
-          _create_Leland_options('Leland'));
+          _create_Leland_options('Leland', 'leland_metadata'));
 
         addDemolistItem('MuseScoreFonts/Leland/main(LelandText) + w3c/smufl',
-        _create_Leland_options('LelandText'));
+        _create_Leland_options('LelandText','leland_metadata'));
 
         var evt = new Event("change", {"bubbles":true, "cancelable":true});
         demolistElm.dispatchEvent(evt);
