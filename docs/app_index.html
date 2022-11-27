@@ -5,235 +5,236 @@
   <meta name="copyright" content="Copyright (c) 2019 h-sug1no">
   <title>SMuFL font viewer launcher</title>
   <style>
-  #options div label {
-    display: inline-block;
-    width: 9em;
-  }
-  #options div input {
-    width: calc(100vw - 20em)
-  }
+    #options div label {
+      display: inline-block;
+      width: 9em;
+    }
 
+    #options div input {
+      width: calc(100vw - 20em)
+    }
   </style>
 </head>
-  <body>
-    <div id="container">
-      <select id="demolist">
-      </select>
-        <hr>
-        <div id="options">
-          <div class="item">
-            <label>fontUrl</label> <input>
-          </div>
-          <div class="item">
-            <label>fontMetadataUrl</label> <input>
-          </div>
-          <hr>
-          SMuFL metadata:
-          <div class="item">
-            <label>glyphnamesUrl</label> <input>
-          </div>
-          <div class="item">
-            <label>classesUrl</label> <input>
-          </div>
-          <div class="item">
-            <label>rangesUrl</label> <input>
-          </div>
-          <hr>
-          <div class="item">
-            <label title="codepoint(ex..:E0A3) or glyphname(ex...:noteheadHalf)">glyph</label> <input>
-          </div>
-        </div>
-        <hr>
-        <div id="settings">settings:
-          <div class="item">
-            <label title="cutOut anchor points are relative to the:
+
+<body>
+  <div id="container">
+    <select id="demolist">
+    </select>
+    <hr>
+    <div id="options">
+      <div class="item">
+        <label>fontUrl</label> <input>
+      </div>
+      <div class="item">
+        <label>fontMetadataUrl</label> <input>
+      </div>
+      <hr>
+      SMuFL metadata:
+      <div class="item">
+        <label>glyphnamesUrl</label> <input>
+      </div>
+      <div class="item">
+        <label>classesUrl</label> <input>
+      </div>
+      <div class="item">
+        <label>rangesUrl</label> <input>
+      </div>
+      <hr>
+      <div class="item">
+        <label title="codepoint(ex..:E0A3) or glyphname(ex...:noteheadHalf)">glyph</label> <input>
+      </div>
+    </div>
+    <hr>
+    <div id="settings">settings:
+      <div class="item">
+        <label title="cutOut anchor points are relative to the:
     unchecked: glyph origin.
     checked: bottom left-hand corner of the glyph bounding box(old spec).
-            "><input
-                type="checkbox" />cutOutOrigin_BBL<span class="val"></span></label>
-          </div>
-          </div>
-        <hr>
-        <button id="openBtn">open</button>
+            "><input type="checkbox" />cutOutOrigin_BBL<span class="val"></span></label>
+      </div>
     </div>
+    <hr>
+    <button id="openBtn">open</button>
+  </div>
 
-    <script>
-      (function() {
-        const urlObject = new URL(location);
-        const containerElm = document.querySelector('#container');
-        const demolistElm = document.querySelector('#demolist');
-        const openBtnElm = document.querySelector('#openBtn');
+  <script>
+    (function () {
+      const urlObject = new URL(location);
+      const containerElm = document.querySelector('#container');
+      const demolistElm = document.querySelector('#demolist');
+      const openBtnElm = document.querySelector('#openBtn');
 
-        if (!window.FontFace) {
-          alert('no window.FontFace. This browser is not supported.');
-          openBtnElm.disabled = true;
+      if (!window.FontFace) {
+        alert('no window.FontFace. This browser is not supported.');
+        openBtnElm.disabled = true;
+      }
+
+      const _itemInputMap = {};
+      containerElm.querySelectorAll('div.item').forEach(function (divItemElm) {
+        const itemDataElm = divItemElm.querySelector('label');
+        let prefix = divItemElm.parentElement.id;
+        const inputElm = divItemElm.querySelector('input');
+        if (prefix === 'settings') {
+          prefix += '.';
+          inputElm._appIsSettingsItem = true;
         }
+        else {
+          prefix = '';
+        }
+        _itemInputMap[prefix + itemDataElm.textContent] = inputElm;
+      });
 
-        const _itemInputMap = {};
-        containerElm.querySelectorAll('div.item').forEach(function(divItemElm) {
-          const itemDataElm = divItemElm.querySelector('label');
-          let prefix = divItemElm.parentElement.id;
-          const inputElm = divItemElm.querySelector('input');
-          if (prefix === 'settings') {
-            prefix += '.';
-            inputElm._appIsSettingsItem = true;
+      containerElm.addEventListener('change', function (ev) {
+        //console.log(ev);
+        if (ev.target === demolistElm) {
+          const item = demolistElm.querySelectorAll('option')[demolistElm.selectedIndex];
+          updateOptions(item._jsOptions);
+        }
+      });
+
+      let wid = 0;
+      containerElm.addEventListener('click', function (ev) {
+        if (ev.target === openBtnElm) {
+          window.open(createUrl(), '_smuflfontviewer_app_' + (++wid));
+        }
+      });
+
+      function updateOptions(options) {
+        Object.keys(options).forEach(function (key) {
+          if (key !== 'settings') {
+            _itemInputMap[key].value = options[key];
           }
-          else {
-            prefix = '';
-          }
-          _itemInputMap[prefix + itemDataElm.textContent] = inputElm;
         });
-
-        containerElm.addEventListener('change', function(ev) {
-          //console.log(ev);
-          if (ev.target === demolistElm) {
-            const item = demolistElm.querySelectorAll('option')[demolistElm.selectedIndex];
-            updateOptions(item._jsOptions);
-          }
-        });
-
-        let wid = 0;
-        containerElm.addEventListener('click', function(ev) {
-          if (ev.target === openBtnElm) {
-            window.open(createUrl(), '_smuflfontviewer_app_' + (++wid));
-          }
-        });
-
-        function updateOptions(options) {
-          Object.keys(options).forEach(function(key) {
-            if (key !== 'settings') {
-              _itemInputMap[key].value = options[key];
-            }
-          });
-          const settings = options.settings || {
-            cutOutOrigin_BBL: false
-          };
-
-          Object.keys(settings).forEach(function(key) {
-            _itemInputMap['settings.' + key].checked = settings[key];
-          });
-
-        }
-
-        function createUrl() {
-          const url = new URL('./app.html', location);
-          for (let key in _itemInputMap) {
-            const inputElm = _itemInputMap[key];
-            if (inputElm._appIsSettingsItem) {
-              if (inputElm.checked) {
-                url.searchParams.set(key, true);
-              }
-            }
-            else {
-              url.searchParams.set(key, inputElm.value);
-            }
-          }
-          return url;
-        }
-
-        function addDemolistItem(text, options) {
-          var optionElm = document.createElement('option');
-          optionElm.textContent = optionElm.value = text;
-          optionElm._jsOptions = options;
-          demolistElm.appendChild(optionElm);
-        }
-
-        function _createDemolistOptions(lFontBasePath, lMetadataBasePath, optFontPath, optFontMetadataPath, settings) {
-            return {
-              fontUrl: lFontBasePath + optFontPath,
-              fontMetadataUrl: lFontBasePath + optFontMetadataPath,
-              glyphnamesUrl: lMetadataBasePath + '/glyphnames.json',
-              classesUrl: lMetadataBasePath + '/classes.json',
-              rangesUrl: lMetadataBasePath + '/ranges.json',
-              settings: settings
-            };
-        }
-
-        const oldFontSettings = {
-          cutOutOrigin_BBL: true
+        const settings = options.settings || {
+          cutOutOrigin_BBL: false
         };
 
-        if (urlObject.searchParams.get('dev') !== null) {
-          // mkdir ./packages
-          // and clone followings in packages/.
-          //   https://github.com/w3c/smufl.git
-          //   https://github.com/steinbergmedia/bravura
-          //   https://github.com/steinbergmedia/petaluma
-          //
-          function _create_demo_bravura_options(woff) {
-            return _createDemolistOptions(
-              './packages/bravura/redist',
-              './packages/smufl/metadata',
-              `/woff/${woff}.woff2`, '/bravura_metadata.json'
-            );
+        Object.keys(settings).forEach(function (key) {
+          _itemInputMap['settings.' + key].checked = settings[key];
+        });
+
+      }
+
+      function createUrl() {
+        const url = new URL('./app.html', location);
+        for (let key in _itemInputMap) {
+          const inputElm = _itemInputMap[key];
+          if (inputElm._appIsSettingsItem) {
+            if (inputElm.checked) {
+              url.searchParams.set(key, true);
+            }
           }
-
-          addDemolistItem('local Bravura(debug)',
-            _create_demo_bravura_options('Bravura'));
-
-          addDemolistItem('local BravuraText(debug)',
-            _create_demo_bravura_options('BravuraText'));
-
-          function _create_demo_petaluma_options(woff) {
-            return _createDemolistOptions(
-              './packages/petaluma/redist',
-              './packages/smufl/metadata',
-              `/woff/${woff}.woff2`, '/petaluma_metadata.json',
-              oldFontSettings
-            );
+          else {
+            url.searchParams.set(key, inputElm.value);
           }
-
-          addDemolistItem('local Petaluma(debug)',
-            _create_demo_petaluma_options('Petaluma'));
-
-          addDemolistItem('local PetalumaText(debug)',
-            _create_demo_petaluma_options('PetalumaText'));
         }
+        return url;
+      }
 
-        function _create_bravura_options(woff) {
+      function addDemolistItem(text, options) {
+        var optionElm = document.createElement('option');
+        optionElm.textContent = optionElm.value = text;
+        optionElm._jsOptions = options;
+        demolistElm.appendChild(optionElm);
+      }
+
+      function _createDemolistOptions(lFontBasePath, lMetadataBasePath, optFontPath, optFontMetadataPath, settings) {
+        return {
+          fontUrl: lFontBasePath + optFontPath,
+          fontMetadataUrl: lFontBasePath + optFontMetadataPath,
+          glyphnamesUrl: lMetadataBasePath + '/glyphnames.json',
+          classesUrl: lMetadataBasePath + '/classes.json',
+          rangesUrl: lMetadataBasePath + '/ranges.json',
+          settings: settings
+        };
+      }
+
+      const oldFontSettings = {
+        cutOutOrigin_BBL: true
+      };
+
+      if (urlObject.searchParams.get('dev') !== null) {
+        // mkdir ./packages
+        // and clone followings in packages/.
+        //   https://github.com/w3c/smufl.git
+        //   https://github.com/steinbergmedia/bravura
+        //   https://github.com/steinbergmedia/petaluma
+        //
+        function _create_demo_bravura_options(woff) {
           return _createDemolistOptions(
-           'https://raw.githubusercontent.com/steinbergmedia/bravura/master/redist',
-            'https://raw.githubusercontent.com/w3c/smufl/gh-pages/metadata',
+            './packages/bravura/redist',
+            './packages/smufl/metadata',
             `/woff/${woff}.woff2`, '/bravura_metadata.json'
           );
         }
-        addDemolistItem('steinbergmedia/bravura/master + w3c/smufl',
-        _create_bravura_options('Bravura'));
 
-        addDemolistItem('steinbergmedia/bravura/master(BravuraText) + w3c/smufl',
-        _create_bravura_options('BravuraText'));
+        addDemolistItem('local Bravura(debug)',
+          _create_demo_bravura_options('Bravura'));
 
-        function _create_petaluma_options(woff) {
+        addDemolistItem('local BravuraText(debug)',
+          _create_demo_bravura_options('BravuraText'));
+
+        function _create_demo_petaluma_options(woff) {
           return _createDemolistOptions(
-            'https://raw.githubusercontent.com/steinbergmedia/petaluma/master/redist',
-            'https://raw.githubusercontent.com/w3c/smufl/gh-pages/metadata',
+            './packages/petaluma/redist',
+            './packages/smufl/metadata',
             `/woff/${woff}.woff2`, '/petaluma_metadata.json',
             oldFontSettings
           );
         }
 
-        addDemolistItem('steinbergmedia/petaluma/master + w3c/smufl',
-          _create_petaluma_options('Petaluma'));
-        addDemolistItem('steinbergmedia/petaluma/master(PetalumaText) + w3c/smufl',
-          _create_petaluma_options('PetalumaText'));
+        addDemolistItem('local Petaluma(debug)',
+          _create_demo_petaluma_options('Petaluma'));
 
-          function _create_Leland_options(otf) {
-          return _createDemolistOptions(
-            'https://raw.githubusercontent.com/MuseScoreFonts/Leland/main',
-            'https://raw.githubusercontent.com/w3c/smufl/gh-pages/metadata',
-            `/${otf}.otf`, '/metadata.json'
-          );
-        }
+        addDemolistItem('local PetalumaText(debug)',
+          _create_demo_petaluma_options('PetalumaText'));
+      }
 
-        addDemolistItem('MuseScoreFonts/Leland/main(Leland) + w3c/smufl',
-          _create_Leland_options('Leland'));
+      function _create_bravura_options(woff) {
+        return _createDemolistOptions(
+          'https://raw.githubusercontent.com/steinbergmedia/bravura/master/redist',
+          'https://raw.githubusercontent.com/w3c/smufl/gh-pages/metadata',
+          `/woff/${woff}.woff2`, '/bravura_metadata.json'
+        );
+      }
+      addDemolistItem('steinbergmedia/bravura/master + w3c/smufl',
+        _create_bravura_options('Bravura'));
 
-        addDemolistItem('MuseScoreFonts/Leland/main(LelandText) + w3c/smufl',
-        _create_Leland_options('LelandText'));
+      addDemolistItem('steinbergmedia/bravura/master(BravuraText) + w3c/smufl',
+        _create_bravura_options('BravuraText'));
 
-        var evt = new Event("change", {"bubbles":true, "cancelable":true});
-        demolistElm.dispatchEvent(evt);
-      })();
-    </script>
-  </body>
+      function _create_petaluma_options(woff) {
+        return _createDemolistOptions(
+          'https://raw.githubusercontent.com/steinbergmedia/petaluma/master/redist',
+          'https://raw.githubusercontent.com/w3c/smufl/gh-pages/metadata',
+          `/woff/${woff}.woff2`, '/petaluma_metadata.json',
+          oldFontSettings
+        );
+      }
+
+      addDemolistItem('steinbergmedia/petaluma/master + w3c/smufl',
+        _create_petaluma_options('Petaluma'));
+      addDemolistItem('steinbergmedia/petaluma/master(PetalumaText) + w3c/smufl',
+        _create_petaluma_options('PetalumaText'));
+
+      function _create_Leland_options(otf, metadata) {
+        return _createDemolistOptions(
+          'https://raw.githubusercontent.com/MuseScoreFonts/Leland/main',
+          'https://raw.githubusercontent.com/w3c/smufl/gh-pages/metadata',
+          `/${otf}.otf`, `/${metadata}.json`
+        );
+      }
+
+      addDemolistItem('MuseScoreFonts/Leland/main(Leland) + w3c/smufl',
+        _create_Leland_options('Leland', 'leland_metadata'));
+
+      addDemolistItem('MuseScoreFonts/Leland/main(LelandText) + w3c/smufl',
+        _create_Leland_options('LelandText', 'leland_metadata'));
+
+      var evt = new Event("change", { "bubbles": true, "cancelable": true });
+      demolistElm.dispatchEvent(evt);
+    })();
+  </script>
+</body>
+
 </html>
