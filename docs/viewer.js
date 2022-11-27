@@ -2132,8 +2132,15 @@ class SMuFLFontViewer {
 
     function _measureGlyph(glyphData, x, y, sbl) {
       const glyphname = glyphData.glyphname;
-      const bbox = sMuFLMetadata.fontMetadata().glyphBBoxes[glyphname];
+      let bbox = sMuFLMetadata.fontMetadata().glyphBBoxes[glyphname];
       let scaledBBox;
+      let noBBox = false;
+      if (!bbox || !bbox.bBoxNE || !bbox.bBoxSW) {
+        bbox = bbox || {};
+        bbox.bBoxNE = bbox.bBoxNE || [0, 0];
+        bbox.bBoxSW = bbox.bBoxSW || [0, 0];
+        noBBox = true;
+      }
       if (bbox) {
         if (bbox.bBoxNE && bbox.bBoxSW) {
           let E = anchorCsToScreenCsX(bbox.bBoxNE[0], sbl);
@@ -2157,6 +2164,7 @@ class SMuFLFontViewer {
       return {
         bbox: bbox,
         scaledBBox: scaledBBox,
+        noBBox,
       };
     }
 
@@ -2260,7 +2268,8 @@ class SMuFLFontViewer {
           }
         }
       }
-      _setValValue($smuflRenderGlyphOptionsBbox.parent(), bbox);
+      _setValValue($smuflRenderGlyphOptionsBbox.parent(),
+      m.noBBox ? 'warn: bbox is not defined' : bbox);
 
       if (anchor) {
         const bbs = {};
