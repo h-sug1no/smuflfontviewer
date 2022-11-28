@@ -2115,6 +2115,10 @@ class SMuFLFontViewer {
       ctx.restore();
     }
 
+    function sbl2fontSize(sbl) {
+      return sbl * 4;
+    }
+
     function _getFontSizeInfo() {
       const fontSize = Number($smuflRenderGlyphOptionsGlyphSize.val());
       const sbl = fontSize * 0.25;
@@ -2136,9 +2140,32 @@ class SMuFLFontViewer {
       let scaledBBox;
       let noBBox = false;
       if (!bbox || !bbox.bBoxNE || !bbox.bBoxSW) {
-        bbox = bbox || {};
-        bbox.bBoxNE = bbox.bBoxNE || [0, 0];
-        bbox.bBoxSW = bbox.bBoxSW || [0, 0];
+        ctx.save();
+        const str = String.fromCodePoint(glyphData.codepoint);
+        ctx.font = sbl2fontSize(sbl) + "px SMuFLFont";
+        ctx.fillText(str, 100, 100);
+        const m = ctx.measureText(str);
+        const {
+          actualBoundingBoxLeft,
+          actualBoundingBoxRight,
+          actualBoundingBoxAscent,
+          actualBoundingBoxDescent,
+        } = m;
+        ctx.restore();
+
+        const ne = [
+          actualBoundingBoxRight / sbl,
+          -actualBoundingBoxAscent / sbl,
+        ];
+        const sw = [
+          actualBoundingBoxLeft / sbl,
+          actualBoundingBoxDescent / sbl,
+        ];
+
+        bbox = {
+          bBoxNE: ne,
+          bBoxSW: sw,
+        };
         noBBox = true;
       }
       if (bbox) {
@@ -2268,8 +2295,10 @@ class SMuFLFontViewer {
           }
         }
       }
-      _setValValue($smuflRenderGlyphOptionsBbox.parent(),
-      m.noBBox ? 'warn: bbox is not defined' : bbox);
+      _setValValue(
+        $smuflRenderGlyphOptionsBbox.parent(),
+        m.noBBox ? { warn: "bbox is not defined", bbox } : bbox
+      );
 
       if (anchor) {
         const bbs = {};
