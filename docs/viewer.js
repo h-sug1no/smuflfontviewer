@@ -2268,8 +2268,10 @@ class SMuFLFontViewer {
           }
         }
       }
-      _setValValue($smuflRenderGlyphOptionsBbox.parent(),
-      m.noBBox ? 'warn: bbox is not defined' : bbox);
+      _setValValue(
+        $smuflRenderGlyphOptionsBbox.parent(),
+        m.noBBox ? "warn: bbox is not defined" : bbox
+      );
 
       if (anchor) {
         const bbs = {};
