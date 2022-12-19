@@ -1108,8 +1108,14 @@ export default function GlyphCanvas(props: IGlyphCanvasOptions): JSX.Element {
   const canvasRef = useCanvas(drawGlyph, value);
   const gcBoxRef = React.useRef<HTMLDivElement>(null);
 
-  const sizeLabelFormat = useCallback((val) => val, []);
-  const handleSizeChange = useCallback((e, val) => setSize(val), []);
+  const sizeLabelFormat = useCallback((val: number) => val.toString(), []);
+  const handleSizeChange = useCallback((e: Event, val: number | number[], index: number) => {
+    if (Array.isArray(val)) {
+      setSize(val[index]);
+    } else {
+      setSize(val);
+    }
+  }, []);
   const SLIDER_RANGE = {
     min: 20,
     max: 1000,
@@ -1125,7 +1131,7 @@ export default function GlyphCanvas(props: IGlyphCanvasOptions): JSX.Element {
   }, [gcBoxRef]);
 
   const updateSize = useCallback(
-    (v) => {
+    (v: number) => {
       setSize(Math.min(SLIDER_RANGE.max, Math.max(SLIDER_RANGE.min, v * 30 + sizeRef.current)));
     },
     [SLIDER_RANGE.max, SLIDER_RANGE.min, sizeRef],
