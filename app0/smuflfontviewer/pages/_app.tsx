@@ -1,15 +1,8 @@
 import React, { ReactElement } from 'react';
 import '../styles/globals.css';
 import { AppProps } from 'next/app';
-import { CssBaseline, ThemeProvider, Theme, StyledEngineProvider } from '@mui/material';
+import { CssBaseline, ThemeProvider, StyledEngineProvider } from '@mui/material';
 import theme from '../styles/theme';
-
-/* FIXME: @mui/styles: how should we do this?
-declare module '@mui/styles/defaultTheme' {
-  // eslint-disable-next-line @typescript-eslint/no-empty-interface
-  interface DefaultTheme extends Theme {}
-}
-*/
 
 export default function MyApp({ Component, pageProps }: AppProps): ReactElement {
   React.useEffect(() => {
