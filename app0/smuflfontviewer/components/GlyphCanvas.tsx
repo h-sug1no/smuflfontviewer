@@ -1,6 +1,6 @@
 /* eslint-disable no-use-before-define */
 import React, { MutableRefObject, useCallback, useEffect, useState } from 'react';
-import { IUCSelectOption, IUCSelectOption_value2Number } from './UCodepointSelect';
+import { IUCSelectOption } from './UCodepointSelect';
 import { Typography, Box, Slider, Checkbox, FormControlLabel, Button } from '@mui/material';
 import TriStateCheckbox, { useTriState, ITriState, TriValues } from '../lib/TriStateCheckbox';
 import { Database, FontMetadata } from '../lib/SMuFLMetadata';
@@ -112,10 +112,10 @@ function useCanvas(
 }
 
 type IGlyphData = {
-  codepoint: number;
+  cpNumber: number;
   glyphname?: string;
   anchors?: GlyphsWithAnchorItem;
-  uCodePoint?: UCodePoint;
+  uCodePoint: UCodePoint;
 };
 
 function resolveGlyphdataByGlyphname(
@@ -135,10 +135,13 @@ function resolveGlyphdata(
   fontMetadata: FontMetadata,
   cpStr: string,
 ): IGlyphData {
+  const uCodePoint = UCodePoint.fromUString(cpStr);
+  const cpNumber = uCodePoint.toNumber();
   const ret: IGlyphData = {
-    codepoint: IUCSelectOption_value2Number(cpStr),
+    cpNumber,
+    uCodePoint,
   };
-  ret.uCodePoint = UCodePoint.fromCpNumber(ret.codepoint);
+  ret.cpNumber = ret.uCodePoint?.toNumber();
   const searchOptions = {
     searchOptional: true,
   };
@@ -256,16 +259,14 @@ class GDCtx {
   getGlyphData(glyphname: string): IGlyphData {
     const { sMuFLMetadata, fontMetadata } = this;
     const option0 = { searchOptional: true };
-    const uCp = sMuFLMetadata.glyphname2uCodepoint(glyphname, option0);
-    let codepoint = NaN;
-    let uCodePoint: UCodePoint | undefined;
-    if (uCp) {
-      uCodePoint = UCodePoint.fromUString(uCp);
-      codepoint = uCodePoint.toNumber();
-    }
+    const uCp = sMuFLMetadata.glyphname2uCodepoint(glyphname, option0) ?? 'NaN';
+    let cpNumber = NaN;
+    const uCodePoint: UCodePoint = UCodePoint.fromUString(uCp);
+    cpNumber = uCodePoint.toNumber();
+
     const ret = {
       uCodePoint,
-      codepoint,
+      cpNumber,
       glyphname,
     };
     resolveGlyphdataByGlyphname(fontMetadata, glyphname, ret);
@@ -362,14 +363,14 @@ function _renderGlyph(
   y: number,
   fontSize: string | number,
 ) {
-  const { codepoint = NaN } = glyphData;
-  if (isNaN(codepoint)) {
+  const { cpNumber = NaN } = glyphData;
+  if (isNaN(cpNumber)) {
     return;
   }
 
   ctx.font = fontSize + 'px SMuFLFont';
 
-  const str = String.fromCodePoint(codepoint);
+  const str = String.fromCodePoint(cpNumber);
   ctx.fillText(str, x, y);
 }
 
