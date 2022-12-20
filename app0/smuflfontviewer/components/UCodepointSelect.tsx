@@ -306,8 +306,4 @@ export function formatCodepointNumber(codepointNumber: number): string {
   return str.padStart(4, '0');
 }
 
-export function IUCSelectOption_value2Number(value: string): number {
-  return parseInt(value, 16);
-}
-
 export { initUCodepointSelectOptions };
