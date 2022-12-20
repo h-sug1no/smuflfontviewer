@@ -14,8 +14,13 @@ export class UCodePoint {
   }
 
   public static fromUString(uString: string): UCodePoint {
-    const codepoint = Number.parseInt(uString.replace('U+', ''), 16);
+    const codepoint = UCodePoint.fromUStringToNumber(uString);
     return new UCodePoint(codepoint);
+  }
+
+  public static fromUStringToNumber(uString: string): number {
+    const codepoint = Number.parseInt(uString.replace('U+', ''), 16);
+    return codepoint;
   }
 
   public toUString(addPrefix = true): string {
