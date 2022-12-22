@@ -361,27 +361,29 @@ function RangeInfo(props: {
         )}
         <br />
         {(Object.keys(tRange.r) as (keyof SFVRangeItem)[]).map(function (key) {
-          if (key === 'nStart' || key === 'nEnd') {
-            return null;
-          }
-
-          const tRanges: SFVRangeItem | undefined = tRange?.r;
           let item = undefined;
-          if (tRanges) {
-            if (key === 'glyphs') {
-              item = (
-                <div className="glyphsContainer">
-                  {tRanges.glyphs?.map(function (v) {
-                    return <>{appendGlyphname(sMuFLMetadata, v, glyphname).jsxDom},</>;
-                  })}
-                </div>
-              );
-            } else if (tRanges) {
-              item = appendCodepointOrText((tRanges[key] || '').toString());
+          if (key === 'nStart' || key === 'nEnd') {
+            // skip them
+          } else {
+            const tRanges: SFVRangeItem | undefined = tRange?.r;
+            if (tRanges) {
+              if (key === 'glyphs') {
+                item = (
+                  <div className="glyphsContainer">
+                    {tRanges.glyphs?.map(function (v) {
+                      return (
+                        <div key={v}>{appendGlyphname(sMuFLMetadata, v, glyphname).jsxDom},</div>
+                      );
+                    })}
+                  </div>
+                );
+              } else if (tRanges) {
+                item = appendCodepointOrText((tRanges[key] || '').toString());
+              }
             }
           }
           const ret = (
-            <div>
+            <div key={key}>
               {key}: {item}
             </div>
           );
