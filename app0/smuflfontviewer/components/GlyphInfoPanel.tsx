@@ -1,3 +1,5 @@
+import { NoBackpackSharp } from '@mui/icons-material';
+import { Link } from '@mui/material';
 import { Box } from '@mui/system';
 import clsx from 'clsx';
 import React from 'react';
@@ -124,7 +126,7 @@ function BasicInfo(props: IGlyphInfoPanelParams): JSX.Element {
   }
 
   return (
-    <div className="basic">
+    <div className="basic infoPanel">
       <GlyphAndName
         name={glyphname}
         cpStr={selectOption.cpStr}
@@ -173,7 +175,7 @@ function AlternatesInfo(props: {
       );
     }
   }
-  const ret = <div className="alternates">{alternatesDom}</div>;
+  const ret = <div className="alternates infoPanel">{alternatesDom}</div>;
   return ret;
 }
 
@@ -348,22 +350,23 @@ function RangeInfo(props: {
 
     jsx = (
       <div>
-        range:
+        range:&nbsp;
         {tRange.r.noSpecLink ? (
           tRange.key
         ) : (
-          <a
+          <Link
             href={`https://w3c.github.io/smufl/latest/tables/${filename}.html`}
             title={`${tRange.key} range spec`}
           >
-            ${tRange.key}
-          </a>
+            {tRange.key}
+          </Link>
         )}
         <br />
         {(Object.keys(tRange.r) as (keyof SFVRangeItem)[]).map(function (key) {
           let item = undefined;
           if (key === 'nStart' || key === 'nEnd') {
             // skip them
+            return <span key={key}></span>;
           } else {
             const tRanges: SFVRangeItem | undefined = tRange?.r;
             if (tRanges) {
@@ -383,16 +386,16 @@ function RangeInfo(props: {
             }
           }
           const ret = (
-            <div key={key}>
-              {key}: {item}
-            </div>
+            <span key={key}>
+              {key}: {item},
+            </span>
           );
           return ret;
         })}
       </div>
     );
   }
-  return <div>range: {jsx}</div>;
+  return <div className="ranges infoPanel">{jsx}</div>;
 }
 
 export default function GlyphInfoPanel(props: IGlyphInfoPanelParams): JSX.Element {
@@ -406,7 +409,13 @@ export default function GlyphInfoPanel(props: IGlyphInfoPanelParams): JSX.Elemen
     <Box
       sx={{
         display: 'flex',
-        backgroundColor: '#eeeeee',
+        flexDirection: 'column',
+        gap: '1em',
+        '.infoPanel': {
+          backgroundColor: '#eeeeee',
+          borderRadius: '1em',
+          padding: '0.5em',
+        },
       }}
     >
       <BasicInfo {...props} />
