@@ -13,7 +13,7 @@ const filter = createFilterOptions<IRangeSelectOption | string>({
 });
 
 export type RangeSelectProps = {
-  onChange(value: IRangeSelectOption): boolean;
+  onChange(value: IRangeSelectOption | null): boolean;
   value: string | IRangeSelectOption | null;
 };
 
@@ -25,7 +25,7 @@ export default function RangeSelect(props: RangeSelectProps): JSX.Element {
   const [tick, setTick] = React.useState<number>(0);
   const refTick = React.useRef<number>();
   const setValue = useCallback(
-    (v) => {
+    (v: IRangeSelectOption | null) => {
       if (!onChange(v)) {
         setTick((refTick.current || 0) + 1);
       }
@@ -60,6 +60,7 @@ export default function RangeSelect(props: RangeSelectProps): JSX.Element {
                 value: newValue.inputValue,
                 name: newValue.inputValue,
                 series: 'unknown input string',
+                cpNumber: NaN,
               });
             }
           } else {
@@ -136,7 +137,7 @@ export type IRangeSelectOption = {
   inputValue?: string;
   series: string;
   value: string;
-  codepoint: number;
+  cpNumber: number;
   name: string;
 };
 
@@ -175,7 +176,7 @@ export function registerRangeSelectOption(
       inputValue: rangeStr,
       name: `${str}`,
       value: `${str}`,
-      codepoint: cpNumber,
+      cpNumber,
       series: series || 'smufl range',
     });
     rangeSelectOptions.push(newItem);

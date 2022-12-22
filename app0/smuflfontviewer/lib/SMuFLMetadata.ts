@@ -26,6 +26,7 @@ import { UCodePoint } from './UCodePoint';
 
 export interface SearchOptions {
   isOptionalGlyph?: boolean;
+  isUnknownOptionalGlyph?: boolean;
   searchOptional?: boolean;
   fontName?: string;
 }

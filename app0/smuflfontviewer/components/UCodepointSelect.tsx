@@ -40,7 +40,7 @@ export default function UCodepointSelect(props: IUCodepointSelectOptions): JSX.E
   const [tick, setTick] = React.useState<number>(0);
   const refTick = React.useRef<number>();
   const setValue = useCallback(
-    (v) => {
+    (v: IUCSelectOption | null) => {
       if (!onChange(v)) {
         setTick((refTick.current || 0) + 1);
       }
@@ -75,6 +75,7 @@ export default function UCodepointSelect(props: IUCodepointSelectOptions): JSX.E
                 value: newValue.inputValue,
                 name: newValue.inputValue,
                 series: 'unknown input string',
+                cpStr: '',
               });
             }
           } else {
@@ -236,7 +237,7 @@ export type IUCSelectOption = {
   series: string;
   value: string;
   name: string;
-  cpStr: string;
+  cpStr: string; // codepoint chars string.
   glyphname?: string; // for series: optionalGlyphs | glyphnames
 };
 

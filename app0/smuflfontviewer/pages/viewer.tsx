@@ -543,7 +543,7 @@ export default function Viewer(): ReactElement {
     console.log(JSON.stringify(v));
     if (v) {
       setCurrentRange(v);
-      selectCodepointByNumber(v.codepoint);
+      selectCodepointByNumber(v.cpNumber);
     } else {
       // how to inform repaint?
       // keep current ucodepoint on select.
@@ -599,6 +599,8 @@ export default function Viewer(): ReactElement {
     BShowPrev: 'show (p)rev glyph',
     BShowScratchpad: 'toggle Scratchpad',
   };
+
+  const uCodePoint = UCodePoint.fromUString(currentUCodepoint?.value || '');
 
   return (
     <VContainer>
@@ -688,7 +690,11 @@ export default function Viewer(): ReactElement {
           </div>
           <div className="glyphInfoPanel">
             {currentUCodepoint && (
-              <GlyphInfoPanel sMuFLMetadata={sMuFLMetadata} selectOption={currentUCodepoint} />
+              <GlyphInfoPanel
+                sMuFLMetadata={sMuFLMetadata}
+                selectOption={currentUCodepoint}
+                uCodePoint={uCodePoint}
+              />
             )}
           </div>
           {/*

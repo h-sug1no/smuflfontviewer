@@ -64,6 +64,7 @@ export type RangeItem = {
 export type SFVRangeItem = RangeItem & {
   nStart?: number;
   nEnd?: number;
+  noSpecLink?: boolean;
 };
 
 /**
