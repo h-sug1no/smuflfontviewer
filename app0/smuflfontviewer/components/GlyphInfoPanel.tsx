@@ -10,10 +10,12 @@ import {
   GlyphsWithAlternateAlternateItem,
   GlyphsWithAlternateItem,
   GlyphsWithAlternates,
+  Ligatures,
   Ranges,
   SFVRangeItem,
 } from '../lib/SMuFLTypes';
 import { UCodePoint } from '../lib/UCodePoint';
+import { addLigatureInfo } from './LigaturesList';
 import { IUCSelectOption } from './UCodepointSelect';
 
 export type IGlyphInfoPanelParams = {
@@ -447,6 +449,23 @@ const ClassesInfo = (props: {
   );
 };
 
+const LigaturesInfo = (props: {
+  uCodePoint: UCodePoint;
+  sMuFLMetadata: Database;
+  ligatures: Ligatures | undefined;
+  selectOption: IUCSelectOption;
+}) => {
+  const { sMuFLMetadata, ligatures, selectOption } = props;
+  const { glyphname = '' } = selectOption;
+  const ligature = ligatures ? ligatures[glyphname] : undefined;
+
+  return (
+    <div className="ligatures infoPanel">
+      {ligature && addLigatureInfo(sMuFLMetadata, 'ligatures: ', ligature, glyphname, glyphname)}
+    </div>
+  );
+};
+
 export default function GlyphInfoPanel(props: IGlyphInfoPanelParams): JSX.Element {
   const { selectOption, sMuFLMetadata, uCodePoint } = props;
 
@@ -454,6 +473,7 @@ export default function GlyphInfoPanel(props: IGlyphInfoPanelParams): JSX.Elemen
   const glyphsWithAlternates = fontMetaData?.glyphsWithAlternates;
   const ranges = sMuFLMetadata?.data_.ranges;
   const classes = sMuFLMetadata.data_.classes;
+  const ligatures = fontMetaData?.ligatures;
 
   return (
     <Box
@@ -485,6 +505,12 @@ export default function GlyphInfoPanel(props: IGlyphInfoPanelParams): JSX.Elemen
         sMuFLMetadata={sMuFLMetadata}
         selectOption={selectOption}
         classes={classes}
+      />
+      <LigaturesInfo
+        uCodePoint={uCodePoint}
+        sMuFLMetadata={sMuFLMetadata}
+        selectOption={selectOption}
+        ligatures={ligatures}
       />
     </Box>
   );

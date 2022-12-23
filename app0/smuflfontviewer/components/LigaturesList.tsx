@@ -3,11 +3,12 @@ import { Database } from '../lib/SMuFLMetadata';
 import { Ligatures, LigatureItem, GlyphnameStr } from '../lib/SMuFLTypes';
 import { createGlyphname } from '../lib/RenderUtils';
 
-function addLigatureInfo(
+export function addLigatureInfo(
   sMuFLMetadata: Database,
   label: string | undefined,
   ligature: LigatureItem,
   glyphname: string,
+  currentGlyphName?: string,
 ): JSX.Element {
   let ret = <></>;
   if (!ligature) {
@@ -28,7 +29,10 @@ function addLigatureInfo(
           {componentGlyphs.map((tGlyphname: string, idx: number) => {
             return (
               <span key={`${glyphname}_componentGlyph_${tGlyphname}_${idx}`}>
-                {createGlyphname(sMuFLMetadata, tGlyphname, glyphname, undefined, true).jsxDom}
+                {
+                  createGlyphname(sMuFLMetadata, tGlyphname, glyphname, currentGlyphName, true)
+                    .jsxDom
+                }
                 {', '}
               </span>
             );
