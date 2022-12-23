@@ -17,7 +17,6 @@ import {
 import { UCodePoint } from '../lib/UCodePoint';
 import { addLigatureInfo } from './LigaturesList';
 import { IUCSelectOption } from './UCodepointSelect';
-
 export type IGlyphInfoPanelParams = {
   selectOption: IUCSelectOption;
   sMuFLMetadata: Database;
@@ -114,7 +113,8 @@ function BasicInfo(props: IGlyphInfoPanelParams): JSX.Element {
             value = <CUCodePoint uPlusCodepoint={value} isCurrentGlyph={key === 'codepoint'} />;
           }
           if (key === 'classes') {
-            value = JSON.stringify(value);
+            // FIXME: don't stringify JSX.Element.
+            // value = JSON.stringify(value);
           }
           return (
             <div key={key}>
@@ -466,6 +466,78 @@ const LigaturesInfo = (props: {
   );
 };
 
+const SetsInfo = (props: {
+  uCodePoint: UCodePoint;
+  sMuFLMetadata: Database;
+  selectOption: IUCSelectOption;
+}) => {
+  const { sMuFLMetadata, selectOption, uCodePoint } = props;
+  const { glyphname = '' } = selectOption;
+  const fontInfo = sMuFLMetadata.getFontInfo();
+  const setsByAlternateFor = fontInfo?.setsByAlternateFor;
+  const setsByName = fontInfo?.setsByName;
+
+  const setsByAlternateForItem = setsByAlternateFor ? setsByAlternateFor[glyphname] : undefined;
+  const setsByNameItem = setsByName ? setsByName[glyphname] : undefined;
+
+  const ret = null;
+  if (!setsByAlternateForItem && !setsByNameItem) {
+    return ret;
+  }
+
+  const setInfosContainerContent: JSX.Element[] = [];
+  const setNamesContent: JSX.Element[] = [];
+  [setsByAlternateForItem, setsByNameItem].forEach(function (items) {
+    if (!items) {
+      return;
+    }
+    const setInfoContainerContent: JSX.Element[] = [];
+    items.forEach(function (item) {
+      setNamesContent.push(<span key={item.setName}>{item.setName}, </span>);
+      // $setInfosContainer.append(`${item.setName}: `);
+      // $setNames.append(`${item.setName}, `);
+      const setInfo = (
+        <div className="setInfo">
+          description: {item.set.description}, type: {item.set.type}, alternateFor:
+          {appendGlyphname(sMuFLMetadata, item.glyph.alternateFor, glyphname).jsxDom}, codepoint:
+          {appendCodepointOrText(item.glyph.codepoint, uCodePoint.toUString())}, description:{' '}
+          {item.glyph.description}, name:
+          {appendGlyphname(sMuFLMetadata, item.glyph.name, glyphname).jsxDom}
+        </div>
+      );
+
+      const setInfoContainer = (
+        <div className="setInfoContainer" key={item.setName}>
+          {item.setName}:{setInfoContainerContent}
+          {setInfo}
+        </div>
+      );
+
+      setInfosContainerContent.push(setInfoContainer);
+
+      // const $setInfo = $('<div class="setInfo"></div>');
+      //_$c_appendText($setInfo, `description: ${item.set.description}, type: ${item.set.type}`);
+      //_$c_appendText($setInfo, `, alternateFor: `);
+      //appendGlyphname($setInfo, item.glyph.alternateFor, glyphname);
+      //_$c_appendText($setInfo, `, codepoint: `);
+      //appendCodepointOrText($setInfo, item.glyph.codepoint, uCodepoint);
+      //_$c_appendText($setInfo, `, description: ${item.glyph.description}`);
+      //_$c_appendText($setInfo, `, name: `);
+      //appendGlyphname($setInfo, item.glyph.name, glyphname);
+      //$setInfoContainer.append($setInfo);
+      //$setInfosContainer.append($setInfoContainer);
+    });
+  });
+
+  return (
+    <div className="sets infoPanel">
+      sets:
+      <span className="setNames">{setNamesContent}</span>
+      <div className="setInfosContainer">{setInfosContainerContent}</div>
+    </div>
+  );
+};
+
 export default function GlyphInfoPanel(props: IGlyphInfoPanelParams): JSX.Element {
   const { selectOption, sMuFLMetadata, uCodePoint } = props;
 
@@ -512,6 +584,7 @@ export default function GlyphInfoPanel(props: IGlyphInfoPanelParams): JSX.Elemen
         selectOption={selectOption}
         ligatures={ligatures}
       />
+      <SetsInfo uCodePoint={uCodePoint} sMuFLMetadata={sMuFLMetadata} selectOption={selectOption} />
     </Box>
   );
 }
