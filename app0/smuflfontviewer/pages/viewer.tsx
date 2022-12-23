@@ -498,7 +498,7 @@ export default function Viewer(): ReactElement {
             if (type === 'smuflFontFace') {
               setDBState(DBState.READY);
               if (!currentUCodepointRef.current) {
-                const tUCp = getUCSelectOptionByValue('E0A3');
+                const tUCp = getUCSelectOptionByValue(options.get('glyph') || 'E0A3');
                 if (tUCp) {
                   setCurrentUCodepoint(tUCp);
                 }
