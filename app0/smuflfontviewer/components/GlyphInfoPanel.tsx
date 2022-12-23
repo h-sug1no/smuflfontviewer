@@ -1,10 +1,10 @@
-import { NoBackpackSharp } from '@mui/icons-material';
 import { Link } from '@mui/material';
 import { Box } from '@mui/system';
 import clsx from 'clsx';
 import React from 'react';
 import { Database, GlyphItem, SearchOptions } from '../lib/SMuFLMetadata';
 import {
+  Classes,
   Dict,
   GlyphnameItem,
   GlyphsWithAlternateAlternateItem,
@@ -375,7 +375,7 @@ function RangeInfo(props: {
                   <div className="glyphsContainer">
                     {tRanges.glyphs?.map(function (v) {
                       return (
-                        <div key={v}>{appendGlyphname(sMuFLMetadata, v, glyphname).jsxDom},</div>
+                        <span key={v}>{appendGlyphname(sMuFLMetadata, v, glyphname).jsxDom}, </span>
                       );
                     })}
                   </div>
@@ -398,12 +398,62 @@ function RangeInfo(props: {
   return <div className="ranges infoPanel">{jsx}</div>;
 }
 
+const ClassesInfo = (props: {
+  uCodePoint: UCodePoint;
+  sMuFLMetadata: Database;
+  classes?: Classes;
+  selectOption: IUCSelectOption;
+}) => {
+  const { sMuFLMetadata, classes, selectOption } = props;
+  const { glyphname = '' } = selectOption;
+
+  const tClasses = [];
+  for (const key in classes) {
+    const c = classes[key];
+    if (c.indexOf(glyphname) !== -1) {
+      tClasses.push({
+        key: key,
+        class: c,
+      });
+    }
+  }
+
+  let jsx;
+
+  if (tClasses.length) {
+    jsx = tClasses.map(function (kc) {
+      return (
+        <div className="classInfo" key={kc.key}>
+          {kc.key}:
+          <div className="glyphsContainer">
+            {kc.class.map(function (tGglyphname) {
+              return (
+                <span key={tGglyphname}>
+                  {appendGlyphname(sMuFLMetadata, tGglyphname, glyphname).jsxDom},{' '}
+                </span>
+              );
+            })}
+          </div>
+        </div>
+      );
+    });
+  }
+
+  return (
+    <div className="classes infoPanel">
+      {jsx ? 'classes:' : ''}
+      {jsx}
+    </div>
+  );
+};
+
 export default function GlyphInfoPanel(props: IGlyphInfoPanelParams): JSX.Element {
   const { selectOption, sMuFLMetadata, uCodePoint } = props;
 
   const fontMetaData = sMuFLMetadata?.fontMetadata();
   const glyphsWithAlternates = fontMetaData?.glyphsWithAlternates;
   const ranges = sMuFLMetadata?.data_.ranges;
+  const classes = sMuFLMetadata.data_.classes;
 
   return (
     <Box
@@ -429,6 +479,12 @@ export default function GlyphInfoPanel(props: IGlyphInfoPanelParams): JSX.Elemen
         sMuFLMetadata={sMuFLMetadata}
         selectOption={selectOption}
         ranges={ranges}
+      />
+      <ClassesInfo
+        uCodePoint={uCodePoint}
+        sMuFLMetadata={sMuFLMetadata}
+        selectOption={selectOption}
+        classes={classes}
       />
     </Box>
   );
