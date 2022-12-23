@@ -544,7 +544,7 @@ export default function GlyphInfoPanel(props: IGlyphInfoPanelParams): JSX.Elemen
   const fontMetaData = sMuFLMetadata?.fontMetadata();
   const glyphsWithAlternates = fontMetaData?.glyphsWithAlternates;
   const ranges = sMuFLMetadata?.data_.ranges;
-  const classes = sMuFLMetadata.data_.classes;
+  const classes = sMuFLMetadata?.getFontInfo()?.computedClasses?.classes;
   const ligatures = fontMetaData?.ligatures;
 
   return (
