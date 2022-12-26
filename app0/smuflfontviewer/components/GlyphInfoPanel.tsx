@@ -53,11 +53,8 @@ function GlyphAndName(props: {
 }
 
 function CUCodePoint(props: { uPlusCodepoint: string; isCurrentGlyph?: boolean }): JSX.Element {
-  return (
-    <span className={clsx('uPlusCodepoint', resolveCurrentClazz(props.isCurrentGlyph))}>
-      {props.uPlusCodepoint || '?'}
-    </span>
-  );
+  const { uPlusCodepoint, isCurrentGlyph } = props;
+  return appendCodepoint(uPlusCodepoint, isCurrentGlyph ? uPlusCodepoint : undefined);
 }
 
 function BasicInfo(props: IGlyphInfoPanelParams): JSX.Element {
