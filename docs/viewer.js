@@ -300,6 +300,10 @@ class SMuFLFontViewer {
       "#smuflRenderGlyphOptionsGlyphSize"
     );
 
+    const $smuflRenderGlyphOptionsFontSize = $(
+      "#smuflRenderGlyphOptionsFontSize"
+    );
+
     const $smuflRenderGlyphOptionsResetScrollPosition = $(
       "#smuflRenderGlyphOptionsResetScrollPosition"
     );
@@ -350,6 +354,16 @@ class SMuFLFontViewer {
     $smuflRenderGlyphOptionsGlyphSize.on("input", function () {
       renderGlyph(currentGlyphData);
     });
+
+    $smuflRenderGlyphOptionsFontSize.on("input", function () {
+      this.nextElementSibling.textContent = this.value;
+    });
+    $smuflRenderGlyphOptionsFontSize.trigger("input");
+
+    $smuflRenderGlyphOptionsFontSize.on("input", function () {
+      renderGlyph(currentGlyphData);
+    });
+
 
     $smuflRenderGlyphOptionsResetScrollPosition.on("click", function () {
       _resetScPosition();
@@ -1095,8 +1109,10 @@ class SMuFLFontViewer {
           const $ssOptionsGlyphSizeContainer = $contentContainer.append(
             $(`
         <div id='ssOptionsGlyphSizeContainer'>
-          <label>glyph size: <input id="ssOptionsGlyphSize"
+          <label>staff size: <input id="ssOptionsStaffSize"
               type="range" min="40" max="250" value="40"><span><span></label>
+          <label>font size: <input id="ssOptionsGlyphSize"
+              type="range" min="20" max="250" value="40"><span><span></label>
         </div>`)
           );
 
@@ -2121,6 +2137,11 @@ class SMuFLFontViewer {
 
     function _getFontSizeInfo() {
       const fontSize = Number($smuflRenderGlyphOptionsGlyphSize.val());
+
+      // Though spec says: `expressed staff spaces to any required degree of precision, relative to the glyph origin.`
+      // <https://w3c.github.io/smufl/latest/specification/glyphbboxes.html>
+      // Sometimes, symbols like grace notes may be scaled to a size that does not match the staff space. So, 
+      // resolve sbl based on the font size.
       const sbl = fontSize * 0.25;
       return {
         fontSize: fontSize,

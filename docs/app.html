@@ -342,6 +342,18 @@
     .gwanchorOption {
       white-space: nowrap;
     }
+
+    .generalUI {
+      display: flex;
+      align-items: center;
+    }
+    .generalUI .sizeContainer {
+      display: inline-flex;
+      flex-direction: column;
+    }
+    .generalUI button {
+      margin: 0.25em;
+    }
   </style>
 
   <style type="text/css" media="print">
@@ -425,8 +437,12 @@
         </canvas>
       </div>
       <div class="generalUI">
-        <label id="smuflRenderGlyphOptionsGlyphSizeContainer">glyph size: <input id="smuflRenderGlyphOptionsGlyphSize"
-            type="range" min="30" max="1000" value="200"><span><span></label>
+        <div class="sizeContainer">
+          <label id="smuflRenderGlyphOptionsGlyphSizeContainer">staff size: <input id="smuflRenderGlyphOptionsGlyphSize"
+              type="range" min="20" max="1000" value="200"><span><span></label>
+          <label id="smuflRenderGlyphOptionsFontSizeContainer">font size: <input id="smuflRenderGlyphOptionsFontSize"
+            type="range" min="20" max="1000" value="200"><span><span></label>
+        </div>
         <button id="smuflRenderGlyphOptionsResetGlyphSize" type="button" title="reset glyph size">s</button>
         <button id="smuflRenderGlyphOptionsResetScrollPosition" type="button" title="reset scroll position">p</button>
         <div class="propsUI">
