@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 h-sug1no
+ * Copyright (c) 2019-2023 h-sug1no
  */
 
 /* eslint-disable quotes */
@@ -371,14 +371,15 @@ class SMuFLFontViewer {
       b.addEventListener('click', (e) => {
         s1.value = s.value;
         $(s1).trigger("input");
-      })
+      });
+      return b;
     };
 
-    initSizeButtonHandlers(
+    const $glyphSizeContainerButton = $(initSizeButtonHandlers(
       "#smuflRenderGlyphOptionsGlyphSizeContainer button",
       "#smuflRenderGlyphOptionsGlyphSize",
       "#smuflRenderGlyphOptionsStaffSize"
-    );
+    ));
 
     initSizeButtonHandlers(
       "#smuflRenderGlyphOptionsStaffSizeContainer button",
@@ -543,6 +544,7 @@ class SMuFLFontViewer {
             (ev.originalEvent.deltaY < 0 ? -1 : 1) * 20
         );
         $smuflRenderGlyphOptionsGlyphSize.trigger("input");
+        $glyphSizeContainerButton.trigger("click");
       });
 
       $smuflGlyphCanvasContainer.on("mousedown", function (ev) {
