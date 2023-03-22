@@ -395,6 +395,7 @@ class SMuFLFontViewer {
     const initialGlyphSize = $smuflRenderGlyphOptionsGlyphSize.val();
     $smuflRenderGlyphOptionsResetGlyphSize.on("click", function () {
       $smuflRenderGlyphOptionsGlyphSize.val(initialGlyphSize).trigger("input");
+      $glyphSizeContainerButton.trigger("click");
     });
 
     const $scratchpadDialog = $("#scratchpadDialog");
