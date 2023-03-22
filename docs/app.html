@@ -351,6 +351,9 @@
       display: inline-flex;
       flex-direction: column;
     }
+    .generalUI .sizeContainer button {
+      width: 10ch;
+    }
     .generalUI button {
       margin: 0.25em;
     }
@@ -438,9 +441,11 @@
       </div>
       <div class="generalUI">
         <div class="sizeContainer">
-          <label id="smuflRenderGlyphOptionsGlyphSizeContainer">staff size: <input id="smuflRenderGlyphOptionsGlyphSize"
+          <label id="smuflRenderGlyphOptionsGlyphSizeContainer">
+            <button title="apply current value to staff size" class="glyphSize">font size</button> <input id="smuflRenderGlyphOptionsGlyphSize"
               type="range" min="20" max="1000" value="200"><span><span></label>
-          <label id="smuflRenderGlyphOptionsFontSizeContainer">font size: <input id="smuflRenderGlyphOptionsFontSize"
+          <label id="smuflRenderGlyphOptionsStaffSizeContainer">
+            <button title="apply current value to font size" class="staffSize">staff size</button> <input id="smuflRenderGlyphOptionsStaffSize"
             type="range" min="20" max="1000" value="200"><span><span></label>
         </div>
         <button id="smuflRenderGlyphOptionsResetGlyphSize" type="button" title="reset glyph size">s</button>

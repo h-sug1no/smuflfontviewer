@@ -300,8 +300,8 @@ class SMuFLFontViewer {
       "#smuflRenderGlyphOptionsGlyphSize"
     );
 
-    const $smuflRenderGlyphOptionsFontSize = $(
-      "#smuflRenderGlyphOptionsFontSize"
+    const $smuflRenderGlyphOptionsStaffSize = $(
+      "#smuflRenderGlyphOptionsStaffSize"
     );
 
     const $smuflRenderGlyphOptionsResetScrollPosition = $(
@@ -355,14 +355,36 @@ class SMuFLFontViewer {
       renderGlyph(currentGlyphData);
     });
 
-    $smuflRenderGlyphOptionsFontSize.on("input", function () {
+    $smuflRenderGlyphOptionsStaffSize.on("input", function () {
       this.nextElementSibling.textContent = this.value;
     });
-    $smuflRenderGlyphOptionsFontSize.trigger("input");
+    $smuflRenderGlyphOptionsStaffSize.trigger("input");
 
-    $smuflRenderGlyphOptionsFontSize.on("input", function () {
+    $smuflRenderGlyphOptionsStaffSize.on("input", function () {
       renderGlyph(currentGlyphData);
     });
+
+    const initSizeButtonHandlers = (bs, is, is1) => {
+      const b = document.querySelector(bs);
+      const s = document.querySelector(is);
+      const s1 = document.querySelector(is1);
+      b.addEventListener('click', (e) => {
+        s1.value = s.value;
+        $(s1).trigger("input");
+      })
+    };
+
+    initSizeButtonHandlers(
+      "#smuflRenderGlyphOptionsGlyphSizeContainer button",
+      "#smuflRenderGlyphOptionsGlyphSize",
+      "#smuflRenderGlyphOptionsStaffSize"
+    );
+
+    initSizeButtonHandlers(
+      "#smuflRenderGlyphOptionsStaffSizeContainer button",
+      "#smuflRenderGlyphOptionsStaffSize",
+      "#smuflRenderGlyphOptionsGlyphSize"
+    );
 
 
     $smuflRenderGlyphOptionsResetScrollPosition.on("click", function () {
