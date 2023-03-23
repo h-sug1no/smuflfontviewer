@@ -2166,6 +2166,7 @@ class SMuFLFontViewer {
 
     function _getFontSizeInfo() {
       const fontSize = Number($smuflRenderGlyphOptionsGlyphSize.val());
+      const staffSize = Number($smuflRenderGlyphOptionsStaffSize.val());
 
       // Though spec says: `expressed staff spaces to any required degree of precision, relative to the glyph origin.`
       // <https://w3c.github.io/smufl/latest/specification/glyphbboxes.html>
@@ -2175,6 +2176,7 @@ class SMuFLFontViewer {
       return {
         fontSize: fontSize,
         sbl: sbl,
+        staffSBL: staffSize * 0.25,
       };
     }
 
@@ -2264,7 +2266,7 @@ class SMuFLFontViewer {
 
       const fontSizeInfo = _getFontSizeInfo();
       const fontSize = fontSizeInfo.fontSize;
-      const sbl = fontSizeInfo.sbl;
+      const {sbl, staffSBL} = fontSizeInfo;
 
       const slChecked = $smuflRenderGlyphOptionsSl.prop("checked");
       const slIndeterminate = $smuflRenderGlyphOptionsSl.prop("indeterminate");
@@ -2272,13 +2274,13 @@ class SMuFLFontViewer {
         ctx.save();
         ctx.lineWidth = anchorCsToScreenCsX(
           engravingDefaults.staffLineThickness,
-          sbl
+          staffSBL
         );
-        const slY = y + (slChecked ? sbl * 0.5 : 0);
+        const slY = y + (slChecked ? staffSBL * 0.5 : 0);
         for (let yi = -10; yi < 11; yi++) {
           ctx.beginPath();
-          ctx.moveTo(0, slY + sbl * yi);
-          ctx.lineTo(c.width, slY + sbl * yi);
+          ctx.moveTo(0, slY + staffSBL * yi);
+          ctx.lineTo(c.width, slY + staffSBL * yi);
 
           ctx.strokeStyle = yi % 4 === 0 ? "#aaaaaa" : "#cccccc";
           ctx.stroke();
