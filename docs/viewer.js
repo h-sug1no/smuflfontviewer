@@ -538,14 +538,18 @@ class SMuFLFontViewer {
       _setIsActive(false);
 
       $smuflGlyphCanvasContainer.off("wheel");
-      $smuflGlyphCanvasContainer.on("wheel", function (ev) {
-        ev.preventDefault();
-        $smuflRenderGlyphOptionsGlyphSize.val(
-          Number($smuflRenderGlyphOptionsGlyphSize.val()) -
+
+      const newValOnWheel = ($sizeInput, ev) => {
+        $sizeInput.val(
+          Number($sizeInput.val()) -
             (ev.originalEvent.deltaY < 0 ? -1 : 1) * 20
         );
-        $smuflRenderGlyphOptionsGlyphSize.trigger("input");
-        $glyphSizeContainerButton.trigger("click");
+        $sizeInput.trigger("input");
+      }
+      $smuflGlyphCanvasContainer.on("wheel", function (ev) {
+        ev.preventDefault();
+        newValOnWheel($smuflRenderGlyphOptionsGlyphSize, ev);
+        newValOnWheel($smuflRenderGlyphOptionsStaffSize, ev);
       });
 
       $smuflGlyphCanvasContainer.on("mousedown", function (ev) {
