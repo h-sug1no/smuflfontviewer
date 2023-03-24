@@ -1138,9 +1138,9 @@ class SMuFLFontViewer {
           const $ssOptionsGlyphSizeContainer = $contentContainer.append(
             $(`
         <div id='ssOptionsGlyphSizeContainer'>
-          <label>staff size: <input id="ssOptionsStaffSize"
-              type="range" min="40" max="250" value="40"><span><span></label>
           <label>font size: <input id="ssOptionsGlyphSize"
+              type="range" min="40" max="250" value="40"><span><span></label>
+          <label>staff size: <input id="ssOptionsStaffSize"
               type="range" min="20" max="250" value="40"><span><span></label>
         </div>`)
           );
@@ -1228,6 +1228,7 @@ class SMuFLFontViewer {
 
             that.sSRenderer.draw(gmCanvasElm.getContext("2d"), {
               ssOptionsGlyphSize: Number($ssOptionsGlyphSize.val()),
+              ssOptionsStaffSize: Number($ssOptionsStaffSize.val()),
               _measureGlyph: _measureGlyph,
               _renderGlyph: _renderGlyph,
               _getGlyphData: _getGlyphData,
