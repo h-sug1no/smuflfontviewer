@@ -304,6 +304,10 @@ class SMuFLFontViewer {
       "#smuflRenderGlyphOptionsStaffSize"
     );
 
+    const $smuflRenderGlyphOptionsStemCs = $(
+      "#smuflRenderGlyphOptionsStemCs"
+    );
+
     const $smuflRenderGlyphOptionsResetScrollPosition = $(
       "#smuflRenderGlyphOptionsResetScrollPosition"
     );
@@ -1760,7 +1764,8 @@ class SMuFLFontViewer {
       let y;
       let w;
       let h;
-      const sbl = scaledBBox.sbl;
+      const {sbl, staffSBL} = scaledBBox;
+      if (!staffSBL) { throw Error('FIXME');}
       const isCutOut = akey.startsWith("cutOut");
       const isCutOutOriginBBL =
         $smuflGlyphHints_cutOutOrigin_BBL.prop("checked");
@@ -2168,6 +2173,7 @@ class SMuFLFontViewer {
     function _getFontSizeInfo() {
       const fontSize = Number($smuflRenderGlyphOptionsGlyphSize.val());
       const staffSize = Number($smuflRenderGlyphOptionsStaffSize.val());
+      const stemRenderCs = $smuflRenderGlyphOptionsStemCs.val();
 
       // Though spec says: `expressed staff spaces to any required degree of precision, relative to the glyph origin.`
       // <https://w3c.github.io/smufl/latest/specification/glyphbboxes.html>
@@ -2178,6 +2184,7 @@ class SMuFLFontViewer {
         fontSize: fontSize,
         sbl: sbl,
         staffSBL: staffSize * 0.25,
+        stemRenderCs,
       };
     }
 
@@ -2187,6 +2194,7 @@ class SMuFLFontViewer {
       tctx.fillText(str, x, y);
     }
 
+    let staffSBL;
     function _measureGlyph(glyphData, x, y, sbl) {
       const glyphname = glyphData.glyphname;
       let bbox = sMuFLMetadata.fontMetadata().glyphBBoxes[glyphname];
@@ -2236,6 +2244,7 @@ class SMuFLFontViewer {
             x: x,
             y: y,
             sbl: sbl,
+            staffSBL,
           };
           scaledBBox.E = scaledBBox.W + scaledBBox.w;
           scaledBBox.S = scaledBBox.N + scaledBBox.h;
@@ -2252,6 +2261,7 @@ class SMuFLFontViewer {
       return v && !$smuflRenderGlyphOptionsHideAll.prop("checked");
     }
 
+    const me = this;
     function renderGlyph(glyphData) {
       /*
       const codepoint = glyphData.codepoint;
@@ -2266,6 +2276,7 @@ class SMuFLFontViewer {
       ctx.clearRect(0, 0, c.clientWidth, c.clientHeight);
 
       const fontSizeInfo = _getFontSizeInfo();
+      me.setStaffSBL(fontSizeInfo.staffSBL);
       const fontSize = fontSizeInfo.fontSize;
       const {sbl, staffSBL} = fontSizeInfo;
 
@@ -2871,6 +2882,9 @@ class SMuFLFontViewer {
       } else if (options.has("showGlyphsWithAnchors")) {
         $("#BFontMetadataGlyphsWithAnchors").click();
       }
+    };
+    this.setStaffSBL = (v) => {
+        staffSBL = v;
     };
   }
 }
