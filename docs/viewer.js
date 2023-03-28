@@ -1774,7 +1774,7 @@ class SMuFLFontViewer {
       let y;
       let w;
       let h;
-      const {sbl, staffSBL, stemRenderCs} = scaledBBox;
+      const {sbl, staffSBL, stemRenderCs, stemSBL} = scaledBBox;
 
       if (!staffSBL) { throw Error('FIXME');}
       const isCutOut = akey.startsWith("cutOut");
@@ -1847,10 +1847,11 @@ class SMuFLFontViewer {
 
         if (!isIndeterminate) {
           if (akey.startsWith("splitStem") || akey.startsWith("stem")) {
+            const h = Math.max(scaledBBox.h, anchorCsToScreenCsX(3.5, stemSBL));
             _renderStem(
               x,
               y,
-              Math.max(scaledBBox.h, anchorCsToScreenCsX(3.5, sbl)),
+              h,
               halign,
               vdir,
               sbl,
