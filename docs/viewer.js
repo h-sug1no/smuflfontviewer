@@ -304,6 +304,11 @@ class SMuFLFontViewer {
       "#smuflRenderGlyphOptionsStaffSize"
     );
 
+    const STEM_RENDER_CS = {
+      GLYPH: 'glyph',
+      STAFF: 'staff',
+    };
+
     const $smuflRenderGlyphOptionsStemCs = $(
       "#smuflRenderGlyphOptionsStemCs"
     );
@@ -365,6 +370,11 @@ class SMuFLFontViewer {
     $smuflRenderGlyphOptionsStaffSize.trigger("input");
 
     $smuflRenderGlyphOptionsStaffSize.on("input", function () {
+      renderGlyph(currentGlyphData);
+    });
+
+
+    $smuflRenderGlyphOptionsStemCs.on("change", function () {
       renderGlyph(currentGlyphData);
     });
 
@@ -1764,7 +1774,8 @@ class SMuFLFontViewer {
       let y;
       let w;
       let h;
-      const {sbl, staffSBL} = scaledBBox;
+      const {sbl, staffSBL, stemRenderCs} = scaledBBox;
+
       if (!staffSBL) { throw Error('FIXME');}
       const isCutOut = akey.startsWith("cutOut");
       const isCutOutOriginBBL =
@@ -2194,7 +2205,7 @@ class SMuFLFontViewer {
       tctx.fillText(str, x, y);
     }
 
-    let staffSBL;
+    let props;
     function _measureGlyph(glyphData, x, y, sbl) {
       const glyphname = glyphData.glyphname;
       let bbox = sMuFLMetadata.fontMetadata().glyphBBoxes[glyphname];
@@ -2244,7 +2255,12 @@ class SMuFLFontViewer {
             x: x,
             y: y,
             sbl: sbl,
-            staffSBL,
+            staffSBL: props.staffSBL,
+            stemRenderCs: props.stemRenderCs,
+            stemSBL:
+              props.stemRenderCs === STEM_RENDER_CS.GLYPH
+                ? sbl
+                : props.staffSBL,
           };
           scaledBBox.E = scaledBBox.W + scaledBBox.w;
           scaledBBox.S = scaledBBox.N + scaledBBox.h;
@@ -2276,7 +2292,7 @@ class SMuFLFontViewer {
       ctx.clearRect(0, 0, c.clientWidth, c.clientHeight);
 
       const fontSizeInfo = _getFontSizeInfo();
-      me.setStaffSBL(fontSizeInfo.staffSBL);
+      me.setProps(fontSizeInfo);
       const fontSize = fontSizeInfo.fontSize;
       const {sbl, staffSBL} = fontSizeInfo;
 
@@ -2883,8 +2899,8 @@ class SMuFLFontViewer {
         $("#BFontMetadataGlyphsWithAnchors").click();
       }
     };
-    this.setStaffSBL = (v) => {
-        staffSBL = v;
+    this.setProps = (v) => {
+        props = {...v};
     };
   }
 }
