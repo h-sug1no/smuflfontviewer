@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019 h-sug1no
+ * Copyright (c) 2019-2023 h-sug1no
  */
 
 /* eslint-disable quotes */
@@ -300,6 +300,17 @@ class SMuFLFontViewer {
       "#smuflRenderGlyphOptionsGlyphSize"
     );
 
+    const $smuflRenderGlyphOptionsStaffSize = $(
+      "#smuflRenderGlyphOptionsStaffSize"
+    );
+
+    const STEM_RENDER_CS = {
+      GLYPH: "glyph",
+      STAFF: "staff",
+    };
+
+    const $smuflRenderGlyphOptionsStemCs = $("#smuflRenderGlyphOptionsStemCs");
+
     const $smuflRenderGlyphOptionsResetScrollPosition = $(
       "#smuflRenderGlyphOptionsResetScrollPosition"
     );
@@ -351,6 +362,44 @@ class SMuFLFontViewer {
       renderGlyph(currentGlyphData);
     });
 
+    $smuflRenderGlyphOptionsStaffSize.on("input", function () {
+      this.nextElementSibling.textContent = this.value;
+    });
+    $smuflRenderGlyphOptionsStaffSize.trigger("input");
+
+    $smuflRenderGlyphOptionsStaffSize.on("input", function () {
+      renderGlyph(currentGlyphData);
+    });
+
+    $smuflRenderGlyphOptionsStemCs.on("change", function () {
+      renderGlyph(currentGlyphData);
+    });
+
+    const initSizeButtonHandlers = (bs, is, is1) => {
+      const b = document.querySelector(bs);
+      const s = document.querySelector(is);
+      const s1 = document.querySelector(is1);
+      b.addEventListener("click", (e) => {
+        s1.value = s.value;
+        $(s1).trigger("input");
+      });
+      return b;
+    };
+
+    const $glyphSizeContainerButton = $(
+      initSizeButtonHandlers(
+        "#smuflRenderGlyphOptionsGlyphSizeContainer button",
+        "#smuflRenderGlyphOptionsGlyphSize",
+        "#smuflRenderGlyphOptionsStaffSize"
+      )
+    );
+
+    initSizeButtonHandlers(
+      "#smuflRenderGlyphOptionsStaffSizeContainer button",
+      "#smuflRenderGlyphOptionsStaffSize",
+      "#smuflRenderGlyphOptionsGlyphSize"
+    );
+
     $smuflRenderGlyphOptionsResetScrollPosition.on("click", function () {
       _resetScPosition();
     });
@@ -358,6 +407,7 @@ class SMuFLFontViewer {
     const initialGlyphSize = $smuflRenderGlyphOptionsGlyphSize.val();
     $smuflRenderGlyphOptionsResetGlyphSize.on("click", function () {
       $smuflRenderGlyphOptionsGlyphSize.val(initialGlyphSize).trigger("input");
+      $glyphSizeContainerButton.trigger("click");
     });
 
     const $scratchpadDialog = $("#scratchpadDialog");
@@ -500,13 +550,17 @@ class SMuFLFontViewer {
       _setIsActive(false);
 
       $smuflGlyphCanvasContainer.off("wheel");
+
+      const newValOnWheel = ($sizeInput, ev) => {
+        $sizeInput.val(
+          Number($sizeInput.val()) - (ev.originalEvent.deltaY < 0 ? -1 : 1) * 20
+        );
+        $sizeInput.trigger("input");
+      };
       $smuflGlyphCanvasContainer.on("wheel", function (ev) {
         ev.preventDefault();
-        $smuflRenderGlyphOptionsGlyphSize.val(
-          Number($smuflRenderGlyphOptionsGlyphSize.val()) -
-            (ev.originalEvent.deltaY < 0 ? -1 : 1) * 20
-        );
-        $smuflRenderGlyphOptionsGlyphSize.trigger("input");
+        newValOnWheel($smuflRenderGlyphOptionsGlyphSize, ev);
+        newValOnWheel($smuflRenderGlyphOptionsStaffSize, ev);
       });
 
       $smuflGlyphCanvasContainer.on("mousedown", function (ev) {
@@ -1095,25 +1149,35 @@ class SMuFLFontViewer {
           const $ssOptionsGlyphSizeContainer = $contentContainer.append(
             $(`
         <div id='ssOptionsGlyphSizeContainer'>
-          <label>glyph size: <input id="ssOptionsGlyphSize"
+          <label>font size: <input class="ssOptionsGlyphSizeClazz"
               type="range" min="40" max="250" value="40"><span><span></label>
+          <label>staff size: <input class="ssOptionsStaffSizeClazz" disabled
+              title="fixme"
+              type="range" min="20" max="250" value="40"><span><span></label>
         </div>`)
           );
 
-          const $ssOptionsGlyphSize =
-            $ssOptionsGlyphSizeContainer.find("label input");
+          const $ssOptionsGlyphSize = $ssOptionsGlyphSizeContainer.find(
+            ".ssOptionsGlyphSizeClazz"
+          );
+
+          const $ssOptionsStaffSize = $ssOptionsGlyphSizeContainer.find(
+            ".ssOptionsStaffSizeClazz"
+          );
 
           $contentContainer.onAttachedToDom = function () {
-            $ssOptionsGlyphSize.off("input.ssUI");
-            $ssOptionsGlyphSize.off("input.ssUI");
+            [$ssOptionsGlyphSize, $ssOptionsStaffSize].forEach(($elm) => {
+              $elm.off("input.ssUI");
+              $elm.off("input.ssUI");
 
-            $ssOptionsGlyphSize.on("input.ssUI", function () {
-              this.nextElementSibling.textContent = this.value;
-            });
-            $ssOptionsGlyphSize.trigger("input");
+              $elm.on("input.ssUI", function () {
+                this.nextElementSibling.textContent = this.value;
+              });
+              $elm.trigger("input");
 
-            $ssOptionsGlyphSize.on("input.ssUI", function () {
-              drawSs();
+              $elm.on("input.ssUI", function () {
+                drawSs();
+              });
             });
 
             (() => {
@@ -1183,6 +1247,7 @@ class SMuFLFontViewer {
 
             that.sSRenderer.draw(gmCanvasElm.getContext("2d"), {
               ssOptionsGlyphSize: Number($ssOptionsGlyphSize.val()),
+              ssOptionsStaffSize: Number($ssOptionsStaffSize.val()),
               _measureGlyph: _measureGlyph,
               _renderGlyph: _renderGlyph,
               _getGlyphData: _getGlyphData,
@@ -1714,7 +1779,11 @@ class SMuFLFontViewer {
       let y;
       let w;
       let h;
-      const sbl = scaledBBox.sbl;
+      const { sbl, staffSBL, stemRenderCs, stemSBL } = scaledBBox;
+
+      if (!staffSBL) {
+        throw Error("FIXME");
+      }
       const isCutOut = akey.startsWith("cutOut");
       const isCutOutOriginBBL =
         $smuflGlyphHints_cutOutOrigin_BBL.prop("checked");
@@ -1785,10 +1854,11 @@ class SMuFLFontViewer {
 
         if (!isIndeterminate) {
           if (akey.startsWith("splitStem") || akey.startsWith("stem")) {
+            const h = Math.max(scaledBBox.h, anchorCsToScreenCsX(3.5, stemSBL));
             _renderStem(
               x,
               y,
-              Math.max(scaledBBox.h, anchorCsToScreenCsX(3.5, sbl)),
+              h,
               halign,
               vdir,
               sbl,
@@ -1943,7 +2013,7 @@ class SMuFLFontViewer {
 
       // console.log(vdir, halign, w);
       const stemAnchorName = stemAnchorNamesByHV[`${halign}_${vdir}`];
-      const stemLen = m.scaledBBox.sbl * 4 * (vdir === "BTT" ? 1 : -1);
+      const stemLen = m.scaledBBox.stemSBL * 4 * (vdir === "BTT" ? 1 : -1);
       const stemEndY = m.scaledBBox.y - stemLen;
       const stemX = _renderStemEx(
         m.scaledBBox,
@@ -2121,10 +2191,19 @@ class SMuFLFontViewer {
 
     function _getFontSizeInfo() {
       const fontSize = Number($smuflRenderGlyphOptionsGlyphSize.val());
+      const staffSize = Number($smuflRenderGlyphOptionsStaffSize.val());
+      const stemRenderCs = $smuflRenderGlyphOptionsStemCs.val();
+
+      // Though spec says: `expressed staff spaces to any required degree of precision, relative to the glyph origin.`
+      // <https://w3c.github.io/smufl/latest/specification/glyphbboxes.html>
+      // Sometimes, symbols like grace notes may be scaled to a size that does not match the staff space. So,
+      // resolve sbl based on the font size.
       const sbl = fontSize * 0.25;
       return {
         fontSize: fontSize,
         sbl: sbl,
+        staffSBL: staffSize * 0.25,
+        stemRenderCs,
       };
     }
 
@@ -2134,6 +2213,7 @@ class SMuFLFontViewer {
       tctx.fillText(str, x, y);
     }
 
+    let props;
     function _measureGlyph(glyphData, x, y, sbl) {
       const glyphname = glyphData.glyphname;
       let bbox = sMuFLMetadata.fontMetadata().glyphBBoxes[glyphname];
@@ -2183,6 +2263,12 @@ class SMuFLFontViewer {
             x: x,
             y: y,
             sbl: sbl,
+            staffSBL: props.staffSBL,
+            stemRenderCs: props.stemRenderCs,
+            stemSBL:
+              props.stemRenderCs === STEM_RENDER_CS.GLYPH
+                ? sbl
+                : props.staffSBL,
           };
           scaledBBox.E = scaledBBox.W + scaledBBox.w;
           scaledBBox.S = scaledBBox.N + scaledBBox.h;
@@ -2199,6 +2285,7 @@ class SMuFLFontViewer {
       return v && !$smuflRenderGlyphOptionsHideAll.prop("checked");
     }
 
+    const me = this;
     function renderGlyph(glyphData) {
       /*
       const codepoint = glyphData.codepoint;
@@ -2213,8 +2300,9 @@ class SMuFLFontViewer {
       ctx.clearRect(0, 0, c.clientWidth, c.clientHeight);
 
       const fontSizeInfo = _getFontSizeInfo();
+      me.setProps(fontSizeInfo);
       const fontSize = fontSizeInfo.fontSize;
-      const sbl = fontSizeInfo.sbl;
+      const { sbl, staffSBL } = fontSizeInfo;
 
       const slChecked = $smuflRenderGlyphOptionsSl.prop("checked");
       const slIndeterminate = $smuflRenderGlyphOptionsSl.prop("indeterminate");
@@ -2222,13 +2310,13 @@ class SMuFLFontViewer {
         ctx.save();
         ctx.lineWidth = anchorCsToScreenCsX(
           engravingDefaults.staffLineThickness,
-          sbl
+          staffSBL
         );
-        const slY = y + (slChecked ? sbl * 0.5 : 0);
+        const slY = y + (slChecked ? staffSBL * 0.5 : 0);
         for (let yi = -10; yi < 11; yi++) {
           ctx.beginPath();
-          ctx.moveTo(0, slY + sbl * yi);
-          ctx.lineTo(c.width, slY + sbl * yi);
+          ctx.moveTo(0, slY + staffSBL * yi);
+          ctx.lineTo(c.width, slY + staffSBL * yi);
 
           ctx.strokeStyle = yi % 4 === 0 ? "#aaaaaa" : "#cccccc";
           ctx.stroke();
@@ -2818,6 +2906,9 @@ class SMuFLFontViewer {
       } else if (options.has("showGlyphsWithAnchors")) {
         $("#BFontMetadataGlyphsWithAnchors").click();
       }
+    };
+    this.setProps = (v) => {
+      props = { ...v };
     };
   }
 }

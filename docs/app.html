@@ -342,6 +342,21 @@
     .gwanchorOption {
       white-space: nowrap;
     }
+
+    .generalUI {
+      display: flex;
+      align-items: center;
+    }
+    .generalUI .sizeContainer {
+      display: inline-flex;
+      flex-direction: column;
+    }
+    .generalUI .sizeContainer button {
+      width: 10ch;
+    }
+    .generalUI button {
+      margin: 0.25em;
+    }
   </style>
 
   <style type="text/css" media="print">
@@ -425,8 +440,19 @@
         </canvas>
       </div>
       <div class="generalUI">
-        <label id="smuflRenderGlyphOptionsGlyphSizeContainer">glyph size: <input id="smuflRenderGlyphOptionsGlyphSize"
-            type="range" min="30" max="1000" value="200"><span><span></label>
+        <div class="sizeContainer">
+          <label id="smuflRenderGlyphOptionsGlyphSizeContainer">
+            <button title="apply current value to staff size" class="glyphSize">font size</button> <input id="smuflRenderGlyphOptionsGlyphSize"
+              type="range" min="20" max="1000" value="200"><span></span></label>
+          <label id="smuflRenderGlyphOptionsStaffSizeContainer">
+            <button title="apply current value to font size" class="staffSize">staff size</button> <input id="smuflRenderGlyphOptionsStaffSize"
+            type="range" min="20" max="1000" value="200"><span></span></label>
+          <select id="smuflRenderGlyphOptionsStemCs" title="The coordinate system used for drawing a stem">
+            <option value="glyph">glyph(like grace note)</option>
+            <option value="staff">staff</option>
+            </select>
+          </select>
+        </div>
         <button id="smuflRenderGlyphOptionsResetGlyphSize" type="button" title="reset glyph size">s</button>
         <button id="smuflRenderGlyphOptionsResetScrollPosition" type="button" title="reset scroll position">p</button>
         <div class="propsUI">
