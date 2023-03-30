@@ -1159,8 +1159,13 @@ class SMuFLFontViewer {
         </div>`)
           );
 
-          const $ssOptionsGlyphSize =
-            $ssOptionsGlyphSizeContainer.find("label input");
+          const $ssOptionsGlyphSize = $ssOptionsGlyphSizeContainer.find(
+            "#ssOptionsGlyphSize label input"
+          );
+
+          const $ssOptionsStaffSize = $ssOptionsGlyphSizeContainer.find(
+            "#ssOptionsStaffSize label input"
+          );
 
           $contentContainer.onAttachedToDom = function () {
             $ssOptionsGlyphSize.off("input.ssUI");
