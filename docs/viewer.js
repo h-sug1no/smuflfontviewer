@@ -2006,7 +2006,7 @@ class SMuFLFontViewer {
 
       // console.log(vdir, halign, w);
       const stemAnchorName = stemAnchorNamesByHV[`${halign}_${vdir}`];
-      const stemLen = m.scaledBBox.sbl * 4 * (vdir === "BTT" ? 1 : -1);
+      const stemLen = m.scaledBBox.stemSBL * 4 * (vdir === "BTT" ? 1 : -1);
       const stemEndY = m.scaledBBox.y - stemLen;
       const stemX = _renderStemEx(
         m.scaledBBox,
