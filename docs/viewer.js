@@ -1149,19 +1149,19 @@ class SMuFLFontViewer {
           const $ssOptionsGlyphSizeContainer = $contentContainer.append(
             $(`
         <div id='ssOptionsGlyphSizeContainer'>
-          <label>font size: <input id="ssOptionsGlyphSize"
+          <label>font size: <input class="ssOptionsGlyphSizeClazz"
               type="range" min="40" max="250" value="40"><span><span></label>
-          <label>staff size: <input id="ssOptionsStaffSize"
+          <label>staff size: <input class="ssOptionsStaffSizeClazz"
               type="range" min="20" max="250" value="40"><span><span></label>
         </div>`)
           );
 
           const $ssOptionsGlyphSize = $ssOptionsGlyphSizeContainer.find(
-            "#ssOptionsGlyphSize label input"
+            ".ssOptionsGlyphSizeClazz"
           );
 
           const $ssOptionsStaffSize = $ssOptionsGlyphSizeContainer.find(
-            "#ssOptionsStaffSize label input"
+            ".ssOptionsStaffSizeClazz"
           );
 
           $contentContainer.onAttachedToDom = function () {
