@@ -305,13 +305,11 @@ class SMuFLFontViewer {
     );
 
     const STEM_RENDER_CS = {
-      GLYPH: 'glyph',
-      STAFF: 'staff',
+      GLYPH: "glyph",
+      STAFF: "staff",
     };
 
-    const $smuflRenderGlyphOptionsStemCs = $(
-      "#smuflRenderGlyphOptionsStemCs"
-    );
+    const $smuflRenderGlyphOptionsStemCs = $("#smuflRenderGlyphOptionsStemCs");
 
     const $smuflRenderGlyphOptionsResetScrollPosition = $(
       "#smuflRenderGlyphOptionsResetScrollPosition"
@@ -373,7 +371,6 @@ class SMuFLFontViewer {
       renderGlyph(currentGlyphData);
     });
 
-
     $smuflRenderGlyphOptionsStemCs.on("change", function () {
       renderGlyph(currentGlyphData);
     });
@@ -382,25 +379,26 @@ class SMuFLFontViewer {
       const b = document.querySelector(bs);
       const s = document.querySelector(is);
       const s1 = document.querySelector(is1);
-      b.addEventListener('click', (e) => {
+      b.addEventListener("click", (e) => {
         s1.value = s.value;
         $(s1).trigger("input");
       });
       return b;
     };
 
-    const $glyphSizeContainerButton = $(initSizeButtonHandlers(
-      "#smuflRenderGlyphOptionsGlyphSizeContainer button",
-      "#smuflRenderGlyphOptionsGlyphSize",
-      "#smuflRenderGlyphOptionsStaffSize"
-    ));
+    const $glyphSizeContainerButton = $(
+      initSizeButtonHandlers(
+        "#smuflRenderGlyphOptionsGlyphSizeContainer button",
+        "#smuflRenderGlyphOptionsGlyphSize",
+        "#smuflRenderGlyphOptionsStaffSize"
+      )
+    );
 
     initSizeButtonHandlers(
       "#smuflRenderGlyphOptionsStaffSizeContainer button",
       "#smuflRenderGlyphOptionsStaffSize",
       "#smuflRenderGlyphOptionsGlyphSize"
     );
-
 
     $smuflRenderGlyphOptionsResetScrollPosition.on("click", function () {
       _resetScPosition();
@@ -555,11 +553,10 @@ class SMuFLFontViewer {
 
       const newValOnWheel = ($sizeInput, ev) => {
         $sizeInput.val(
-          Number($sizeInput.val()) -
-            (ev.originalEvent.deltaY < 0 ? -1 : 1) * 20
+          Number($sizeInput.val()) - (ev.originalEvent.deltaY < 0 ? -1 : 1) * 20
         );
         $sizeInput.trigger("input");
-      }
+      };
       $smuflGlyphCanvasContainer.on("wheel", function (ev) {
         ev.preventDefault();
         newValOnWheel($smuflRenderGlyphOptionsGlyphSize, ev);
@@ -1779,9 +1776,11 @@ class SMuFLFontViewer {
       let y;
       let w;
       let h;
-      const {sbl, staffSBL, stemRenderCs, stemSBL} = scaledBBox;
+      const { sbl, staffSBL, stemRenderCs, stemSBL } = scaledBBox;
 
-      if (!staffSBL) { throw Error('FIXME');}
+      if (!staffSBL) {
+        throw Error("FIXME");
+      }
       const isCutOut = akey.startsWith("cutOut");
       const isCutOutOriginBBL =
         $smuflGlyphHints_cutOutOrigin_BBL.prop("checked");
@@ -2194,7 +2193,7 @@ class SMuFLFontViewer {
 
       // Though spec says: `expressed staff spaces to any required degree of precision, relative to the glyph origin.`
       // <https://w3c.github.io/smufl/latest/specification/glyphbboxes.html>
-      // Sometimes, symbols like grace notes may be scaled to a size that does not match the staff space. So, 
+      // Sometimes, symbols like grace notes may be scaled to a size that does not match the staff space. So,
       // resolve sbl based on the font size.
       const sbl = fontSize * 0.25;
       return {
@@ -2300,7 +2299,7 @@ class SMuFLFontViewer {
       const fontSizeInfo = _getFontSizeInfo();
       me.setProps(fontSizeInfo);
       const fontSize = fontSizeInfo.fontSize;
-      const {sbl, staffSBL} = fontSizeInfo;
+      const { sbl, staffSBL } = fontSizeInfo;
 
       const slChecked = $smuflRenderGlyphOptionsSl.prop("checked");
       const slIndeterminate = $smuflRenderGlyphOptionsSl.prop("indeterminate");
@@ -2906,7 +2905,7 @@ class SMuFLFontViewer {
       }
     };
     this.setProps = (v) => {
-        props = {...v};
+      props = { ...v };
     };
   }
 }
