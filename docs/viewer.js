@@ -26,6 +26,72 @@ class SMuFLFontViewer {
         },
       };
     }
+    let updateStatickLink;
+
+    const preferenceElms = {
+      elmsByIdMap: {},
+      push(elm) {
+        const { elmsByIdMap } = this;
+        const { id } = elm;
+        if (!id) {
+          throw new Error("specify id to preference elm");
+        }
+        elmsByIdMap[id] = elm;
+      },
+      onChange() {
+        if (updateStatickLink) {
+          updateStatickLink();
+        }
+      },
+      toSps(sps) {
+        const { elmsByIdMap } = this;
+        Object.keys(elmsByIdMap).forEach((id) => {
+          const elm = elmsByIdMap[id];
+          let value;
+          if (elm.classList.contains("tri-state")) {
+          } else {
+            switch (elm.type) {
+              case "checkbox":
+                value = elm.checked;
+                break;
+              case "range":
+              case "select-one":
+                value = elm.value;
+                break;
+              default:
+                throw new Error(`unknown type: ${elm.type}`);
+                break;
+            }
+          }
+          sps.set(id, value);
+        });
+      },
+      fromSps(sps) {
+        const { elmsByIdMap } = this;
+        const keys = sps.keys();
+
+        for (const id of keys) {
+          const elm = elmsByIdMap[id];
+          const value = sps.get(id);
+          if (elm.classList.has("tri-state")) {
+            elm._3state = NUmber(value);
+          } else {
+            switch (elm.type) {
+              case "checkbox":
+                elm.checked = value === "true";
+                break;
+              case "range":
+              case "select-one":
+                elm.value = value;
+                break;
+              default:
+                console.warn(`unknown type: ${elm.type}`);
+                break;
+            }
+          }
+        }
+      },
+    };
 
     function _$c_appendText($c, text) {
       $c.append(document.createTextNode(text));
@@ -353,8 +419,10 @@ class SMuFLFontViewer {
     const $smuflRenderGlyphOptionsSl = $("#smuflRenderGlyphOptionsSl");
     input_make3State($smuflRenderGlyphOptionsSl.get(0), false, true);
 
+    preferenceElms.push($smuflRenderGlyphOptionsGlyphSize[0]);
     $smuflRenderGlyphOptionsGlyphSize.on("input", function () {
       this.nextElementSibling.textContent = this.value;
+      preferenceElms.onChange();
     });
     $smuflRenderGlyphOptionsGlyphSize.trigger("input");
 
@@ -362,8 +430,10 @@ class SMuFLFontViewer {
       renderGlyph(currentGlyphData);
     });
 
+    preferenceElms.push($smuflRenderGlyphOptionsStaffSize[0]);
     $smuflRenderGlyphOptionsStaffSize.on("input", function () {
       this.nextElementSibling.textContent = this.value;
+      preferenceElms.onChange();
     });
     $smuflRenderGlyphOptionsStaffSize.trigger("input");
 
@@ -371,8 +441,10 @@ class SMuFLFontViewer {
       renderGlyph(currentGlyphData);
     });
 
+    preferenceElms.push($smuflRenderGlyphOptionsStemCs[0]);
     $smuflRenderGlyphOptionsStemCs.on("change", function () {
       renderGlyph(currentGlyphData);
+      preferenceElms.onChange();
     });
 
     const initSizeButtonHandlers = (bs, is, is1) => {
@@ -805,9 +877,11 @@ class SMuFLFontViewer {
       renderGlyph(currentGlyphData);
     });
 
+    preferenceElms.push($smuflRenderGlyphOptionsHideAll[0]);
     $smuflRenderGlyphOptionsHideAll.on("change", function (e) {
       $smuflGlyphUIContainer.toggleClass("hideall", e.target.checked);
       renderGlyph(currentGlyphData);
+      preferenceElms.onChange();
     });
 
     $("body").keyup(function (ev) {
@@ -957,6 +1031,7 @@ class SMuFLFontViewer {
     }
 
     const $aStatickLink = $("#AStaticLink");
+    const $aStatickLink1 = $("#AStaticLink1");
     const $aUULink = $("#AUULink");
 
     const _$infoDialog_contentDoms = {};
@@ -1705,8 +1780,10 @@ class SMuFLFontViewer {
     });
 
     let aStaticLinkTitle;
-    function updateStatickLink() {
+    let aStaticLink1Title;
+    updateStatickLink = function updateStatickLinkFunc() {
       aStaticLinkTitle = aStaticLinkTitle || $aStatickLink.prop("title");
+      aStaticLink1Title = aStaticLink1Title || $aStatickLink1.prop("title");
       const params = new URLSearchParams(window.location.search);
       params.set("glyph", $codepointSelect.val());
       params.delete("showFontMetadata");
@@ -1726,7 +1803,14 @@ class SMuFLFontViewer {
         "title",
         `${aStaticLinkTitle}: ${params.get("glyph")}`
       );
-    }
+
+      preferenceElms.toSps(t.searchParams);
+      $aStatickLink1.prop("href", t.href);
+      $aStatickLink1.prop(
+        "title",
+        `${aStaticLink1Title}: ${t.searchParams.toString()}`
+      );
+    };
 
     let aUULinkTitle;
     function updateUUkLink() {
