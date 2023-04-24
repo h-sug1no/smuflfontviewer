@@ -30,13 +30,16 @@ class SMuFLFontViewer {
 
     const preferenceElms = {
       elmsByIdMap: {},
-      push(elm) {
+      push(elm, eventType) {
         const { elmsByIdMap } = this;
         const { id } = elm;
         if (!id) {
           throw new Error("specify id to preference elm");
         }
-        elmsByIdMap[id] = elm;
+        elmsByIdMap[id] = {
+          elm,
+          eventType,
+        };
       },
       onChange() {
         if (updateStatickLink) {
@@ -46,7 +49,7 @@ class SMuFLFontViewer {
       toSps(sps) {
         const { elmsByIdMap } = this;
         Object.keys(elmsByIdMap).forEach((id) => {
-          const elm = elmsByIdMap[id];
+          const { elm } = elmsByIdMap[id];
           let value;
           if (elm.classList.contains("tri-state")) {
           } else {
@@ -71,9 +74,12 @@ class SMuFLFontViewer {
         const keys = sps.keys();
 
         for (const id of keys) {
-          const elm = elmsByIdMap[id];
+          const { elm, eventType } = elmsByIdMap[id] || {};
+          if (!elm || !eventType) {
+            continue;
+          }
           const value = sps.get(id);
-          if (elm.classList.has("tri-state")) {
+          if (elm.classList.contains("tri-state")) {
             elm._3state = NUmber(value);
           } else {
             switch (elm.type) {
@@ -89,6 +95,7 @@ class SMuFLFontViewer {
                 break;
             }
           }
+          $(elm).trigger(eventType);
         }
       },
     };
@@ -419,7 +426,7 @@ class SMuFLFontViewer {
     const $smuflRenderGlyphOptionsSl = $("#smuflRenderGlyphOptionsSl");
     input_make3State($smuflRenderGlyphOptionsSl.get(0), false, true);
 
-    preferenceElms.push($smuflRenderGlyphOptionsGlyphSize[0]);
+    preferenceElms.push($smuflRenderGlyphOptionsGlyphSize[0], "input");
     $smuflRenderGlyphOptionsGlyphSize.on("input", function () {
       this.nextElementSibling.textContent = this.value;
       preferenceElms.onChange();
@@ -430,7 +437,7 @@ class SMuFLFontViewer {
       renderGlyph(currentGlyphData);
     });
 
-    preferenceElms.push($smuflRenderGlyphOptionsStaffSize[0]);
+    preferenceElms.push($smuflRenderGlyphOptionsStaffSize[0], "input");
     $smuflRenderGlyphOptionsStaffSize.on("input", function () {
       this.nextElementSibling.textContent = this.value;
       preferenceElms.onChange();
@@ -441,7 +448,7 @@ class SMuFLFontViewer {
       renderGlyph(currentGlyphData);
     });
 
-    preferenceElms.push($smuflRenderGlyphOptionsStemCs[0]);
+    preferenceElms.push($smuflRenderGlyphOptionsStemCs[0], "change");
     $smuflRenderGlyphOptionsStemCs.on("change", function () {
       renderGlyph(currentGlyphData);
       preferenceElms.onChange();
@@ -877,7 +884,7 @@ class SMuFLFontViewer {
       renderGlyph(currentGlyphData);
     });
 
-    preferenceElms.push($smuflRenderGlyphOptionsHideAll[0]);
+    preferenceElms.push($smuflRenderGlyphOptionsHideAll[0], "change");
     $smuflRenderGlyphOptionsHideAll.on("change", function (e) {
       $smuflGlyphUIContainer.toggleClass("hideall", e.target.checked);
       renderGlyph(currentGlyphData);
@@ -2985,6 +2992,9 @@ class SMuFLFontViewer {
       $codepointSelect_selectize.setValue(glyph || "E0A3");
 
       _postDraw();
+      window.setTimeout(() => {
+        preferenceElms.fromSps(params);
+      });
       if (options.has("showFontMetadata")) {
         $("#BFontMetadata").click();
       } else if (options.has("showGlyphsWithAnchors")) {
