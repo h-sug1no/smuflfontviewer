@@ -49,9 +49,12 @@ class SMuFLFontViewer {
       toSps(sps) {
         const { elmsByIdMap } = this;
         Object.keys(elmsByIdMap).forEach((id) => {
-          const { elm } = elmsByIdMap[id];
+          const { elm, eventType } = elmsByIdMap[id];
           let value;
-          if (elm.classList.contains("tri-state")) {
+          if (eventType === "spsFuncs") {
+            value = elm.toStr();
+          } else if (elm.classList.contains("tri-state")) {
+            value = elm._3state;
           } else {
             switch (elm.type) {
               case "checkbox":
@@ -79,7 +82,9 @@ class SMuFLFontViewer {
             continue;
           }
           const value = sps.get(id);
-          if (elm.classList.contains("tri-state")) {
+          if (eventType === "spsFuncs") {
+            elm.fromStr(value);
+          } else if (elm.classList.contains("tri-state")) {
             elm._3state = NUmber(value);
           } else {
             switch (elm.type) {
@@ -618,12 +623,35 @@ class SMuFLFontViewer {
     function _initMouseHandlers() {
       const $smuflGlyphCanvasContainer = $("#smuflGlyphCanvasContainer");
 
+      preferenceElms.push(
+        {
+          id: $smuflGlyphCanvasContainer[0].id,
+          toStr() {
+            return JSON.stringify({
+              scrollLeft: $smuflGlyphCanvasContainer.scrollLeft(),
+              scrollTop: $smuflGlyphCanvasContainer.scrollTop(),
+            });
+          },
+          fromStr(valueStr) {
+            const { scrollLeft, scrollTop } = JSON.parse(valueStr);
+            $smuflGlyphCanvasContainer.scrollLeft(scrollLeft);
+            $smuflGlyphCanvasContainer.scrollTop(scrollTop);
+          },
+        },
+        "spsFuncs"
+      );
+
       let isActive = false;
       let startPos;
 
       function _setIsActive(v) {
-        isActive = v;
-        $smuflGlyphCanvasContainer.css("cursor", isActive ? "move" : "");
+        if (isActive != v) {
+          isActive = v;
+          $smuflGlyphCanvasContainer.css("cursor", isActive ? "move" : "");
+          if (!v) {
+            preferenceElms.onChange();
+          }
+        }
       }
 
       _setIsActive(false);
