@@ -46,6 +46,26 @@ class SMuFLFontViewer {
           updateStatickLink();
         }
       },
+      resolvePropName({ elm, eventType }) {
+        let propName;
+        if (elm.classList.contains("tri-state")) {
+          propName = "_3state";
+        } else {
+          switch (elm.type) {
+            case "checkbox":
+              propName = "checked";
+              break;
+            case "range":
+            case "select-one":
+              propName = "value";
+              break;
+            default:
+              throw new Error(`unknown type: ${elm.type}`);
+              break;
+          }
+        }
+        return propName;
+      },
       toSps(sps) {
         const { elmsByIdMap } = this;
         Object.keys(elmsByIdMap).forEach((id) => {
@@ -53,24 +73,15 @@ class SMuFLFontViewer {
           let value;
           if (eventType === "spsFuncs") {
             value = elm.toStr();
-          } else if (elm.classList.contains("tri-state")) {
-            value = elm._3state;
           } else {
-            switch (elm.type) {
-              case "checkbox":
-                value = elm.checked;
-                break;
-              case "range":
-              case "select-one":
-                value = elm.value;
-                break;
-              default:
-                throw new Error(`unknown type: ${elm.type}`);
-                break;
-            }
+            const propName = this.resolvePropName({ elm, eventType });
+            value = elm[propName];
           }
           sps.set(id, value);
         });
+      },
+      updateElmProp(elm, propName, value) {
+        elm[propName] = propName === "_3state" ? Number(value) : value;
       },
       fromSps(sps) {
         const { elmsByIdMap } = this;
@@ -84,23 +95,11 @@ class SMuFLFontViewer {
           const value = sps.get(id);
           if (eventType === "spsFuncs") {
             elm.fromStr(value);
-          } else if (elm.classList.contains("tri-state")) {
-            elm._3state = NUmber(value);
           } else {
-            switch (elm.type) {
-              case "checkbox":
-                elm.checked = value === "true";
-                break;
-              case "range":
-              case "select-one":
-                elm.value = value;
-                break;
-              default:
-                console.warn(`unknown type: ${elm.type}`);
-                break;
-            }
+            const propName = this.resolvePropName({ elm, eventType });
+            this.updateElmProp(elm, propName, value);
+            $(elm).trigger(eventType);
           }
-          $(elm).trigger(eventType);
         }
       },
     };
