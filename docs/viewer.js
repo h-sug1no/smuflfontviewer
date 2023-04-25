@@ -331,25 +331,6 @@ class SMuFLFontViewer {
         if (!keep_autoToggleValue) {
           inputElm._autoToggleValue = undefined;
         }
-        preferenceElms.push(
-          {
-            id: inputElm.id,
-            toStr() {
-              return JSON.stringify({
-                _autoToggleValue: inputElm._autoToggleValue,
-                _3state: inputElm._3state,
-              });
-            },
-            fromStr(valueStr) {
-              const { _autoToggleValue, _3state } = JSON.parse(valueStr);
-              inputElm._autoToggleValue = _autoToggleValue;
-              inputElm._3state = _3state;
-              inputElm.checked = inputElm._3state & 2;
-              inputElm.indeterminate = inputElm._3state & 1;
-            },
-          },
-          "spsFuncs"
-        );
       };
       if (isIndeterminate) {
         inputElm._3state = 0;
@@ -359,6 +340,25 @@ class SMuFLFontViewer {
         inputElm._3state = 1;
       }
       inputElm._on3StateChange();
+      preferenceElms.push(
+        {
+          id: inputElm.id,
+          toStr() {
+            return JSON.stringify({
+              _autoToggleValue: inputElm._autoToggleValue,
+              _3state: inputElm._3state,
+            });
+          },
+          fromStr(valueStr) {
+            const { _autoToggleValue, _3state } = JSON.parse(valueStr);
+            inputElm._autoToggleValue = _autoToggleValue;
+            inputElm._3state = _3state;
+            inputElm.checked = inputElm._3state & 2;
+            inputElm.indeterminate = inputElm._3state & 1;
+          },
+        },
+        "spsFuncs"
+      );
     }
 
     const hintLabels = $smuflGlyphHints.children("label");
