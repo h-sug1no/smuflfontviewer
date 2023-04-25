@@ -48,7 +48,7 @@ class SMuFLFontViewer {
       },
       resolvePropName({ elm, eventType }) {
         let propName;
-        if (elm.classList.contains("tri-state")) {
+        if (elm._on3StateChange) {
           propName = "_3state";
         } else {
           switch (elm.type) {
@@ -93,7 +93,8 @@ class SMuFLFontViewer {
             value = value === "true";
             break;
           case "_3state":
-            value = Number(value);
+            value = value === "true" ? 1 : Number(value) || 0;
+            value -= 1;
             break;
           default:
             break;
@@ -338,7 +339,25 @@ class SMuFLFontViewer {
         if (!keep_autoToggleValue) {
           inputElm._autoToggleValue = undefined;
         }
-        preferenceElms.push(inputElm, "change");
+        preferenceElms.push(
+          {
+            id: inputElm.id,
+            toStr() {
+              return JSON.stringify({
+                _autoToggleValue: inputElm._autoToggleValue,
+                _3state: inputElm._3state,
+              });
+            },
+            fromStr(valueStr) {
+              const { _autoToggleValue, _3state } = JSON.parse(valueStr);
+              inputElm._autoToggleValue = _autoToggleValue;
+              inputElm._3state = _3state;
+              inputElm.checked = inputElm._3state & 2;
+              inputElm.indeterminate = inputElm._3state & 1;
+            },
+          },
+          "spsFuncs"
+        );
       };
       if (isIndeterminate) {
         inputElm._3state = 0;
@@ -615,6 +634,7 @@ class SMuFLFontViewer {
       if (ev.target._on3StateChange) {
         ev.target._on3StateChange();
       }
+      preferenceElms.onChange();
       renderGlyph(currentGlyphData);
     });
 
@@ -925,7 +945,7 @@ class SMuFLFontViewer {
       if (target._on3StateChange) {
         target._on3StateChange();
       }
-
+      preferenceElms.onChange();
       //console.log(this);
       renderGlyph(currentGlyphData);
     });
