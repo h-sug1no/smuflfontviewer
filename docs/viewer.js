@@ -452,6 +452,7 @@ class SMuFLFontViewer {
         }
       });
       renderGlyph(currentGlyphData);
+      preferenceElms.onChange();
     });
     const $smuflRenderGlyphOptionsResetGlyphSize = $(
       "#smuflRenderGlyphOptionsResetGlyphSize"
