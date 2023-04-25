@@ -48,21 +48,17 @@ class SMuFLFontViewer {
       },
       resolvePropName({ elm, eventType }) {
         let propName;
-        if (elm._on3StateChange) {
-          propName = "_3state";
-        } else {
-          switch (elm.type) {
-            case "checkbox":
-              propName = "checked";
-              break;
-            case "range":
-            case "select-one":
-              propName = "value";
-              break;
-            default:
-              throw new Error(`unknown type: ${elm.type}`);
-              break;
-          }
+        switch (elm.type) {
+          case "checkbox":
+            propName = "checked";
+            break;
+          case "range":
+          case "select-one":
+            propName = "value";
+            break;
+          default:
+            throw new Error(`unknown type: ${elm.type}`);
+            break;
         }
         return propName;
       },
@@ -91,10 +87,6 @@ class SMuFLFontViewer {
         switch (propName) {
           case "checked":
             value = value === "true";
-            break;
-          case "_3state":
-            value = value === "true" ? 1 : Number(value) || 0;
-            value -= 1;
             break;
           default:
             break;
