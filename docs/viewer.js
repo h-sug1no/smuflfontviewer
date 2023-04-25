@@ -1811,7 +1811,7 @@ class SMuFLFontViewer {
       );
     });
 
-    $("#BCCStaticLink").on("click", function () {
+    const onCCBtnCLick = (urlTextText) => {
       const key = "static link";
       _$infoDialog_showModal(key, function ($contentContainer) {
         try {
@@ -1834,9 +1834,17 @@ class SMuFLFontViewer {
       });
 
       const $dom = _$infoDialog_contentDoms[key];
-      $dom.$urlText.text($aStatickLink.prop("href"));
+      $dom.$urlText.text(urlTextText);
       $dom.$urlText.select();
       document.execCommand("copy");
+    };
+
+    $("#BCCStaticLink").on("click", function () {
+      onCCBtnCLick($aStatickLink.prop("href"));
+    });
+
+    $("#BCCStaticLink1").on("click", function () {
+      onCCBtnCLick($aStatickLink1.prop("href"));
     });
 
     $infoDialog_closeButton.on("click", function () {
