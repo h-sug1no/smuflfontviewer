@@ -66,6 +66,12 @@ class SMuFLFontViewer {
         }
         return propName;
       },
+      resetSps(sps) {
+        const { elmsByIdMap } = this;
+        Object.keys(elmsByIdMap).forEach((id) => {
+          sps.delete(id);
+        });
+      },
       toSps(sps) {
         const { elmsByIdMap } = this;
         Object.keys(elmsByIdMap).forEach((id) => {
@@ -80,8 +86,19 @@ class SMuFLFontViewer {
           sps.set(id, value);
         });
       },
-      updateElmProp(elm, propName, value) {
-        elm[propName] = propName === "_3state" ? Number(value) : value;
+      updateElmProp(elm, propName, valueIn) {
+        let value = valueIn;
+        switch (propName) {
+          case "checked":
+            value = value === "true";
+            break;
+          case "_3state":
+            value = Number(value);
+            break;
+          default:
+            break;
+        }
+        elm[propName] = value;
       },
       fromSps(sps) {
         const { elmsByIdMap } = this;
@@ -321,6 +338,7 @@ class SMuFLFontViewer {
         if (!keep_autoToggleValue) {
           inputElm._autoToggleValue = undefined;
         }
+        preferenceElms.push(inputElm, "change");
       };
       if (isIndeterminate) {
         inputElm._3state = 0;
@@ -337,6 +355,7 @@ class SMuFLFontViewer {
       const hintLabel = hintLabels[li];
       hintLabel.id = toHintlabelIdStr(hintLabel.textContent);
       const inputElm = hintLabel.firstElementChild;
+      inputElm.id = `${hintLabel.id}_input`;
 
       if (!hintLabel.textContent.startsWith("cutOutOrigin_BBL")) {
         inputElm.checked = true;
@@ -1832,10 +1851,14 @@ class SMuFLFontViewer {
       } else {
         t.searchParams.delete("settings.cutOutOrigin_BBL");
       }
+
+      preferenceElms.resetSps(t.searchParams);
       $aStatickLink.prop("href", t.href);
       $aStatickLink.prop(
         "title",
-        `${aStaticLinkTitle}: ${params.get("glyph")}`
+        `${aStaticLinkTitle}: ${params.get("glyph")}:\n(${Array.from(
+          t.searchParams.keys()
+        )})`
       );
 
       preferenceElms.toSps(t.searchParams);
