@@ -370,10 +370,10 @@
       position: absolute;
       margin: 0 0.5em;
       border: solid black 1px;
-      border-radius: 5px;
-      background-color: white;
       z-index: 10;
       box-sizing: border-box;
+      border-radius: 1em;
+      background-color: #e0e0e0;
     }
 
     .ccLinkContainer .aLinkContainer {
@@ -385,10 +385,10 @@
     }
 
     .ccLinkContainer:hover {
-      width: 100%;
+      box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.4);
+      width: auto;
       left: 0;
-      top: 0;
-      margin: 0;
+      right: 0;
     }
 
     .ccLinkContainer:hover .aLinkContainer {
@@ -448,8 +448,8 @@
           <input id="BCCStaticLink" type="button" title="Copy the URL of the static link to the clipboard" value="cc">
         </div>
         <div id="staticLinkContainer1" class="aLinkContainer">
-          <a id="AStaticLink1" href="#" title="static link to the current glyph with settings">static link with
-            settings</a>
+          <a id="AStaticLink1" href="#" title="static link to the current glyph with settings">static link to current
+            font, glyph with settings</a>
           <input id="BCCStaticLink1" type="button"
             title="Copy the URL of the static link with settings to the clipboard" value="cc">
         </div>
