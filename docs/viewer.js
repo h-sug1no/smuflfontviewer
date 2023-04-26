@@ -2452,7 +2452,22 @@ class SMuFLFontViewer {
     }
 
     const me = this;
+
+    let skipRenderGlyph = false;
+    const withSkipRenderGlyph = (func) => {
+      skipRenderGlyph = true;
+      try {
+        func();
+      } catch (e) {
+        console.error(e);
+      }
+      skipRenderGlyph = false;
+    };
+
     function renderGlyph(glyphData) {
+      if (skipRenderGlyph) {
+        return;
+      }
       /*
       const codepoint = glyphData.codepoint;
       const glyphname = glyphData.glyphname;
@@ -3068,7 +3083,10 @@ class SMuFLFontViewer {
 
       _postDraw();
       window.setTimeout(() => {
-        preferenceElms.fromSps(params);
+        withSkipRenderGlyph(() => {
+          preferenceElms.fromSps(params);
+        });
+        renderGlyph(currentGlyphData);
       });
       if (options.has("showFontMetadata")) {
         $("#BFontMetadata").click();
