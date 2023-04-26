@@ -2962,9 +2962,6 @@ class SMuFLFontViewer {
       var currentGlyphs = $("span.currentGlyph");
       currentGlyphs.each(function (idx, elm) {
         elm.scrollIntoView();
-      });
-
-      window.setTimeout(function () {
         document.firstElementChild.scrollIntoView(true);
       });
 
