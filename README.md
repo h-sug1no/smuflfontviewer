@@ -2,6 +2,9 @@
 
 This demo shows SMuFL Metadata for a given character, plus some useful extended properties. For more information, see [Standard Music Font Layout specification](https://www.smufl.org/).
 
+## Closed PRs
+https://github.com/h-sug1no/smuflfontviewer/pulls?q=is%3Apr+is%3Aclosed
+
 ## supported properties
 - SMuFL metadata:
   - glyphnames
