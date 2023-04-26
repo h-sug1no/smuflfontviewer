@@ -623,6 +623,10 @@ class SMuFLFontViewer {
       elm.selectionEnd = elm.selectionStart;
     });
 
+    $("#smuflRenderGlyphOptions input.preferenceElm").each((index, element) => {
+      preferenceElms.push(element, "change");
+    });
+
     $("#smuflRenderGlyphOptions input").on("change", function (ev) {
       if (ev.target._on3StateChange) {
         ev.target._on3StateChange();
