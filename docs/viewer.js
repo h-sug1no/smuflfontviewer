@@ -452,7 +452,6 @@ class SMuFLFontViewer {
         }
       });
       renderGlyph(currentGlyphData);
-      preferenceElms.onChange();
     });
     const $smuflRenderGlyphOptionsResetGlyphSize = $(
       "#smuflRenderGlyphOptionsResetGlyphSize"
@@ -464,7 +463,6 @@ class SMuFLFontViewer {
     preferenceElms.push($smuflRenderGlyphOptionsGlyphSize[0], "input");
     $smuflRenderGlyphOptionsGlyphSize.on("input", function () {
       this.nextElementSibling.textContent = this.value;
-      preferenceElms.onChange();
     });
     $smuflRenderGlyphOptionsGlyphSize.trigger("input");
 
@@ -475,7 +473,6 @@ class SMuFLFontViewer {
     preferenceElms.push($smuflRenderGlyphOptionsStaffSize[0], "input");
     $smuflRenderGlyphOptionsStaffSize.on("input", function () {
       this.nextElementSibling.textContent = this.value;
-      preferenceElms.onChange();
     });
     $smuflRenderGlyphOptionsStaffSize.trigger("input");
 
@@ -486,7 +483,6 @@ class SMuFLFontViewer {
     preferenceElms.push($smuflRenderGlyphOptionsStemCs[0], "change");
     $smuflRenderGlyphOptionsStemCs.on("change", function () {
       renderGlyph(currentGlyphData);
-      preferenceElms.onChange();
     });
 
     const initSizeButtonHandlers = (bs, is, is1) => {
@@ -631,7 +627,6 @@ class SMuFLFontViewer {
       if (ev.target._on3StateChange) {
         ev.target._on3StateChange();
       }
-      preferenceElms.onChange();
       renderGlyph(currentGlyphData);
     });
 
@@ -684,7 +679,6 @@ class SMuFLFontViewer {
           isActive = v;
           $smuflGlyphCanvasContainer.css("cursor", isActive ? "move" : "");
           if (!v) {
-            preferenceElms.onChange();
           }
         }
       }
@@ -942,7 +936,6 @@ class SMuFLFontViewer {
       if (target._on3StateChange) {
         target._on3StateChange();
       }
-      preferenceElms.onChange();
       //console.log(this);
       renderGlyph(currentGlyphData);
     });
@@ -951,7 +944,6 @@ class SMuFLFontViewer {
     $smuflRenderGlyphOptionsHideAll.on("change", function (e) {
       $smuflGlyphUIContainer.toggleClass("hideall", e.target.checked);
       renderGlyph(currentGlyphData);
-      preferenceElms.onChange();
     });
 
     $("body").keyup(function (ev) {
@@ -3069,6 +3061,13 @@ class SMuFLFontViewer {
         "disabled",
         !fontMetadata.glyphsWithAlternates
       );
+
+      (() => {
+        const element = document.querySelector(".ccLinkContainer");
+        element.addEventListener("mouseenter", function (event) {
+          preferenceElms.onChange();
+        });
+      })();
 
       let glyph = params.get("glyph");
       if (glyph) {
