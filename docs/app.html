@@ -347,15 +347,53 @@
       display: flex;
       align-items: center;
     }
+
     .generalUI .sizeContainer {
       display: inline-flex;
       flex-direction: column;
     }
+
     .generalUI .sizeContainer button {
       width: 10ch;
     }
+
     .generalUI button {
       margin: 0.25em;
+    }
+
+    .ccLinkContainer {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      width: 5em;
+      text-align: center;
+      position: absolute;
+      margin: 0 0.5em;
+      border: solid black 1px;
+      z-index: 10;
+      box-sizing: border-box;
+      border-radius: 1em;
+      background-color: #e0e0e0;
+    }
+
+    .ccLinkContainer .aLinkContainer {
+      display: none;
+    }
+
+    .ccLinkContainer::before {
+      content: "Links";
+    }
+
+    .ccLinkContainer:hover {
+      box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.4);
+      width: auto;
+      left: 0;
+      right: 0;
+    }
+
+    .ccLinkContainer:hover .aLinkContainer {
+      display: block;
+      margin: 0 0.5em 0.5em 0.5em;
     }
   </style>
 
@@ -404,13 +442,21 @@
         value="glyphsWithAlternates">
       <input id="BFontMetadataGlyphsWithAnchors" type="button" title="Show font metadata glyphsWithAnchors"
         value="glyphsWithAnchors">
-      <div id="staticLinkContainer" class="aLinkContainer">
-        <a id="AStaticLink" href="#" title="static link to the current glyph">static link</a>
-        <input id="BCCStaticLink" type="button" title="Copy the URL of the static link to the clipboard" value="cc">
-      </div>
-      <div id="UULinkContainer" class="aLinkContainer">
-        <a id="AUULink" href="#" title="link to the current glyph in util.unicode.org: Character Properties">Unicode
-          Character Properties</a>
+      <div class="ccLinkContainer">
+        <div id="staticLinkContainer" class="aLinkContainer">
+          <a id="AStaticLink" href="#" title="static link to the current glyph">static link to current font, glyph</a>
+          <input id="BCCStaticLink" type="button" title="Copy the URL of the static link to the clipboard" value="cc">
+        </div>
+        <div id="staticLinkContainer1" class="aLinkContainer">
+          <a id="AStaticLink1" href="#" title="static link to the current glyph with settings">static link to current
+            font, glyph with settings</a>
+          <input id="BCCStaticLink1" type="button"
+            title="Copy the URL of the static link with settings to the clipboard" value="cc">
+        </div>
+        <div id="UULinkContainer" class="aLinkContainer">
+          <a id="AUULink" href="#" title="link to the current glyph in util.unicode.org: Character Properties">Unicode
+            Character Properties</a>
+        </div>
       </div>
     </div>
     <div id="smuflGlyphContainer">
@@ -442,15 +488,15 @@
       <div class="generalUI">
         <div class="sizeContainer">
           <label id="smuflRenderGlyphOptionsGlyphSizeContainer">
-            <button title="apply current value to staff size" class="glyphSize">font size</button> <input id="smuflRenderGlyphOptionsGlyphSize"
-              type="range" min="20" max="1000" value="200"><span></span></label>
+            <button title="apply current value to staff size" class="glyphSize">font size</button> <input
+              id="smuflRenderGlyphOptionsGlyphSize" type="range" min="20" max="1000" value="200"><span></span></label>
           <label id="smuflRenderGlyphOptionsStaffSizeContainer">
-            <button title="apply current value to font size" class="staffSize">staff size</button> <input id="smuflRenderGlyphOptionsStaffSize"
-            type="range" min="20" max="1000" value="200"><span></span></label>
+            <button title="apply current value to font size" class="staffSize">staff size</button> <input
+              id="smuflRenderGlyphOptionsStaffSize" type="range" min="20" max="1000" value="200"><span></span></label>
           <select id="smuflRenderGlyphOptionsStemCs" title="The coordinate system used for drawing a stem">
             <option value="glyph">glyph(like grace note)</option>
             <option value="staff">staff</option>
-            </select>
+          </select>
           </select>
         </div>
         <button id="smuflRenderGlyphOptionsResetGlyphSize" type="button" title="reset glyph size">s</button>
@@ -463,12 +509,13 @@
       </div>
       <div id="smuflGlyphUIContainer">
         <div id="smuflRenderGlyphOptions">
-          <label title="glyph origin"><input id="smuflRenderGlyphOptionsOrigin" type="checkbox" checked />origin</label>
+          <label title="glyph origin"><input id="smuflRenderGlyphOptionsOrigin" class="preferenceElm" type="checkbox"
+              checked />origin</label>
           <label
             title="staff lines: All glyphs should be drawn at a scale consistent with the key measurement that one staff space = 0.25 em"><input
               id="smuflRenderGlyphOptionsSl" type="checkbox" checked />sl</label>
-          <label title="glyph bounding box"><input id="smuflRenderGlyphOptionsBbox" type="checkbox" checked />bbox<span
-              class="val"></span></label>
+          <label title="glyph bounding box"><input id="smuflRenderGlyphOptionsBbox" type="checkbox"
+              class="preferenceElm" checked />bbox<span class="val"></span></label>
         </div>
         <div id="smuflGlyphHints">
           <label

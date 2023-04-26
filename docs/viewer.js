@@ -26,6 +26,93 @@ class SMuFLFontViewer {
         },
       };
     }
+    let updateStatickLink;
+
+    const preferenceElms = {
+      elmsByIdMap: {},
+      push(elm, eventType) {
+        const { elmsByIdMap } = this;
+        const { id } = elm;
+        if (!id) {
+          throw new Error("specify id to preference elm");
+        }
+        elmsByIdMap[id] = {
+          elm,
+          eventType,
+        };
+      },
+      onChange() {
+        if (updateStatickLink) {
+          updateStatickLink();
+        }
+      },
+      resolvePropName({ elm, eventType }) {
+        let propName;
+        switch (elm.type) {
+          case "checkbox":
+            propName = "checked";
+            break;
+          case "range":
+          case "select-one":
+            propName = "value";
+            break;
+          default:
+            throw new Error(`unknown type: ${elm.type}`);
+            break;
+        }
+        return propName;
+      },
+      resetSps(sps) {
+        const { elmsByIdMap } = this;
+        Object.keys(elmsByIdMap).forEach((id) => {
+          sps.delete(id);
+        });
+      },
+      toSps(sps) {
+        const { elmsByIdMap } = this;
+        Object.keys(elmsByIdMap).forEach((id) => {
+          const { elm, eventType } = elmsByIdMap[id];
+          let value;
+          if (eventType === "spsFuncs") {
+            value = elm.toStr();
+          } else {
+            const propName = this.resolvePropName({ elm, eventType });
+            value = elm[propName];
+          }
+          sps.set(id, value);
+        });
+      },
+      updateElmProp(elm, propName, valueIn) {
+        let value = valueIn;
+        switch (propName) {
+          case "checked":
+            value = value === "true";
+            break;
+          default:
+            break;
+        }
+        elm[propName] = value;
+      },
+      fromSps(sps) {
+        const { elmsByIdMap } = this;
+        const keys = sps.keys();
+
+        for (const id of keys) {
+          const { elm, eventType } = elmsByIdMap[id] || {};
+          if (!elm || !eventType) {
+            continue;
+          }
+          const value = sps.get(id);
+          if (eventType === "spsFuncs") {
+            elm.fromStr(value);
+          } else {
+            const propName = this.resolvePropName({ elm, eventType });
+            this.updateElmProp(elm, propName, value);
+            $(elm).trigger(eventType);
+          }
+        }
+      },
+    };
 
     function _$c_appendText($c, text) {
       $c.append(document.createTextNode(text));
@@ -253,6 +340,25 @@ class SMuFLFontViewer {
         inputElm._3state = 1;
       }
       inputElm._on3StateChange();
+      preferenceElms.push(
+        {
+          id: inputElm.id,
+          toStr() {
+            return JSON.stringify({
+              _autoToggleValue: inputElm._autoToggleValue,
+              _3state: inputElm._3state,
+            });
+          },
+          fromStr(valueStr) {
+            const { _autoToggleValue, _3state } = JSON.parse(valueStr);
+            inputElm._autoToggleValue = _autoToggleValue;
+            inputElm._3state = _3state;
+            inputElm.checked = inputElm._3state & 2;
+            inputElm.indeterminate = inputElm._3state & 1;
+          },
+        },
+        "spsFuncs"
+      );
     }
 
     const hintLabels = $smuflGlyphHints.children("label");
@@ -260,6 +366,7 @@ class SMuFLFontViewer {
       const hintLabel = hintLabels[li];
       hintLabel.id = toHintlabelIdStr(hintLabel.textContent);
       const inputElm = hintLabel.firstElementChild;
+      inputElm.id = `${hintLabel.id}_input`;
 
       if (!hintLabel.textContent.startsWith("cutOutOrigin_BBL")) {
         inputElm.checked = true;
@@ -353,6 +460,7 @@ class SMuFLFontViewer {
     const $smuflRenderGlyphOptionsSl = $("#smuflRenderGlyphOptionsSl");
     input_make3State($smuflRenderGlyphOptionsSl.get(0), false, true);
 
+    preferenceElms.push($smuflRenderGlyphOptionsGlyphSize[0], "input");
     $smuflRenderGlyphOptionsGlyphSize.on("input", function () {
       this.nextElementSibling.textContent = this.value;
     });
@@ -362,6 +470,7 @@ class SMuFLFontViewer {
       renderGlyph(currentGlyphData);
     });
 
+    preferenceElms.push($smuflRenderGlyphOptionsStaffSize[0], "input");
     $smuflRenderGlyphOptionsStaffSize.on("input", function () {
       this.nextElementSibling.textContent = this.value;
     });
@@ -371,6 +480,7 @@ class SMuFLFontViewer {
       renderGlyph(currentGlyphData);
     });
 
+    preferenceElms.push($smuflRenderGlyphOptionsStemCs[0], "change");
     $smuflRenderGlyphOptionsStemCs.on("change", function () {
       renderGlyph(currentGlyphData);
     });
@@ -509,6 +619,10 @@ class SMuFLFontViewer {
       elm.selectionEnd = elm.selectionStart;
     });
 
+    $("#smuflRenderGlyphOptions input.preferenceElm").each((index, element) => {
+      preferenceElms.push(element, "change");
+    });
+
     $("#smuflRenderGlyphOptions input").on("change", function (ev) {
       if (ev.target._on3StateChange) {
         ev.target._on3StateChange();
@@ -539,12 +653,34 @@ class SMuFLFontViewer {
     function _initMouseHandlers() {
       const $smuflGlyphCanvasContainer = $("#smuflGlyphCanvasContainer");
 
+      preferenceElms.push(
+        {
+          id: $smuflGlyphCanvasContainer[0].id,
+          toStr() {
+            return JSON.stringify({
+              scrollLeft: $smuflGlyphCanvasContainer.scrollLeft(),
+              scrollTop: $smuflGlyphCanvasContainer.scrollTop(),
+            });
+          },
+          fromStr(valueStr) {
+            const { scrollLeft, scrollTop } = JSON.parse(valueStr);
+            $smuflGlyphCanvasContainer.scrollLeft(scrollLeft);
+            $smuflGlyphCanvasContainer.scrollTop(scrollTop);
+          },
+        },
+        "spsFuncs"
+      );
+
       let isActive = false;
       let startPos;
 
       function _setIsActive(v) {
-        isActive = v;
-        $smuflGlyphCanvasContainer.css("cursor", isActive ? "move" : "");
+        if (isActive != v) {
+          isActive = v;
+          $smuflGlyphCanvasContainer.css("cursor", isActive ? "move" : "");
+          if (!v) {
+          }
+        }
       }
 
       _setIsActive(false);
@@ -800,11 +936,11 @@ class SMuFLFontViewer {
       if (target._on3StateChange) {
         target._on3StateChange();
       }
-
       //console.log(this);
       renderGlyph(currentGlyphData);
     });
 
+    preferenceElms.push($smuflRenderGlyphOptionsHideAll[0], "change");
     $smuflRenderGlyphOptionsHideAll.on("change", function (e) {
       $smuflGlyphUIContainer.toggleClass("hideall", e.target.checked);
       renderGlyph(currentGlyphData);
@@ -957,6 +1093,7 @@ class SMuFLFontViewer {
     }
 
     const $aStatickLink = $("#AStaticLink");
+    const $aStatickLink1 = $("#AStaticLink1");
     const $aUULink = $("#AUULink");
 
     const _$infoDialog_contentDoms = {};
@@ -1671,7 +1808,7 @@ class SMuFLFontViewer {
       );
     });
 
-    $("#BCCStaticLink").on("click", function () {
+    const onCCBtnCLick = (urlTextText) => {
       const key = "static link";
       _$infoDialog_showModal(key, function ($contentContainer) {
         try {
@@ -1694,9 +1831,17 @@ class SMuFLFontViewer {
       });
 
       const $dom = _$infoDialog_contentDoms[key];
-      $dom.$urlText.text($aStatickLink.prop("href"));
+      $dom.$urlText.text(urlTextText);
       $dom.$urlText.select();
       document.execCommand("copy");
+    };
+
+    $("#BCCStaticLink").on("click", function () {
+      onCCBtnCLick($aStatickLink.prop("href"));
+    });
+
+    $("#BCCStaticLink1").on("click", function () {
+      onCCBtnCLick($aStatickLink1.prop("href"));
     });
 
     $infoDialog_closeButton.on("click", function () {
@@ -1705,8 +1850,10 @@ class SMuFLFontViewer {
     });
 
     let aStaticLinkTitle;
-    function updateStatickLink() {
+    let aStaticLink1Title;
+    updateStatickLink = function updateStatickLinkFunc() {
       aStaticLinkTitle = aStaticLinkTitle || $aStatickLink.prop("title");
+      aStaticLink1Title = aStaticLink1Title || $aStatickLink1.prop("title");
       const params = new URLSearchParams(window.location.search);
       params.set("glyph", $codepointSelect.val());
       params.delete("showFontMetadata");
@@ -1721,12 +1868,23 @@ class SMuFLFontViewer {
       } else {
         t.searchParams.delete("settings.cutOutOrigin_BBL");
       }
+
+      preferenceElms.resetSps(t.searchParams);
       $aStatickLink.prop("href", t.href);
       $aStatickLink.prop(
         "title",
-        `${aStaticLinkTitle}: ${params.get("glyph")}`
+        `${aStaticLinkTitle}: ${params.get("glyph")}:\n(${Array.from(
+          t.searchParams.keys()
+        )})`
       );
-    }
+
+      preferenceElms.toSps(t.searchParams);
+      $aStatickLink1.prop("href", t.href);
+      $aStatickLink1.prop(
+        "title",
+        `${aStaticLink1Title}: ${t.searchParams.toString()}`
+      );
+    };
 
     let aUULinkTitle;
     function updateUUkLink() {
@@ -2286,7 +2444,22 @@ class SMuFLFontViewer {
     }
 
     const me = this;
+
+    let skipRenderGlyph = false;
+    const withSkipRenderGlyph = (func) => {
+      skipRenderGlyph = true;
+      try {
+        func();
+      } catch (e) {
+        console.error(e);
+      }
+      skipRenderGlyph = false;
+    };
+
     function renderGlyph(glyphData) {
+      if (skipRenderGlyph) {
+        return;
+      }
       /*
       const codepoint = glyphData.codepoint;
       const glyphname = glyphData.glyphname;
@@ -2789,9 +2962,6 @@ class SMuFLFontViewer {
       var currentGlyphs = $("span.currentGlyph");
       currentGlyphs.each(function (idx, elm) {
         elm.scrollIntoView();
-      });
-
-      window.setTimeout(function () {
         document.firstElementChild.scrollIntoView(true);
       });
 
@@ -2889,6 +3059,13 @@ class SMuFLFontViewer {
         !fontMetadata.glyphsWithAlternates
       );
 
+      (() => {
+        const element = document.querySelector(".ccLinkContainer");
+        element.addEventListener("mouseenter", function (event) {
+          preferenceElms.onChange();
+        });
+      })();
+
       let glyph = params.get("glyph");
       if (glyph) {
         var gd = _getGlyphData(glyph);
@@ -2901,6 +3078,12 @@ class SMuFLFontViewer {
       $codepointSelect_selectize.setValue(glyph || "E0A3");
 
       _postDraw();
+      window.setTimeout(() => {
+        withSkipRenderGlyph(() => {
+          preferenceElms.fromSps(params);
+        });
+        renderGlyph(currentGlyphData);
+      });
       if (options.has("showFontMetadata")) {
         $("#BFontMetadata").click();
       } else if (options.has("showGlyphsWithAnchors")) {
