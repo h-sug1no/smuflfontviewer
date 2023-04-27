@@ -284,7 +284,9 @@ class SMuFLFontViewer {
         );
         $codepointSelect_selectize = cpSelect0.$codepointSelect_selectize;
 
-        const $rosgCpSelect = $('<selct class="rosgCpSelect"></selct>');
+        const $rosgCpSelect = $(
+          '<select id="rosgCpSelect" class="rosgCpSelect"></select>'
+        );
         $smuflGlyphHints_repatOffset3StateBox[0].parentElement.parentElement.appendChild(
           $rosgCpSelect[0]
         );
@@ -303,6 +305,21 @@ class SMuFLFontViewer {
         rosgCpSelect.$codepointSelect_selectize.$control.prop(
           "title",
           "Select a glyph to use as an example drawing for the repeatOffset property"
+        );
+
+        preferenceElms.push(
+          {
+            id: $rosgCpSelect[0].id,
+            toStr() {
+              return rosgCpSelect.$codepointSelect_selectize.getValue();
+            },
+            fromStr(valueStr) {
+              if (valueStr) {
+                rosgCpSelect.$codepointSelect_selectize.setValue(valueStr);
+              }
+            },
+          },
+          "spsFuncs"
         );
 
         that._handle_onResourceReady("smuflMetadata");
