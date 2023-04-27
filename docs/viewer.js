@@ -182,7 +182,12 @@ class SMuFLFontViewer {
           soptions.push({
             series: "glyphnames",
             value: cp,
-            name: cp + ": " + gname,
+            name:
+              cp +
+              ": " +
+              gname +
+              ": " +
+              String.fromCodePoint(getCodepointNumber(cp)),
           });
         });
 
@@ -193,7 +198,12 @@ class SMuFLFontViewer {
           soptions.push({
             series: "optionalGlyphs",
             value: cp,
-            name: cp + ": " + gname,
+            name:
+              cp +
+              ": " +
+              gname +
+              ": " +
+              String.fromCodePoint(getCodepointNumber(cp)),
           });
         });
 
@@ -256,7 +266,7 @@ class SMuFLFontViewer {
             const cpData = {
               series: "codepoint",
               value: cp,
-              name: cp,
+              name: cp + ": " + String.fromCodePoint(getCodepointNumber(cp)),
             };
             $codepointSelect_selectize.addOption(cpData);
             return cpData;
