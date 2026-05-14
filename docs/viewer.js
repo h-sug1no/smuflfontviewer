@@ -236,6 +236,7 @@ class SMuFLFontViewer {
           });
 
           const $codepointSelect_selectize = $codepointSelect[0].selectize;
+          $codepointSelect_selectize.$wrapper.addClass("codepointSelect_selectize");
           $codepointSelect_selectize.onType = function (str, keepOptions) {
             str = str.toUpperCase();
             if (str.match(/^[A-F0-9]+$/)) {
@@ -2785,7 +2786,7 @@ class SMuFLFontViewer {
         // eslint-disable-next-line no-undef
         const tGlyph =
           smuFLFontViewer.sMuFLMetadata.getFontInfo().glyphsByUCodepoint[
-            uCodepoint
+          uCodepoint
           ];
         if (tGlyph && tGlyph.isOptionalGlyph) {
           tRange = {
