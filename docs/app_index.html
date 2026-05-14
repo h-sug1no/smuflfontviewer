@@ -326,6 +326,9 @@
 
       addDemolistItem('rism-digital/verovio:fonts/Gootville + w3c/smufl',
         _create_Gootville_options());
+
+      var evt = new Event("change", { "bubbles": true, "cancelable": true });
+      demolistElm.dispatchEvent(evt);
     })();
   </script>
 </body>
