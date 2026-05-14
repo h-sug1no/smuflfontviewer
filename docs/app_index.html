@@ -243,6 +243,21 @@
         _create_Leland_options('LelandText', 'leland_metadata'));
 
       addDemolistSeparetorItem();
+      function _create_MuseJazz_options(otf, metadata) {
+        return _createDemolistOptions(
+          'https://raw.githubusercontent.com/musescore/MuseScore/refs/heads/master/fonts/musejazz/',
+          'https://raw.githubusercontent.com/w3c/smufl/gh-pages/metadata',
+          `/${otf}.otf`, `/${metadata}.json`
+        );
+      }
+
+      addDemolistItem('MuseScoreFonts/MuseJazz/main(MuseJazz) + w3c/smufl',
+        _create_MuseJazz_options('MuseJazz', 'metadata'));
+
+      addDemolistItem('MuseScoreFonts/MuseJazz/main(MuseJazzText) + w3c/smufl',
+        _create_MuseJazz_options('MuseJazzText', 'metadata'));
+
+      addDemolistSeparetorItem();
       function _create_Sebastian_options() {
         return _createDemolistOptions(
           'https://raw.githubusercontent.com/fkretlow/sebastian/refs/heads/master/fonts',
