@@ -138,6 +138,11 @@
         demolistElm.appendChild(optionElm);
       }
 
+      function addDemolistSeparetorItem() {
+        var optionElm = document.createElement('hr');
+        demolistElm.appendChild(optionElm);
+      }
+
       function _createDemolistOptions(lFontBasePath, lMetadataBasePath, optFontPath, optFontMetadataPath, settings) {
         return {
           fontUrl: lFontBasePath + optFontPath,
@@ -174,6 +179,8 @@
         addDemolistItem('local BravuraText(debug)',
           _create_demo_bravura_options('BravuraText'));
 
+        addDemolistSeparetorItem();
+
         function _create_demo_petaluma_options(woff) {
           return _createDemolistOptions(
             './packages/petaluma/redist',
@@ -203,6 +210,8 @@
       addDemolistItem('steinbergmedia/bravura/master(BravuraText) + w3c/smufl',
         _create_bravura_options('BravuraText'));
 
+      addDemolistSeparetorItem();
+
       function _create_petaluma_options(woff) {
         return _createDemolistOptions(
           'https://raw.githubusercontent.com/steinbergmedia/petaluma/master/redist',
@@ -216,6 +225,8 @@
         _create_petaluma_options('Petaluma'));
       addDemolistItem('steinbergmedia/petaluma/master(PetalumaText) + w3c/smufl',
         _create_petaluma_options('PetalumaText'));
+
+      addDemolistSeparetorItem();
 
       function _create_Leland_options(otf, metadata) {
         return _createDemolistOptions(
@@ -231,8 +242,41 @@
       addDemolistItem('MuseScoreFonts/Leland/main(LelandText) + w3c/smufl',
         _create_Leland_options('LelandText', 'leland_metadata'));
 
-      var evt = new Event("change", { "bubbles": true, "cancelable": true });
-      demolistElm.dispatchEvent(evt);
+      addDemolistSeparetorItem();
+      function _create_Sebastian_options() {
+        return _createDemolistOptions(
+          'https://raw.githubusercontent.com/fkretlow/sebastian/refs/heads/master/fonts',
+          'https://raw.githubusercontent.com/w3c/smufl/gh-pages/metadata',
+          '/Sebastian.otf', '/Sebastian.json'
+        );
+      }
+
+      addDemolistItem('fkretlow/sebastian + w3c/smufl',
+        _create_Sebastian_options());
+
+      function _create_Leipzig_options() {
+        return _createDemolistOptions(
+          'https://raw.githubusercontent.com/rism-digital/verovio/refs/heads/master/fonts/Leipzig',
+          'https://raw.githubusercontent.com/w3c/smufl/gh-pages/metadata',
+          '/Leipzig.woff2', '/leipzig_metadata.json'
+        );
+      }
+
+      addDemolistSeparetorItem();
+
+      addDemolistItem('rism-digital/verovio:fonts/Leipzig + w3c/smufl',
+        _create_Leipzig_options());
+
+      function _create_Gootville_options() {
+        return _createDemolistOptions(
+          'https://raw.githubusercontent.com/rism-digital/verovio/refs/heads/master/fonts/Gootville',
+          'https://raw.githubusercontent.com/w3c/smufl/gh-pages/metadata',
+          '/Gootville.otf', '/gootville_metadata.json'
+        );
+      }
+
+      addDemolistItem('rism-digital/verovio:fonts/Gootville + w3c/smufl',
+        _create_Gootville_options());
     })();
   </script>
 </body>
