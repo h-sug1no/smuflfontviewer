@@ -342,6 +342,16 @@
           '/Legato.otf', '/legato_metadata.json'
         ));
 
+
+      addDemolistSeparetorItem();
+      addDemolistItem('mikkopatama/eugenefont + w3c/smufl',
+        _createDemolistOptions(
+          'https://raw.githubusercontent.com/mikkopatama/eugenefont/refs/heads/main',
+          'https://raw.githubusercontent.com/w3c/smufl/gh-pages/metadata',
+          '/Eugene.otf', '/Eugene.json'
+        ));
+
+
       //////////////////////////////////////////////////////////////////////
       var evt = new Event("change", { "bubbles": true, "cancelable": true });
       demolistElm.dispatchEvent(evt);
