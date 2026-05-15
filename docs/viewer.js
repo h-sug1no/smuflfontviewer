@@ -133,7 +133,7 @@ class SMuFLFontViewer {
 
       const smuflFontFace = new FontFace(
         "SMuFLFont",
-        `url(${fontFace.fontUrl})`
+        `url(${encodeURI(fontFace.fontUrl)})`
       );
 
       smuflFontFace

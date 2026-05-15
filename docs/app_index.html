@@ -245,7 +245,7 @@
       addDemolistSeparetorItem();
       function _create_MuseJazz_options(otf, metadata) {
         return _createDemolistOptions(
-          'https://raw.githubusercontent.com/musescore/MuseScore/refs/heads/master/fonts/musejazz/',
+          'https://raw.githubusercontent.com/musescore/MuseScore/refs/heads/master/fonts/musejazz',
           'https://raw.githubusercontent.com/w3c/smufl/gh-pages/metadata',
           `/${otf}.otf`, `/${metadata}.json`
         );
@@ -326,6 +326,14 @@
 
       addDemolistItem('rism-digital/verovio:fonts/Gootville + w3c/smufl',
         _create_Gootville_options());
+
+      addDemolistSeparetorItem();
+      addDemolistItem('benwiggy/GoldenAge + w3c/smufl',
+        _createDemolistOptions(
+          'https://raw.githubusercontent.com/benwiggy/GoldenAge/refs/heads/main/fonts',
+          'https://raw.githubusercontent.com/w3c/smufl/gh-pages/metadata',
+          '/Golden Age.otf', '/Golden Age.json'
+        ));
 
       var evt = new Event("change", { "bubbles": true, "cancelable": true });
       demolistElm.dispatchEvent(evt);
