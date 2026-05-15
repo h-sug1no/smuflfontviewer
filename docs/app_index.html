@@ -352,6 +352,15 @@
         ));
 
 
+
+      addDemolistSeparetorItem();
+      addDemolistItem('diedeno/OS-SMuFL-Fonts/:Chardonnay + w3c/smufl',
+        _createDemolistOptions(
+          'https://raw.githubusercontent.com/diedeno/OS-SMuFL-Fonts/refs/heads/main/Chardonnay',
+          'https://raw.githubusercontent.com/w3c/smufl/gh-pages/metadata',
+          '/Chardonnay.otf', '/chardonnay_metadata.json'
+        ));
+
       //////////////////////////////////////////////////////////////////////
       var evt = new Event("change", { "bubbles": true, "cancelable": true });
       demolistElm.dispatchEvent(evt);
