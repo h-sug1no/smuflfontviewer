@@ -334,7 +334,15 @@
           'https://raw.githubusercontent.com/w3c/smufl/gh-pages/metadata',
           '/Golden Age.otf', '/Golden Age.json'
         ));
+      addDemolistSeparetorItem();
+      addDemolistItem('eNote-GmbH/Legato + w3c/smufl',
+        _createDemolistOptions(
+          'https://raw.githubusercontent.com/eNote-GmbH/Legato/refs/heads/main',
+          'https://raw.githubusercontent.com/w3c/smufl/gh-pages/metadata',
+          '/Legato.otf', '/legato_metadata.json'
+        ));
 
+      //////////////////////////////////////////////////////////////////////
       var evt = new Event("change", { "bubbles": true, "cancelable": true });
       demolistElm.dispatchEvent(evt);
     })();
