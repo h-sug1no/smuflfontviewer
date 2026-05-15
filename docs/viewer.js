@@ -133,7 +133,7 @@ class SMuFLFontViewer {
 
       const smuflFontFace = new FontFace(
         "SMuFLFont",
-        `url(${fontFace.fontUrl})`
+        `url(${encodeURI(fontFace.fontUrl)})`
       );
 
       smuflFontFace
@@ -145,9 +145,8 @@ class SMuFLFontViewer {
           if (fontUrlItems.length < 1) {
             fontUrlItems = ["?"];
           }
-          document.title = `${fontUrlItems[fontUrlItems.length - 1]}: ${
-            document.title
-          }`;
+          document.title = `${fontUrlItems[fontUrlItems.length - 1]}: ${document.title
+            }`;
           window.setTimeout(function () {
             that._handle_onResourceReady("smuflFontFace");
           });
@@ -182,12 +181,8 @@ class SMuFLFontViewer {
           soptions.push({
             series: "glyphnames",
             value: cp,
-            name:
-              cp +
-              ": " +
-              gname +
-              ": " +
-              String.fromCodePoint(getCodepointNumber(cp)),
+            gname,
+            cpStr: String.fromCodePoint(getCodepointNumber(cp)),
           });
         });
 
@@ -204,8 +199,16 @@ class SMuFLFontViewer {
               gname +
               ": " +
               String.fromCodePoint(getCodepointNumber(cp)),
+            gname,
+            cpStr: String.fromCodePoint(getCodepointNumber(cp)),
           });
         });
+
+        function renderCustomItem(data, escape) {
+          return '<div class="custom-item">' +
+            `${data.value}:${data.gname}:<span class="cpStr">${data.cpStr}</span>` +
+            '</div>';
+        }
 
         const initCpSelect = ($codepointSelect, onChangeCB, onBlurCB) => {
           $codepointSelect.selectize({
@@ -231,11 +234,20 @@ class SMuFLFontViewer {
             onBlur: function () {
               onBlurCB($codepointSelect_selectize);
             },
-            //openOnFocus: false,
-            //plugins: ['optgroup_columns']
+            render: {
+              //openOnFocus: false,
+              //plugins: ['optgroup_columns']
+              item: function (data, escape) {
+                return renderCustomItem(data, escape);
+              },
+              option: function (data, escape) {
+                return renderCustomItem(data, escape);
+              },
+            }
           });
 
           const $codepointSelect_selectize = $codepointSelect[0].selectize;
+          $codepointSelect_selectize.$wrapper.addClass("codepointSelect_selectize");
           $codepointSelect_selectize.onType = function (str, keepOptions) {
             str = str.toUpperCase();
             if (str.match(/^[A-F0-9]+$/)) {
@@ -267,6 +279,8 @@ class SMuFLFontViewer {
               series: "codepoint",
               value: cp,
               name: cp + ": " + String.fromCodePoint(getCodepointNumber(cp)),
+              gname: '?',
+              cpStr: String.fromCodePoint(getCodepointNumber(cp)),
             };
             $codepointSelect_selectize.addOption(cpData);
             return cpData;
@@ -668,12 +682,12 @@ class SMuFLFontViewer {
     function _resetScPosition() {
       $("#smuflGlyphCanvasContainer").scrollTop(
         $("#smuflGlyphCanvasContainer").prop("scrollHeight") * 0.5 -
-          $("#smuflGlyphCanvasContainer").innerHeight() * 0.5
+        $("#smuflGlyphCanvasContainer").innerHeight() * 0.5
       );
 
       $("#smuflGlyphCanvasContainer").scrollLeft(
         $("#smuflGlyphCanvasContainer").prop("scrollWidth") * 0.5 -
-          $("#smuflGlyphCanvasContainer").width() * 0.5
+        $("#smuflGlyphCanvasContainer").width() * 0.5
       );
     }
 
@@ -908,8 +922,7 @@ class SMuFLFontViewer {
         ? `<span class="uCodepoint">(${uCodepoint})</span> `
         : "";
       const $t = $(
-        `${$uCodepoint}<span class="smuflGlyphname">${
-          glyphname || "?"
+        `${$uCodepoint}<span class="smuflGlyphname">${glyphname || "?"
         }:<span class="smufl">${charStr}</span></span>`
       );
       if (option.isOptionalGlyph) {
@@ -1350,7 +1363,7 @@ class SMuFLFontViewer {
                 ev.preventDefault();
                 $ssOptionsGlyphSize.val(
                   Number($ssOptionsGlyphSize.val()) -
-                    (ev.originalEvent.deltaY < 0 ? -1 : 1) * 20
+                  (ev.originalEvent.deltaY < 0 ? -1 : 1) * 20
                 );
                 $ssOptionsGlyphSize.trigger("input");
               });
@@ -1638,7 +1651,7 @@ class SMuFLFontViewer {
             "class",
             sMuFLMetadata.getFontInfo().computedClasses.classes,
             //addItemFunc
-            (/*$itemContainer, item*/) => {},
+            (/*$itemContainer, item*/) => { },
             // getGlyphsFunc
             (item) => {
               return item;
@@ -2785,7 +2798,7 @@ class SMuFLFontViewer {
         // eslint-disable-next-line no-undef
         const tGlyph =
           smuFLFontViewer.sMuFLMetadata.getFontInfo().glyphsByUCodepoint[
-            uCodepoint
+          uCodepoint
           ];
         if (tGlyph && tGlyph.isOptionalGlyph) {
           tRange = {
